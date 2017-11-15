@@ -1,20 +1,24 @@
 # bladeScripts
 
 ## ROM Tools
-ROM Process pipeline
-oneHitter
-autoColour
-skelBuild (_wip_)
++ ROM Process pipeline
++ oneHitter
++ autoColour
++ skelBuild (_wip_)
++ RH VST
 
 ## Stage Tools
-sideKick
++ sideKick
++ calMan
++ maskRescue
 
 ## Solver Tools
-selection and drawing toggles
++ selection and drawing toggles
 
 ## Post Tools
-body Navigator
++ body Navigator
++ helpers
 
 ## Giant Tools
-BMO2VSK (_wip_)
++ BMO2VSK (_wip_)
 
