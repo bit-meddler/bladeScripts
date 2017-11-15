@@ -1,0 +1,44 @@
+/*
+ * Range Helper
+ *
+ * set in and out point based on playhead
+ */
+string $mode ;
+input  $mode "in" -discrete "in" "out" "select" "remove" ;
+
+int $frame = `getTime` ;
+
+if( $mode=="in" ){
+	setGlobalVar "__GLOBAL_IN__" $frame ;
+	return ;
+} else if( $mode=="out" ){
+	setGlobalVar "__GLOBAL_OUT__" $frame ;
+	return ;
+}
+// adding or removing.  Need an IN and an OUT
+boolean $test ;
+int $inF, $outF ;
+$test = `getGlobalVarExists "__GLOBAL_IN__"` ;
+if( $test ){
+	$inF = `getGlobalIntVar  "__GLOBAL_IN__"` ;
+} else {
+	return ;
+}
+
+$test = `getGlobalVarExists "__GLOBAL_OUT__"` ;
+if( $test ){
+	$outF = `getGlobalIntVar  "__GLOBAL_OUT__"` ;
+} else {
+	return ;
+}
+
+if( $outF < $inF ){
+	print "In is after Out!" ;
+	return ;
+}
+	
+if( $mode=="select" ){
+	selectRange $inF $outF -a ;
+} else if( $mode=="remove" ){
+	selectRange $inF $outF -r ;
+}
