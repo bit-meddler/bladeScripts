@@ -1,0 +1,26 @@
+/* get File's Path, Name & extention
+ *
+ * Using the Open "Take", try to determine it's path, guess it's file name as either scene or clip name
+ *
+ */
+int		$count		;
+string	$temp 		,
+			$file_loc	,
+			$take_name	;
+string	$res[] = [[ "CLIP", "SCENE", "NAME", "PATH" ]] ;
+
+// get take data
+$temp = `getEclipseActiveTrial` ;
+$file_loc  = `getFileLocation $temp` ;
+$res[0] = $file_loc ;
+$res[1] = `getFileTitle $temp` ;
+$res[2] = `getSceneName` ;
+
+// guess origenal take name
+$temp = `getActiveClip` ;
+$count = `strLength $temp` ;
+$count -= 4 ; // trim "_x2d" from clip name.
+$res[3] = `strLeft $temp $count` ;
+
+// return the results
+return $res ;

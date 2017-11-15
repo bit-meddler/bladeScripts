@@ -1,0 +1,13 @@
+// Ready to Mask
+viewLayout -current capture;
+captureView -tileMode on;
+setProperty "Strobe_Intensity" 1.000000 -all -type OpticalCamera;
+captureView -showThresholdMaps on;
+setProperty "Show_2D_Tracks" false -all -type OpticalCamera;
+setProperty Grayscale_Mode "Automatic" -all -type OpticalCamera;
+setProperty "Draw_Camera_Rays" false -all -type OpticalCamera;
+setProperty "Draw_Frustum" false -all -type OpticalCamera;
+setRtProcessingLevel "Circle Fit";
+captureView -showCentroidCount true;
+captureView -showMarkers false;
+captureView -zoomToFit;

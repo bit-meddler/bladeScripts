@@ -1,0 +1,61 @@
+/* get File's ENF & slot
+ *
+ * Using the Open "Take", try to determine it's ENF.  When a File has been renamed (EG "161031_BorisC_BodyROM_01_RHwip02")
+ * there will not be an ENF to match it's name, but the origenal take name is preserved as the 'active clip' - this does
+ * assume, nobody is doing anything mental in the clips!
+ *
+ * If this is a derived file, then the will be an 'ini section' with the new name, into which file specific metadata can go.
+ * returns [["path","ENF Search Pattern","SECTION_NAME"]]
+ */
+int		$count		,
+			$index		;
+string	$temp 		,
+			$file_loc	,
+			$take_name	,
+			$pattern    ;
+string	$res[] = [[ "TRIAL_INFO", "B", "A" ]] ; // Default to 'TRIAL_INFO' for a samely named take
+
+// get take data
+$temp = `getEclipseActiveTrial` ;
+$file_loc = `getFileLocation $temp` ;
+$temp = `getSceneName` ;
+$res[0] = $file_loc ;
+
+// guess origenal take name
+$take_name = `getActiveClip` ;
+$count = `strLength $take_name` ;
+$count -= 4 ; // trim "_x2d" from clip name.
+$take_name = `strLeft $take_name $count` ;
+
+$index = `strFind $take_name "_" 0` ;
+while( $index==0 ) {
+	// eat ALL leading _s, we start the glob with a *, so any desired _s
+	// will comee back
+	$count = `strLength $take_name` ;
+	$count -= 1 ; // remove first char
+	$take_name = `strRight $take_name $count` ;
+	$index = `strFind $take_name "_" 0` ;
+}
+
+
+// develop search pattern for ENF
+$pattern = "*" + $take_name + "*.enf" ;
+$res[1] = $pattern ;
+print $res ;
+
+// test for empty Scene Name
+$count = `strLength $temp` ;
+if ($count <=0) {
+	// return the results - keeping default
+	return $res ;
+}
+
+// determine section
+$count = `strCompare -noCase $take_name $temp` ;
+if ( $count < 0 ) {
+	// not the same!
+	$res[2] = $temp ;
+}
+print $res ;
+// return the results
+return $res ;

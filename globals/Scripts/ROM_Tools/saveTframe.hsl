@@ -1,0 +1,30 @@
+/*
+ * Save T-Pose frame
+ *
+ * Store Current Frame to the trial's ENF.  Mainly for ROMs
+ *
+ */
+int		$frame		;
+string	$temp 		,
+			$file_loc	,
+		   $pattern	   ,
+		   $section    ,
+			$enf_list[]	;
+
+// Find the ENF for current Take
+$enf_list = `getFileENFslot` ;
+$file_loc = $enf_list[0] ;
+$pattern  = $enf_list[1] ;
+$section  = $enf_list[2] ;
+
+$enf_list = `getFileList $file_loc -pattern $pattern`;
+
+if(`getCount $enf_list` == 0) {
+	print "ERROR in 'saveTframe': no ENF found" ;
+	return ;
+}
+
+$frame = `getTime` ;
+$temp = string( $frame ) ;
+print ( "Storing current frame (" + string( $frame ) + ") as the t-pose in the Take's Metadata" ) ;
+writeProfileString $section "T-FRAME" $temp -file $enf_list[0];

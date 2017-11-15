@@ -1,0 +1,18 @@
+string $tcInOut = "04:44:28:08.0 04:45:25:01.0" ;
+
+
+
+string $toks[] ;
+$toks = `strTokArray $tcInOut -delims " "` ;
+string $part ;
+int $res ;
+
+$part = `strLeft $toks[0] 11` ;
+$res = `smpteToFrame $part` ;
+$res -= 100 ;
+playRange $res -start;
+
+$part = `strLeft $toks[1] 11` ;
+$res = `smpteToFrame $part` ;
+$res += 100 ;
+playRange $res -end;

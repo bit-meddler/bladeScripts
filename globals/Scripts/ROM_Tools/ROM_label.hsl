@@ -1,0 +1,5 @@
+loadTframe ;
+selectByType Character ;
+selectByName "UncalibratedLabelingCluster_*" -r ;
+tPoseLabel ;
+print "Now check for swaps!!" ;

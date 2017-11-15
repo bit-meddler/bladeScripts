@@ -1,0 +1,44 @@
+/*
+ * Load B-Pose frame
+ *
+ * Retreive the Base Pose Frame from the trial's ENF.  Mainly for ROMs
+ *
+ */
+int		$frame		;
+string	$temp 		,
+		   $file_loc	,
+		   $pattern	   ,
+		   $section    ,
+			$enf_list[]	;
+
+// Find the ENF for current Take
+$enf_list = `getFileENFslot` ;
+$file_loc = $enf_list[0] ;
+$pattern  = $enf_list[1] ;
+$section  = $enf_list[2] ;
+
+$enf_list = `getFileList $file_loc -pattern $pattern`;
+
+if(`getCount $enf_list` == 0) {
+	print -warning "loadBframe: no ENF found" ;
+	return -1 ;
+}
+
+// Load the frame from the ENF, if no frame found, retort and default to '1'
+$temp = `getProfileString $section "B-FRAME" "-1" -file $enf_list[0]` ;
+$frame = int( $temp ) ;
+
+if( $frame < 0 ) {
+	// try falling back to the 'default' section...
+	$temp = `getProfileString "TRIAL_INFO" "T-FRAME" "-1" -file $enf_list[0]` ;
+	$frame = int( $temp ) ;
+}
+
+if( $frame < 0 ) {
+	print -warning "loadBframe: No frame to restore" ;
+	return -1 ;
+}
+
+print ( "Restoring Take's B-Pose frame (" + string( $frame ) + ")" ) ;
+setTime( $frame ) ;
+return $frame ;

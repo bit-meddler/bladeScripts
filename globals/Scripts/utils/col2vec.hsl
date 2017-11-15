@@ -1,0 +1,37 @@
+/*
+ * From the name of a colour, get a vector of the colour
+ */
+string 	$colour;
+input 	$colour "__DEFAULT__" ;
+
+vector $col= << 0, 128, 255 >> ; // default is Vicon blue
+
+if( $colour == "__DEFAULT__" ){
+	return $col ;
+}
+
+string $temp = `LowerCase $colour` ;
+print $temp ;
+
+if ( $temp == "yellow" ) {
+	$col = << 255, 192, 0 >> ;
+} else if ( $temp == "pink" ) {
+	$col = << 255, 0, 255 >> ;
+} else if ( $temp == "blue" ) {
+	$col = << 0, 128, 255 >> ;
+} else if ( $temp == "white" ) {
+	$col = << 160, 160, 164 >> ;
+} else if ( $temp == "teal" ) {
+	$col = << 0, 128, 128 >> ;
+} else if ( $temp == "red" ) {
+	$col = << 255, 0, 0 >> ;
+} else if ( $temp == "orange" ) {
+	$col = << 255, 12,80 >> ;
+} else if ( $temp == "black" ) {
+	$col = << 90, 90, 90 >> ;
+} else if ( $temp == "green" ) {
+	$col = << 48, 208, 48 >> ;
+}
+
+print $col ;
+return $col ;

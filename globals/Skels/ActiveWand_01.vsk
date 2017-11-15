@@ -1,0 +1,24 @@
+<?xml version="1.0" standalone="yes"?>
+<KinematicModel VERSION="1.0">
+	<Parameters/>
+	<Skeleton>
+		<Segment NAME="Root" POSITION="0 0 0" RGB="255 255 255">
+			<JointFree/>
+		</Segment>
+	</Skeleton>
+	<MarkerSet NAME="">
+		<Markers>
+			<Marker NAME="MarkerA" SEGMENT="Root" RGB="255 255 255" POSITION="169 25 -9" COVARIANCE="50 0 0 0 50 0 0 0 50" RADIUS="7"/>
+			<Marker NAME="MarkerB" SEGMENT="Root" RGB="255 255 255" POSITION="9 25 -9" COVARIANCE="50 0 0 0 50 0 0 0 50" RADIUS="7"/>
+			<Marker NAME="MarkerC" SEGMENT="Root" RGB="255 255 255" POSITION="-71 25 -9" COVARIANCE="50 0 0 0 50 0 0 0 50" RADIUS="7"/>
+			<Marker NAME="MarkerD" SEGMENT="Root" RGB="255 255 255" POSITION="9 25 -129" COVARIANCE="50 0 0 0 50 0 0 0 50" RADIUS="7"/>
+			<Marker NAME="MarkerE" SEGMENT="Root" RGB="255 255 255" POSITION="9 25 -249" COVARIANCE="50 0 0 0 50 0 0 0 50" RADIUS="7"/>
+		</Markers>
+		<Sticks>
+			<Stick MARKER1="MarkerA" MARKER2="MarkerB" RGB="192 192 192"/>
+			<Stick MARKER1="MarkerB" MARKER2="MarkerC" RGB="192 192 192"/>
+			<Stick MARKER1="MarkerB" MARKER2="MarkerD" RGB="192 192 192"/>
+			<Stick MARKER1="MarkerD" MARKER2="MarkerE" RGB="192 192 192"/>
+		</Sticks>
+	</MarkerSet>
+</KinematicModel>

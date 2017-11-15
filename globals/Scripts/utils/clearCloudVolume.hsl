@@ -1,0 +1,5 @@
+// clear Cloud Volume Markers
+select ;
+selectByName "MarkCloudVolume_*" ;
+DeleteSelected ;
+select ;

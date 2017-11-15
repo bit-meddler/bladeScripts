@@ -1,0 +1,26 @@
+/* save subject data
+ *
+ * TODO: Auto deposit VSK/VSS into AM, PM directories.  Alternativly create filesystem level refferences?
+ */
+
+selectByType Character ;
+string $temp[] = `getModules -selected` ;
+int $count = `getCount $temp` ;
+if ( $count > 1 ) {
+	print -warning "Can only auto save if there is a single Subject in the scene - optimized for Body ROMs" ;
+	return ;
+}
+// OK to auto-save
+string $file_data[] = `getFilePathName` ;
+string $save_path ;
+string $subject = $temp[0] ;
+
+// save labeller
+$save_path = ( $file_data[0] + $subject + ".vsk" ) ;
+select $subject ;
+saveFile -s $save_path ;
+
+// save solver
+select $subject ;
+$save_path = ( $file_data[0] + $subject + ".vss" ) ;
+saveFile -s $save_path ;

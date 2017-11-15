@@ -1,0 +1,15 @@
+/* open Take Session
+ *
+ * Open the current take's session in an explorer window.
+ */
+
+string $temp = `getEclipseActiveTrial` ;
+print $temp ;
+// Fix OS pathing
+string $take_path = `strReplace $temp "/" "\\"` ;
+// remove LHS, so it's just a path.
+int $idx = `strReverseFind $take_path "\\"` ;
+$temp = `strLeft $take_path $idx` ;
+// launch explorer at this path
+$take_path = "explorer.exe \"" + $temp + "\"" ;
+system $take_path -async ;

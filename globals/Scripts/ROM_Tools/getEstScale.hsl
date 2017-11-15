@@ -1,0 +1,63 @@
+/* get Estimate Scale of Subject
+ *
+ * User must select markers to compute, you can pick a Pose as we build data.
+ */
+
+// Input
+string $poseType ;
+input $poseType "T-Pose" -discrete "T-Pose" "Base-Pose" -description "Pose we're measuring." ;
+// determine Pose's 'VOLUME_FACTOR'
+float $VOLUME_FACTOR ;
+if ( $poseType == "T-Pose" ) {
+	$VOLUME_FACTOR = 2500.00 ;
+} else if ( $poseType == "Base-Pose" ) {
+	$VOLUME_FACTOR = 666.00 ;
+	print -warning "Insufficent data in the Base Pose exists" ;
+	return ;
+}
+
+boolean $store ;
+input $store false -description "Store data about this pose / scaling in the ENF?." ;
+
+float 	$ret[] = [[ 0.000, 0.000 ]] ;
+string	$marker_cloud[] = `getModules -selected -type Marker` ;
+int		$num_markers	 = `getCount $marker_cloud` ;
+
+// test
+if ( $num_markers < 2 ) {
+	print -warning "getEstScale: To few markers to compute" ;
+	return ;
+}
+
+// make helpers
+markCloudVolume ;
+
+// Compute
+float $distance = `getDistance MarkCloudVolume_xMax_yMax_zMax MarkCloudVolume_xMin_yMin_zMin` ;
+float $scale 	 = $distance / $VOLUME_FACTOR ;
+print ( "Gross Distance: " + string( $distance ) ) ;
+print ( "Scale Factor: " + string( $scale ) ) ;
+$ret[0] = $distance ;
+$ret[1] = $scale ;
+
+// stash
+if ( $store ) {
+	string $temp_list[] = `getFileENFslot` ;
+
+	// Find the ENF for current Take
+	$temp_list = `getFileList $temp_list[0] -pattern $temp_list[1]`;
+
+	// write out data, if we can...
+	if(`getCount $temp_list` == 0) {
+		print "ERROR in 'getEstScale': no ENF found" ;
+	} else {
+		writeProfileString "ROM_INFO" "SCALE_DISTANCE" string($distance) -file $temp_list[0];
+		writeProfileString "ROM_INFO" "SCALE_FACTOR"   string($scale)    -file $temp_list[0];
+		writeProfileString "ROM_INFO" "POSE_TYPE"             $poseType  -file $temp_list[0];
+	}
+}
+// tidyup
+clearCloudVolume ;
+
+// return
+return $ret ;

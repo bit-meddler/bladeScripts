@@ -1,0 +1,113 @@
+/* auto Labeling Skel
+ *
+ * based on elderly "Blade2_4Hitter" script from Ryse - happy days...
+ *
+ * The user selects the marker cloud of a new subject in a correctly named ROM file.
+ * The correct VST is determined based on the marker count (Fingers|noFingers).
+ * The VST is scaled to fit the subject marker cloud, and renamed based on the "clip name"
+ *
+ */
+
+// Consts
+string	$SKEL_PATH = "C://Users//Public//Documents//Vicon//globals//Skels//" ;
+string	$SKEL_BASE = "RH_Blade_v1_" ;
+string	$pose_type = "T-Pose" ; // is this a const?
+string 	$EXT 		  = ".1.hdf" ;
+
+// save pre-VST import backup version
+string $file_data[] = `getFilePathName` ;
+string $save_path = ( $file_data[0] + $file_data[1] + $EXT ) ;
+saveFile $save_path ;
+// restore the Scene Name
+setSceneName $file_data[1] ;
+
+// Store user selected Markers
+string	$marker_cloud[] = `getModules -selected -type Marker` ;
+
+// Determine Subject name form filename
+string	$subject_name,
+			$take_name   ,
+			$skel_type	 ;
+int		$iLeft       , //index left
+			$iRight      , //index right
+			$idx			 ,
+			$len         ;
+
+// Clips sometimes start with an _, so find the text between the datecode and the _ROM
+// eg: 123456_Ben_ROM_02 
+
+$take_name = `getActiveClip` ;
+// find indexs of the 1st and 2nd _ in the string, ignoring 1st char as some versions
+// of Blade would prepend an extra _
+$iLeft = `strFind $take_name "_" 1` ;
+$iLeft +=1 ;
+$iRight = `strFind $take_name "_" $iLeft` ;
+$len = ($iRight - $iLeft ) ;
+
+// the Subject Name is the slice between these _ delimiters
+$subject_name = `strMid $take_name $iLeft $len` ;
+print ( "Building Skeleton for: " + $subject_name ) ;
+
+// Inspect the Marker Cloud, ommiting Plate markers from further processes...
+select ;
+select $marker_cloud ;
+selectByName "LCM_*" -r ;
+$marker_cloud = `getModules -selected -type Marker` ;
+$len = getCount( $marker_cloud ) ;
+print ( "Num Mkrs: " + string( $len ) ) ;
+
+// Finger detection
+$skel_type = "noFingers" ; // default to noFingers
+if( $len >= 57 ) { // Blade 3fingers
+	$skel_type = "3fingers" ;
+} else if( $len >= 51 ) { // Blade noFingers
+	$skel_type = "noFingers" ;
+} else { // Blade Active Markers
+	$skel_type = "active_v1" ;
+} // detect Fingers
+
+// load correct VST - works best on the T-Frame
+loadTframe ;
+loadFile -importType "curClipCreateNew" string( $SKEL_PATH + $SKEL_BASE + $skel_type + ".vst" ) ;
+
+// Set Template to correct Subject Name
+setProperty "Name" $subject_name -onMod string( $SKEL_BASE + $skel_type ) ;
+
+// More View options
+labViz -view "true" -detail "high" ;
+cameraView -contributionMode false ;
+
+// Scale Skel - This is still the best way to get a VST that T-Pose labels reliably
+// Proven working with Arti Shah (~1.3m) & Neil Fingleton (7'8" ~2.4m)
+print ( "Scaling " + $skel_type + " VST for subject '" + $subject_name + "'" ) ;
+
+// Determine Scale Factor...
+float $scale_data[] = `getEstScale -poseType $pose_type -store true` ;
+
+// Loop through the parameters and multiply by Scale Factor
+select $subject_name ;
+string $temp_list[] = `getParameters` ;
+$len = `getCount $temp_list` ;
+
+float $param ;
+for( $idx = 0; $idx < $len; $idx +=1 ) {
+	$param = `getParameter $temp_list[ $idx ]` ;
+	$param = $param * $scale_data[1] ;
+	setParameter $temp_list[ $idx ] $param ;
+}
+
+//Snap the VST Markers to the constraints
+selectByType Marker ;
+selectChildren Unlabeled_Markers -r ;
+snapToConstraint -defaultValue ;
+select ;
+
+// select correct subject
+labelOptions -curChar $subject_name ;
+select $subject_name ;
+tPoseLabelOptions -currentFrameOnly false ;
+tPoseLabelOptions -autoLabel true ;
+labelOptions -autoVelocity off ;
+
+loadTframe ;
+print "AutoVSK complete, ready to T-Pose Label." ;

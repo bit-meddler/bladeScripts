@@ -1,0 +1,138 @@
+/* clean Vicon Solver
+ *
+ * Using the config in the 'Solving setup Options' roll-out, create a 'Vicon Production Solver' for a selected charactor.
+ * Determine the Colour Code from the "Description" section in the Metadata, or default to Vicon Blue (0088FF).
+ * Correct the disguesting 'Head', and reset the hands and feet to something a little less shit.
+ * 
+ */
+// save pre-solver backup version
+string $EXT = ".3.hdf" ;
+string $file_data[] = `getFilePathName` ;
+string $save_path = ( $file_data[0] + $file_data[1] + $EXT ) ;
+saveFile $save_path ;
+// restore the Scene Name
+setSceneName $file_data[1] ;
+
+// Determine Charactor
+select ;
+string $char_name ;
+string $chars[] = `getModules -type Character` ;
+int $count = `getCount $chars` ;
+if ( $count > 0 ) {
+	if ( $count > 1 ) {
+		print -warning "Can't automate this for loads of actors" ;
+		return ;
+	}
+	// OK just one subject in the scene
+	$char_name = $chars[0] ;
+} else {
+	print -warning "Couldn't find a character in this scene" ;
+	return ;
+}
+print ( "Creating a Solver for '" + $char_name + "'" ) ;
+
+// Determine Colour
+vector $col = `getActorColour` ;
+createSolvingSetupOptions -boneColor $col ;
+
+// Go to Basepose (if no B found, it autofails to T)
+loadBframe ;
+
+// Create Solver
+select ;
+select $char_name ;
+
+// set solver Paramiters
+createSolvingSetupOptions -boneNamingScheme "MotionBuilder";
+createSolvingSetupOptions -fingerSetupType "None";
+createSolvingSetupOptions -lowerArmRollBone true;
+createSolvingSetupOptions -upperArmRollBone false;
+createSolvingSetupOptions -lowerLegRollBone false;
+createSolvingSetupOptions -upperLegRollBone false;
+createSolvingSetupOptions -useLabelingSkeletonAsGuide true;
+
+createSolvingSetup ;
+
+// clean up the shitness
+print ( "Cleaning up '" + $char_name + "'" ) ;
+
+// Uhg, fix that head!!
+setProperty "Geometry_Style" "Tetra-Stripe" -onMod string($char_name + "\\Solving\\Hips\\Spine\\Spine1\\Spine2\\Spine3\\Neck\\Head" ) ;
+
+//right finger
+setProperty "Geometry_Style" "Tetra-Stripe" -onMod string($char_name + "\\Solving\\Hips\\Spine\\Spine1\\Spine2\\Spine3\\RightShoulder\\RightArm\\RightForeArm\\RightForeArmRoll\\RightHand\\RightHandEnd" ) ;
+setProperty "Geometry_Width" 1.000000 -onMod string($char_name + "\\Solving\\Hips\\Spine\\Spine1\\Spine2\\Spine3\\RightShoulder\\RightArm\\RightForeArm\\RightForeArmRoll\\RightHand\\RightHandEnd" ) ;
+setProperty "Geometry_Height" 1.000000 -onMod string($char_name + "\\Solving\\Hips\\Spine\\Spine1\\Spine2\\Spine3\\RightShoulder\\RightArm\\RightForeArm\\RightForeArmRoll\\RightHand\\RightHandEnd" ) ;
+setProperty "Geometry_Twist" 90.000000 -onMod string($char_name + "\\Solving\\Hips\\Spine\\Spine1\\Spine2\\Spine3\\RightShoulder\\RightArm\\RightForeArm\\RightForeArmRoll\\RightHand\\RightHandEnd" ) ;
+
+//left finger
+setProperty "Geometry_Style" "Tetra-Stripe" -onMod string($char_name + "\\Solving\\Hips\\Spine\\Spine1\\Spine2\\Spine3\\LeftShoulder\\LeftArm\\LeftForeArm\\LeftForeArmRoll\\LeftHand\\LeftHandEnd" ) ;
+setProperty "Geometry_Height" 1.000000 -onMod string($char_name + "\\Solving\\Hips\\Spine\\Spine1\\Spine2\\Spine3\\LeftShoulder\\LeftArm\\LeftForeArm\\LeftForeArmRoll\\LeftHand\\LeftHandEnd" ) ;
+setProperty "Geometry_Width" 1.000000 -onMod string($char_name + "\\Solving\\Hips\\Spine\\Spine1\\Spine2\\Spine3\\LeftShoulder\\LeftArm\\LeftForeArm\\LeftForeArmRoll\\LeftHand\\LeftHandEnd" ) ;
+setProperty "Geometry_Twist" 90.000000 -onMod string($char_name + "\\Solving\\Hips\\Spine\\Spine1\\Spine2\\Spine3\\LeftShoulder\\LeftArm\\LeftForeArm\\LeftForeArmRoll\\LeftHand\\LeftHandEnd" ) ;
+
+//right foot
+setProperty "Geometry_Style" "Tetra-Stripe" -onMod string($char_name + "\\Solving\\Hips\\RightUpLeg\\RightLeg\\RightFoot" ) ;
+setProperty "Geometry_Width" 1.000000 -onMod string($char_name + "\\Solving\\Hips\\RightUpLeg\\RightLeg\\RightFoot" ) ;
+setProperty "Geometry_Height" 1.000000 -onMod string($char_name + "\\Solving\\Hips\\RightUpLeg\\RightLeg\\RightFoot" ) ;
+setProperty "Geometry_Twist" -90.000000 -onMod string($char_name + "\\Solving\\Hips\\RightUpLeg\\RightLeg\\RightFoot" ) ;
+
+//left foot
+setProperty "Geometry_Style" "Tetra-Stripe" -onMod string($char_name + "\\Solving\\Hips\\LeftUpLeg\\LeftLeg\\LeftFoot" ) ;
+setProperty "Geometry_Width" 1.000000 -onMod string($char_name + "\\Solving\\Hips\\LeftUpLeg\\LeftLeg\\LeftFoot" ) ;
+setProperty "Geometry_Height" 1.000000 -onMod string($char_name + "\\Solving\\Hips\\LeftUpLeg\\LeftLeg\\LeftFoot" ) ;
+setProperty "Geometry_Twist" -90.000000 -onMod string($char_name + "\\Solving\\Hips\\LeftUpLeg\\LeftLeg\\LeftFoot" ) ;
+
+//right toe
+setProperty "Geometry_Style" "Tetra-Stripe" -onMod string($char_name + "\\Solving\\Hips\\RightUpLeg\\RightLeg\\RightFoot\\RightToeBase" ) ;
+setProperty "Geometry_Width" 1.000000 -onMod string($char_name + "\\Solving\\Hips\\RightUpLeg\\RightLeg\\RightFoot\\RightToeBase" ) ;
+setProperty "Geometry_Height" 1.000000 -onMod string($char_name + "\\Solving\\Hips\\RightUpLeg\\RightLeg\\RightFoot\\RightToeBase" ) ;
+setProperty "Geometry_Twist" -90.000000 -onMod string($char_name + "\\Solving\\Hips\\RightUpLeg\\RightLeg\\RightFoot\\RightToeBase" ) ;
+
+//left toe
+setProperty "Geometry_Style" "Tetra-Stripe" -onMod string($char_name + "\\Solving\\Hips\\LeftUpLeg\\LeftLeg\\LeftFoot\\LeftToeBase" ) ;
+setProperty "Geometry_Width" 1.000000 -onMod string($char_name + "\\Solving\\Hips\\LeftUpLeg\\LeftLeg\\LeftFoot\\LeftToeBase" ) ;
+setProperty "Geometry_Height" 1.000000 -onMod string($char_name + "\\Solving\\Hips\\LeftUpLeg\\LeftLeg\\LeftFoot\\LeftToeBase" ) ;
+setProperty "Geometry_Twist" -90.000000 -onMod string($char_name + "\\Solving\\Hips\\LeftUpLeg\\LeftLeg\\LeftFoot\\LeftToeBase" ) ;
+
+// reweight the 'midwaist' constraints to something a bit more sensible
+setKey Weight 1.000000 -onMod string($char_name + "\\Solving\\RMWT_Hips" ) ;
+setKey Weight 1.000000 -onMod string($char_name + "\\Solving\\LMWT_Hips" ) ;
+
+// Set Rotation Orders
+select "Solving" ; // Trust this works
+setPriority ;
+
+setProperty "Rotation_Order" "XZY" -onMod Hips;
+setProperty "Rotation_Order" "XZY" -onMod Spine;
+setProperty "Rotation_Order" "XZY" -onMod Spine1;
+setProperty "Rotation_Order" "XZY" -onMod Spine2;
+setProperty "Rotation_Order" "XZY" -onMod Spine3;
+setProperty "Rotation_Order" "XZY" -onMod Neck;
+setProperty "Rotation_Order" "XZY" -onMod Head;
+
+setProperty "Rotation_Order" "YZX" -onMod LeftUpLeg;
+setProperty "Rotation_Order" "XZY" -onMod LeftFoot;
+setProperty "Rotation_Order" "YZX" -onMod LeftToeBase;
+
+setProperty "Rotation_Order" "YZX" -onMod RightUpLeg;
+setProperty "Rotation_Order" "XZY" -onMod RightFoot;
+setProperty "Rotation_Order" "YZX" -onMod RightToeBase;
+
+setProperty "Rotation_Order" "ZXY" -onMod RightShoulder;
+setProperty "Rotation_Order" "YZX" -onMod RightArm;
+
+setProperty "Rotation_Order" "ZXY" -onMod LeftShoulder;
+setProperty "Rotation_Order" "YZX" -onMod LeftArm;
+
+// Solve ROM with this solver
+select $char_name ;
+solve ;
+
+// Hide Labelling bones & Constraints, show Solving Constraints
+labViz -view "false" ;
+solViz -view "true" ;
+select ;
+
+// Important Message
+print "You need to save out the VSK and VSS" ;

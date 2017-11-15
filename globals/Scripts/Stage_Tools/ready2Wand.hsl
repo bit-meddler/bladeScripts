@@ -1,0 +1,16 @@
+viewLayout -current capture;
+captureView -showSettings on;
+captureView -tileMode on;
+setProperty "Strobe_Intensity" 0.75  -all -type OpticalCamera;
+captureView -show2DTracks off;
+captureView -showCentroidCount on;
+captureView -showFitMethod off;
+captureView -connectLines off;
+captureView -showThresholdMaps off;
+captureView -paintMode off;
+setRtProcessingLevel "Reconstruct";
+setProperty Grayscale_Mode "Automatic" -all -type OpticalCamera;
+calibrationOptions -initialFrames 150;
+calibrationOptions -refinementFrames 1200;
+calibrationOptions -autoStopCalibration false;
+//cameraView -track "none";

@@ -1,0 +1,37 @@
+/* subject Calibration
+ *
+ * save 'pre calibration' version of scene in case things fail.
+ * set Subject calibrator correctly
+ * calibrate
+ */
+
+// save pre-calibraton backup version
+string $EXT = ".2.hdf" ;
+string $file_data[] = `getFilePathName` ;
+string $save_path = ( $file_data[0] + $file_data[1] + $EXT ) ;
+saveFile $save_path ;
+// restore the Scene Name
+setSceneName $file_data[1] ;
+
+// Trim tails to remove spikes resulting from bad reconstructions
+TrimTails 3 3 "All Markers" ;
+selectRange ;
+
+// Configure Subject calibration
+calibrateCharacterOptions -calibrationMode "Full" ;
+calibrateCharacterOptions -statsMode "MergeTemplatesAndData" ;
+calibrateCharacterOptions -quality "Accurate" ;
+calibrateCharacterOptions -activeFrames 255 ;
+calibrateLabelingClusterOptions -minMarkerStdDev 0.06 ;
+calibrateLabelingClusterOptions -motionCoherenceThreshold 600.0 ;
+calibrateCharacterOptions -overwriteRangeTemplates false ;
+calibrateCharacterOptions -showCovariance true ;
+calibrateCharacterOptions -autoSaveVsk false ;
+
+// Calibrate the Actor
+selectByType Character ;
+selectByName "UncalibratedLabelingCluster_*" -r ;
+calibrateCharacter ;
+
+// just incase, set visability
+labViz -view "true" -detail "high" ;

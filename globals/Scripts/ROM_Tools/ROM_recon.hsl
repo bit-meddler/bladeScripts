@@ -1,0 +1,39 @@
+/* configure reconstruction for ROM
+ * Tweak this to suit your volume / camera count / expected marker size
+ */
+
+// Grayscale
+grayscalefitOptions -grayscaleCircleFittingEnabled true ;
+grayscalefitOptions -storeCircles true ;
+grayscalefitOptions -numThreads 0 ;
+
+// Quality a little higher for ROMs to minimize swaps and noise
+reconstructOptions -environmentalDriftTolerance 2.2 ;
+reconstructOptions -minCamsToStartTrajectory 3 ;
+reconstructOptions -minCamsToContinueTraj 2 ;
+reconstructOptions -reconMinSeparation 5.0 ;
+reconstructOptions -minCentroidRadius 0.0 ;
+reconstructOptions -maxCentroidRadius 85.0 ;
+reconstructOptions -minReconstructionRadius 0.0 ;
+reconstructOptions -maxReconstructionRadius 18.5 ;
+reconstructOptions -computeRadius false ;
+reconstructOptions -computeRays true ;
+reconstructOptions -fitMethod "3DPredictions" ;
+reconstructOptions -predMatchFactor 2.05 ;
+reconstructOptions -minTrajLength 3 ;
+reconstructOptions -startupError 200.0 ;
+reconstructOptions -predictionError 175.0 ;
+
+// Volume Size, for certanty
+reconstructOptions -minVolume << -100000.0,-100000.0,-100000.0 >> ;
+reconstructOptions -maxVolume <<  100000.0, 100000.0, 100000.0 >> ;
+reconstruct ;
+
+// Save a backup C3D
+string $EXT 		  = ".c3d" ;
+string $file_data[] = `getFilePathName` ;
+string $save_path   = ( $file_data[0] + $file_data[1] + $EXT ) ;
+saveFile $save_path ;
+
+// restore the Scene Name
+setSceneName $file_data[1] ;

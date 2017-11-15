@@ -1,0 +1,129 @@
+/* mark Cloud Volume
+ * 
+ * based on an ancient HoM Script for VST pre-scaling
+ *
+ * Mark out the for corners and estimate center of an arbitrary Cloud of Markers.
+ */
+
+// Prep Variables
+string	$marker_cloud[] = `getModules -selected -type Marker` ;
+int		$num_markers	 = `getCount $marker_cloud` ;
+float		$x_min =  100000 ;
+float		$x_max = -100000 ;
+float		$y_min =  100000 ;
+float		$y_max = -100000 ;
+float		$z_min =  100000 ;
+float		$z_max = -100000 ;
+
+
+int		$idx;
+vector	$pos;
+float $x, $y, $z ;
+
+// Find Extents
+for( $idx = 0; $idx < $num_markers; $idx+= 1 )
+{
+	$pos = `getPosition $marker_cloud[$idx] -ws`;
+
+	$x = $pos.x;
+	$y = $pos.y;
+	$z = $pos.z;
+
+	if( $x < $x_min )
+	{
+		$x_min = $pos.x;
+	}
+	if( $y < $y_min )
+	{
+		$y_min = $pos.y;
+	}
+	if( $z < $z_min )
+	{
+		$z_min = $pos.z;
+	}
+
+	if( $x > $x_max )
+	{
+		$x_max = $pos.x;
+	}
+	if( $y > $y_max )
+	{
+		$y_max = $pos.y;
+	}
+	if( $z > $z_max )
+	{
+		$z_max = $pos.z;
+	}
+}
+
+// Mark 8 corners
+create Marker MarkCloudVolume_xMax_yMax_zMax;
+setProperty TranslationX $x_max -d;
+setProperty TranslationY $y_max -d;
+setProperty TranslationZ $z_max -d;
+
+create Marker MarkCloudVolume_xMin_yMin_zMin;
+setProperty TranslationX $x_min -d;
+setProperty TranslationY $y_min -d;
+setProperty TranslationZ $z_min -d;
+
+create Marker MarkCloudVolume_xMin_yMax_zMax;
+setProperty TranslationX $x_min -d;
+setProperty TranslationY $y_max -d;
+setProperty TranslationZ $z_max -d;
+
+create Marker MarkCloudVolume_xMax_yMin_zMin;
+setProperty TranslationX $x_max -d;
+setProperty TranslationY $y_min -d;
+setProperty TranslationZ $z_min -d;
+
+create Marker MarkCloudVolume_xMin_yMax_zMin;
+setProperty TranslationX $x_min -d;
+setProperty TranslationY $y_max -d;
+setProperty TranslationZ $z_min -d;
+
+create Marker MarkCloudVolume_xMax_yMax_zMin;
+setProperty TranslationX $x_max -d;
+setProperty TranslationY $y_max -d;
+setProperty TranslationZ $z_min -d;
+
+create Marker MarkCloudVolume_xMin_yMin_zMax;
+setProperty TranslationX $x_min -d;
+setProperty TranslationY $y_min -d;
+setProperty TranslationZ $z_max -d;
+
+create Marker MarkCloudVolume_xMax_yMin_zMax;
+setProperty TranslationX $x_max -d;
+setProperty TranslationY $y_min -d;
+setProperty TranslationZ $z_max -d;
+
+// Compute Center
+create Marker MarkCloudVolume_Center;
+selectByName 	MarkCloudVolume_xMax_yMax_zMax
+				MarkCloudVolume_xMin_yMin_zMin
+				MarkCloudVolume_xMin_yMax_zMax
+				MarkCloudVolume_xMax_yMin_zMin
+				MarkCloudVolume_xMin_yMax_zMin
+				MarkCloudVolume_xMax_yMax_zMin
+				MarkCloudVolume_xMin_yMin_zMax
+				MarkCloudVolume_xMax_yMin_zMax
+				MarkCloudVolume_Center
+;
+snapTo -pos;
+
+select 	MarkCloudVolume_xMin_yMin_zMin 
+		MarkCloudVolume_xMin_yMax_zMin 
+		MarkCloudVolume_xMin_yMin_zMax
+		MarkCloudVolume_Center
+;
+snapTo -rot;
+
+// Retort
+print ("Computed Cloud extents of " + string( $num_markers ) + " markers :" ) ;
+print ("x_min: " + string($x_min) + "\tx_max: " + string($x_max) );
+print ("y_min: " + string($y_min) + "\ty_max: " + string($y_max) );
+print ("z_min: " + string($z_min) + "\tz_max: " + string($z_max) );
+
+// Display
+selectByName "MarkCloudVolume_*" ;
+setProperty  "Show_Axis" true -type Marker ;

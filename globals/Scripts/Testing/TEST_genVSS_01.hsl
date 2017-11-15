@@ -1,0 +1,21 @@
+setViewFilter "SolvingConstraint" true;
+
+create SolvingBone SolvingBone_1;
+create SolvingBone SolvingBone_2;
+
+setProperty "Pre_Translation" 120.000000 0.000000 1.000000 -onMod SolvingBone_1 ;
+setProperty "Pre_Translation" 0.000000 200.000000 1.000000 -onMod SolvingBone_2 ;
+setProperty "Pre_Rotation" 0.000000 45.000000 0.000000 -onMod SolvingBone_2 ;
+
+select SolvingBone_2 SolvingBone_1 ;
+parent ;
+
+create Marker Marker_1 ;
+attach SolvingBone_1 Marker_1 ;
+select Marker_1 ;
+
+setProperty "ConstraintOffset" 100.0 200.0 -35.0 -onMod Marker_1_SolvingBone_1 ;
+
+select "Marker_1" ;
+snapToConstraint -solvingOnly ;
+

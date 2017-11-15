@@ -1,0 +1,30 @@
+/*
+ * get Actor Colour
+ *
+ *
+ * Read Metadata, and look into 'Desc', which it where we commonly store the actor's patch colour.  If no
+ * colour found, default to 'Vicon Blue' (0088FF).
+ */
+string $temp 		,
+		 $file_loc	,
+		 $pattern	,
+		 $section   ,
+		 $enf_data[];
+
+vector $col ;
+
+$enf_data = `getFileENFslot` ;
+$file_loc = $enf_data[0] ;
+$pattern  = $enf_data[1] ;
+$section  = $enf_data[2] ;
+
+$enf_data = `getFileList $file_loc -pattern $pattern`;
+
+if(`getCount $enf_data` == 0) {
+	print -warning string( "getActorColour: Can't find ENF to match '" + $pattern + "', using default" ) ;
+	return $col ;
+}
+// ignore "section", as it's *allways" [TRIAL_INFO]
+$temp = `getProfileString "TRIAL_INFO" "DESCRIPTION" "" -file $enf_data[ 0 ]` ;
+$col = `col2vec $temp` ;
+return $col ;

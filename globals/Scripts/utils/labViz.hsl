@@ -1,0 +1,55 @@
+/* labeling [Bone|constraint|cluster] Vizibility control
+ *
+ */
+string $view ;
+input  $view "keep" -discrete "keep" "true" "false" "toggle" -description "Control Visability of Labelling Skel" ;
+
+string $detail ;
+input  $detail "normal" -discrete "low" "normal" "high" -description "low:bones, normal:bones+Constraints, high:bones+constraints+covariance" ;
+
+// get current setting
+boolean $show_lab_bones ;
+string  $GLOBAL = "RH_LAB_SHOW" ;
+if ( `getGlobalVarExists $GLOBAL` ) {
+	$show_lab_bones = `getGlobalBooleanVar $GLOBAL`;
+} else {
+	// first run, assume they are showing
+	$show_lab_bones = true ;
+}
+
+// set visability
+if ( $view == "true" ) {
+	$show_lab_bones = true ;
+} else if ( $view == "false" ) {
+	$show_lab_bones = false ;
+} else if ( $view == "toggle" ) {
+	// flip the bit
+	if ($show_lab_bones == true) {
+		$show_lab_bones = false ;
+	} else {
+		$show_lab_bones = true ;
+	}
+} // falls through if "keep", or unknown command
+
+// are we showing or hiding?
+if ( $show_lab_bones ) {
+	// showing
+	setViewFilter "LabelingMarker" true ;
+	setViewFilter "LabelingBone" true ;
+	setViewFilter "LabelingCluster" true ;
+	if ( ($detail=="normal") || ($detail=="high") ) {
+		setViewFilter "LabelingConstraint" true ;
+		setProperty   "Draw_Constraint_Offset" "BoneLines" -all -type LabelingConstraint ;
+	}
+	if ( $detail=="high" ) {
+		setProperty   "Show_Covariance" true -all -type LabelingConstraint ;
+	}
+} else {
+	setViewFilter "LabelingBone" false ;
+	setViewFilter "LabelingCluster" false ;
+	setViewFilter "LabelingConstraint" false ;
+	setProperty "Draw_Constraint_Offset" "None" -all -type LabelingConstraint ;
+	setProperty "Show_Covariance" false -all -type LabelingConstraint ;
+}
+// stash
+setGlobalVar $GLOBAL $show_lab_bones ;

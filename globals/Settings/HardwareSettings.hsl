@@ -1,0 +1,197 @@
+//********************************************************//
+//****************** Hardware Settings *******************//
+//********************************************************//
+string $mod;
+
+setBufferSize 1024;
+
+$mod = `getOpticalCamera -id 2107450`;
+if( `exists $mod` )
+{
+	setProperty -onMod $mod "Strobe_Intensity" 1;
+	setProperty -onMod $mod "Threshold" 0.15;
+	setProperty -onMod $mod "Gain" 1;
+	setProperty -onMod $mod "Circularity" 0.4;
+	setProperty -onMod $mod "Grayscale_Mode" "All Data";
+	setProperty -onMod $mod "Max_Pixels_Per_Line" 50;
+	setProperty -onMod $mod "Marker_Velocity" 12.5;
+	setProperty -onMod $mod "Process_In_Realtime" true;
+	setProperty -onMod $mod "DestinationIP" "Default";
+	setProperty -onMod $mod "Focus" 0.5;
+	setProperty -onMod $mod "Aperture" 0.5;
+	setProperty -onMod $mod "Pan" 0.5;
+	setProperty -onMod $mod "Tilt" 0.5;
+	setProperty -onMod $mod "Zoom" 0.5;
+}
+
+$mod = `getOpticalCamera -id 2107457`;
+if( `exists $mod` )
+{
+	setProperty -onMod $mod "Strobe_Intensity" 1;
+	setProperty -onMod $mod "Threshold" 0.15;
+	setProperty -onMod $mod "Gain" 1;
+	setProperty -onMod $mod "Circularity" 0.4;
+	setProperty -onMod $mod "Grayscale_Mode" "All Data";
+	setProperty -onMod $mod "Max_Pixels_Per_Line" 50;
+	setProperty -onMod $mod "Marker_Velocity" 12.5;
+	setProperty -onMod $mod "Process_In_Realtime" true;
+	setProperty -onMod $mod "DestinationIP" "Default";
+	setProperty -onMod $mod "Focus" 0.5;
+	setProperty -onMod $mod "Aperture" 0.5;
+	setProperty -onMod $mod "Pan" 0.5;
+	setProperty -onMod $mod "Tilt" 0.5;
+	setProperty -onMod $mod "Zoom" 0.5;
+}
+
+$mod = `getOpticalCamera -id 2107445`;
+if( `exists $mod` )
+{
+	setProperty -onMod $mod "Strobe_Intensity" 1;
+	setProperty -onMod $mod "Threshold" 0.15;
+	setProperty -onMod $mod "Gain" 1;
+	setProperty -onMod $mod "Circularity" 0.4;
+	setProperty -onMod $mod "Grayscale_Mode" "All Data";
+	setProperty -onMod $mod "Max_Pixels_Per_Line" 50;
+	setProperty -onMod $mod "Marker_Velocity" 12.5;
+	setProperty -onMod $mod "Process_In_Realtime" true;
+	setProperty -onMod $mod "DestinationIP" "Default";
+	setProperty -onMod $mod "Focus" 0.5;
+	setProperty -onMod $mod "Aperture" 0.5;
+	setProperty -onMod $mod "Pan" 0.5;
+	setProperty -onMod $mod "Tilt" 0.5;
+	setProperty -onMod $mod "Zoom" 0.5;
+}
+
+$mod = `getOpticalCamera -id 2107408`;
+if( `exists $mod` )
+{
+	setProperty -onMod $mod "Strobe_Intensity" 1;
+	setProperty -onMod $mod "Threshold" 0.15;
+	setProperty -onMod $mod "Gain" 1;
+	setProperty -onMod $mod "Circularity" 0.4;
+	setProperty -onMod $mod "Grayscale_Mode" "All Data";
+	setProperty -onMod $mod "Max_Pixels_Per_Line" 50;
+	setProperty -onMod $mod "Marker_Velocity" 12.5;
+	setProperty -onMod $mod "Process_In_Realtime" true;
+	setProperty -onMod $mod "DestinationIP" "Default";
+	setProperty -onMod $mod "Focus" 0.5;
+	setProperty -onMod $mod "Aperture" 0.5;
+	setProperty -onMod $mod "Pan" 0.5;
+	setProperty -onMod $mod "Tilt" 0.5;
+	setProperty -onMod $mod "Zoom" 0.5;
+}
+
+$mod = `getOpticalCamera -id 2107343`;
+if( `exists $mod` )
+{
+	setProperty -onMod $mod "Strobe_Intensity" 1;
+	setProperty -onMod $mod "Threshold" 0.15;
+	setProperty -onMod $mod "Gain" 1;
+	setProperty -onMod $mod "Circularity" 0.4;
+	setProperty -onMod $mod "Grayscale_Mode" "All Data";
+	setProperty -onMod $mod "Max_Pixels_Per_Line" 50;
+	setProperty -onMod $mod "Marker_Velocity" 12.5;
+	setProperty -onMod $mod "Process_In_Realtime" true;
+	setProperty -onMod $mod "DestinationIP" "Default";
+	setProperty -onMod $mod "Focus" 0.5;
+	setProperty -onMod $mod "Aperture" 0.5;
+	setProperty -onMod $mod "Pan" 0.5;
+	setProperty -onMod $mod "Tilt" 0.5;
+	setProperty -onMod $mod "Zoom" 0.5;
+}
+
+$mod = `getOpticalCamera -id 2107455`;
+if( `exists $mod` )
+{
+	setProperty -onMod $mod "Strobe_Intensity" 1;
+	setProperty -onMod $mod "Threshold" 0.15;
+	setProperty -onMod $mod "Gain" 1;
+	setProperty -onMod $mod "Circularity" 0.4;
+	setProperty -onMod $mod "Grayscale_Mode" "All Data";
+	setProperty -onMod $mod "Max_Pixels_Per_Line" 50;
+	setProperty -onMod $mod "Marker_Velocity" 12.5;
+	setProperty -onMod $mod "Process_In_Realtime" true;
+	setProperty -onMod $mod "DestinationIP" "Default";
+	setProperty -onMod $mod "Focus" 0.5;
+	setProperty -onMod $mod "Aperture" 0.5;
+	setProperty -onMod $mod "Pan" 0.5;
+	setProperty -onMod $mod "Tilt" 0.5;
+	setProperty -onMod $mod "Zoom" 0.5;
+}
+
+$mod = `getOpticalCamera -id 2107452`;
+if( `exists $mod` )
+{
+	setProperty -onMod $mod "Strobe_Intensity" 1;
+	setProperty -onMod $mod "Threshold" 0.15;
+	setProperty -onMod $mod "Gain" 1;
+	setProperty -onMod $mod "Circularity" 0.4;
+	setProperty -onMod $mod "Grayscale_Mode" "All Data";
+	setProperty -onMod $mod "Max_Pixels_Per_Line" 50;
+	setProperty -onMod $mod "Marker_Velocity" 12.5;
+	setProperty -onMod $mod "Process_In_Realtime" true;
+	setProperty -onMod $mod "DestinationIP" "Default";
+	setProperty -onMod $mod "Focus" 0.5;
+	setProperty -onMod $mod "Aperture" 0.5;
+	setProperty -onMod $mod "Pan" 0.5;
+	setProperty -onMod $mod "Tilt" 0.5;
+	setProperty -onMod $mod "Zoom" 0.5;
+}
+
+$mod = `getOpticalCamera -id 2107334`;
+if( `exists $mod` )
+{
+	setProperty -onMod $mod "Strobe_Intensity" 1;
+	setProperty -onMod $mod "Threshold" 0.15;
+	setProperty -onMod $mod "Gain" 1;
+	setProperty -onMod $mod "Circularity" 0.4;
+	setProperty -onMod $mod "Grayscale_Mode" "All Data";
+	setProperty -onMod $mod "Max_Pixels_Per_Line" 50;
+	setProperty -onMod $mod "Marker_Velocity" 12.5;
+	setProperty -onMod $mod "Process_In_Realtime" true;
+	setProperty -onMod $mod "DestinationIP" "Default";
+	setProperty -onMod $mod "Focus" 0.5;
+	setProperty -onMod $mod "Aperture" 0.5;
+	setProperty -onMod $mod "Pan" 0.5;
+	setProperty -onMod $mod "Tilt" 0.5;
+	setProperty -onMod $mod "Zoom" 0.5;
+}
+
+$mod = `getOpticalCamera -id 2107449`;
+if( `exists $mod` )
+{
+	setProperty -onMod $mod "Strobe_Intensity" 1;
+	setProperty -onMod $mod "Threshold" 0.15;
+	setProperty -onMod $mod "Gain" 1;
+	setProperty -onMod $mod "Circularity" 0.4;
+	setProperty -onMod $mod "Grayscale_Mode" "All Data";
+	setProperty -onMod $mod "Max_Pixels_Per_Line" 50;
+	setProperty -onMod $mod "Marker_Velocity" 12.5;
+	setProperty -onMod $mod "Process_In_Realtime" true;
+	setProperty -onMod $mod "DestinationIP" "Default";
+	setProperty -onMod $mod "Focus" 0.5;
+	setProperty -onMod $mod "Aperture" 0.5;
+	setProperty -onMod $mod "Pan" 0.5;
+	setProperty -onMod $mod "Tilt" 0.5;
+	setProperty -onMod $mod "Zoom" 0.5;
+}
+
+$mod = `getOpticalCamera -id 2107411`;
+if( `exists $mod` )
+{
+	setProperty -onMod $mod "Strobe_Intensity" 1;
+	setProperty -onMod $mod "Threshold" 0.15;
+	setProperty -onMod $mod "Gain" 1;
+	setProperty -onMod $mod "Circularity" 0.4;
+	setProperty -onMod $mod "Grayscale_Mode" "All Data";
+	setProperty -onMod $mod "Max_Pixels_Per_Line" 50;
+	setProperty -onMod $mod "Marker_Velocity" 12.5;
+	setProperty -onMod $mod "Process_In_Realtime" true;
+	setProperty -onMod $mod "DestinationIP" "Default";
+	setProperty -onMod $mod "Focus" 0.5;
+	setProperty -onMod $mod "Aperture" 0.5;
+	setProperty -onMod $mod "Pan" 0.5;
+	setProperty -onMod $mod "Tilt" 0.5;
+	setProperty -onMod $mod "Zoom" 0.5;
+}
+

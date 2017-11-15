@@ -1,0 +1,26 @@
+// default settings
+
+// calibrationOptions
+calibrationOptions -autoStopCalibration false;
+calibrationOptions -refinementFrames 1200;
+calibrationOptions -initialFrames 150;
+calibrationOptions -ratioTolerance 0.180000;
+calibrationOptions -straightnessTolerance 0.160000;
+calibrationOptions -selected false;
+calibrationOptions -lowerPlane 7.500000;
+calibrationOptions -floorMarkerMode "Auto";
+autoCreateThresholdOptions -wipe false;
+autoCreateThresholdOptions -apply true;
+autoCreateThresholdOptions -camsToThreshold "all";
+
+// Display Optionc
+viewLayout 1;
+viewLayout -current perspective;
+cameraView -markerRadius off;
+cameraView -gapConnections off;
+cameraView -connectLines on;
+cameraView -floor on;
+cameraView -axis on;
+cameraView -displayText on;
+cameraView -displayCharacterText on;
+cameraView -displayTrajCount on;

@@ -1,0 +1,51 @@
+/* solving skeleton [Bone|constraint] Vizibility control
+ *
+ */
+string $view ;
+input  $view "keep" -discrete "keep" "true" "false" "toggle" -description "Control Visability of Solving Skel" ;
+
+string $detail ;
+input  $detail "normal" -discrete "low" "normal" "high" -description "low:bones, normal:bones+Constraint-handles, high:bones+constraints-error" ;
+
+// get current setting
+boolean $show_sol_bones ;
+string  $GLOBAL = "RH_SOL_SHOW" ;
+if ( `getGlobalVarExists $GLOBAL` ) {
+	$show_sol_bones = `getGlobalBooleanVar $GLOBAL`;
+} else {
+	// first run, assume they are showing
+	$show_sol_bones = true ;
+}
+
+// set visability
+if ( $view == "true" ) {
+	$show_sol_bones = true ;
+} else if ( $view == "false" ) {
+	$show_sol_bones = false ;
+} else if ( $view == "toggle" ) {
+	// flip the bit
+	if ($show_sol_bones == true) {
+		$show_sol_bones = false ;
+	} else {
+		$show_sol_bones = true ;
+	}
+} // falls through if "keep", or unknown command
+
+// are we showing or hiding?
+if ( $show_sol_bones ) {
+	// showing
+	setViewFilter "SolvingBone" true ;
+	if ( ($detail=="normal") || ($detail=="high") ) {
+		setViewFilter "SolvingConstraint" true ;
+		setProperty "Draw_Constraint_Offset" "BoneLines" -all -type SolvingConstraint ;
+	}
+	if ( $detail=="high" ) {
+		setProperty "Draw_Constraint_Offset" "Error" -all -type SolvingConstraint ;
+	}
+} else {
+	setViewFilter "SolvingBone" false ;
+	setViewFilter "SolvingConstraint" false ;
+	setProperty "Draw_Constraint_Offset" "None" -all -type SolvingConstraint ;
+}
+// stash
+setGlobalVar $GLOBAL $show_sol_bones ;

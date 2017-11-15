@@ -1,0 +1,24 @@
+select "Solving" ;
+setPriority ;
+
+setProperty "Rotation_Order" "XZY" -onMod Hips;
+setProperty "Rotation_Order" "XZY" -onMod Spine;
+setProperty "Rotation_Order" "XZY" -onMod Spine1;
+setProperty "Rotation_Order" "XZY" -onMod Spine2;
+setProperty "Rotation_Order" "XZY" -onMod Spine3;
+setProperty "Rotation_Order" "XZY" -onMod Neck;
+setProperty "Rotation_Order" "XZY" -onMod Head;
+
+setProperty "Rotation_Order" "YZX" -onMod LeftUpLeg;
+setProperty "Rotation_Order" "XZY" -onMod LeftFoot;
+setProperty "Rotation_Order" "YZX" -onMod LeftToeBase;
+
+setProperty "Rotation_Order" "YZX" -onMod RightUpLeg;
+setProperty "Rotation_Order" "XZY" -onMod RightFoot;
+setProperty "Rotation_Order" "YZX" -onMod RightToeBase;
+
+setProperty "Rotation_Order" "ZXY" -onMod RightShoulder;
+setProperty "Rotation_Order" "YZX" -onMod RightArm;
+
+setProperty "Rotation_Order" "ZXY" -onMod LeftShoulder;
+setProperty "Rotation_Order" "YZX" -onMod LeftArm;

@@ -1,0 +1,14 @@
+int $maxWidth = 15 ;
+int $range[] = `getSelectedTimeRanges`;
+int $len = getCount( $range ) ;
+if( $len < 1 ){
+	return ;
+}
+if( $len > 2 ){
+	return ;
+}
+if( ($range[1] - $range[0]) > $maxWidth ){
+	return ;
+}
+cutKeys -ranges ;
+fillGaps -ranges -maxGapWidth $maxWidth ;

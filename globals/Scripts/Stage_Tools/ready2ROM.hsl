@@ -1,0 +1,7 @@
+setProperty "Strobe_Intensity" 1.000000 -all -type OpticalCamera;
+captureView -showSettings off;
+viewLayout -current perspective;
+setRtProcessingLevel "Reconstruct";
+setProperty Grayscale_Mode "Automatic" -all -type OpticalCamera;
+cameraView -gapConnections off;
+cameraView -connectLines on;
