@@ -1,0 +1,4 @@
+string $bones[] = `getModules -selected -type LabelingBone` ;
+string $target = $bones[ 0 ] ;
+string $markers = `getModules -selected -type Marker` ;
+attach $target $markers ;

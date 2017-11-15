@@ -1,0 +1,39 @@
+/*
+ * frameHold - freeze frame marker data in the selected ranges.  This will propogate
+ * the position of all selected markers from the FIRST frame of the range destructivly
+ * to the end of the range.
+ */
+// markers to hold
+string $markers[] = `getModules -selected -type Marker` ;
+int $numMarkers = `getCount $markers` ;
+
+// marker positions to propogate
+vector $sourcePos[ $numMarkers ] ;
+
+// ranges to hold
+int $ranges[] = `getSelectedTimeRanges` ;
+int $numRanges = `getCount $ranges` ;
+
+// work through the ranges
+int $i, $j, $k, $startF, $endF ;
+for( $i=0; $i<$numRanges; $i+=2 ){
+	// get start & end of this range
+	$startF = $ranges[$i  ] ;
+	$endF   = $ranges[$i+1] ;
+
+	// store the marker positions on the first frame
+	setTime( $startF ) ;
+	for( $j=0; $j<$numMarkers; $j+=1 ){
+		// backup
+		$sourcePos[$j]= `getVectorProperty $markers[$j] "Translation"` ;
+	}
+	// propogate accross range
+	$startF += 1 ;
+	for( $j=$startF; $j<$endF; $j+=1 ){
+		// for every marker
+		for( $k=0; $k<$numMarkers; $k+=1 ){
+			// key it
+			setKey "Translation" $sourcePos[$k] -onMod $markers[$k] -t $j ;
+		}
+	}
+}
