@@ -26,6 +26,9 @@ createShelfButton "Post Tools" -group "Display Controls" -label "Toggle Labellin
 createShelfButton "Post Tools" -group "Display Controls" -label "Toggle Solving Skel (post)" -tip "Toggle visability of Solving skeleton." -icon ":/com.Vicon.Blade.AppIcon.svg" -script "solViz -view \"toggle\" -detail \"low\" ;" -language "hsl";
 createShelfGroup "Post Tools" "Selection Controls";
 createShelfButton "Post Tools" -group "Selection Controls" -label "Clear Ranges" -tip "Clear all ranges in the selection queue" -icon ":/com.Vicon.Blade.AppIcon.svg" -script "selectRange ;" -language "hsl";
+createShelfButton "Post Tools" -group "Selection Controls" -label "Set range In Point" -tip "" -icon ":/com.Vicon.Blade.AppIcon.svg" -script "rangeHelper \"in\" ;" -language "hsl";
+createShelfButton "Post Tools" -group "Selection Controls" -label "Set Range Out Point" -tip "" -icon ":/com.Vicon.Blade.AppIcon.svg" -script "rangeHelper \"out\" ;" -language "hsl";
+createShelfButton "Post Tools" -group "Selection Controls" -label "Add Range" -tip "" -icon ":/com.Vicon.Blade.AppIcon.svg" -script "rangeHelper \"select\" ;" -language "hsl";
 createShelfTab "Solver Tools";
 createShelfGroup "Solver Tools" "Marker Clouds";
 createShelfButton "Solver Tools" -group "Marker Clouds" -label "Mark Cloud Volume" -tip "Mark extents and avg center of Selected Markers" -icon ":/com.Vicon.Blade.AppIcon.svg" -script "markCloudVolume;" -language "hsl";
@@ -36,4 +39,4 @@ createShelfButton "Solver Tools" -group "Labelling Skel Tools" -label "Snap Cons
 createShelfGroup "Solver Tools" "Solving Skel Tools";
 createShelfButton "Solver Tools" -group "Solving Skel Tools" -label "Snap Markers" -tip "" -icon ":/com.Vicon.Blade.AppIcon.svg" -script "snapToConstraint -solvingOnly ;" -language "hsl";
 createShelfButton "Solver Tools" -group "Solving Skel Tools" -label "Snap Constraints" -tip "" -icon ":/com.Vicon.Blade.AppIcon.svg" -script "setConstraints ;" -language "hsl";
-selectShelfTab "Editors";
+selectShelfTab "Post Tools";
