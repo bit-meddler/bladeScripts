@@ -1,0 +1,30 @@
+/* hench_slateCal.hsl
+ *
+ *
+ */
+// Const
+string	$kUnset		= "__UNSET__" ;
+string	$kProfile	= "henchman.ini" ;
+string	$kSettings	= "SETTINGS" ;
+string	$kUIctrl		= "CONTROLS" ;
+
+// inputs
+string	$mode ;
+input		$mode "Wand" ; // "Wand", "Orig", "Floor", "Survey"
+
+// ProfilePath
+string $ProfilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
+
+// determine timeCode
+string $timeCode = `getProfileString $kSettings "timeCode" $ksUnset -file $ProfilePath` ;
+if( $timeCode == $ksUnset ) {
+	$timeCode  = `hench_genMeta -mode "TIME"` ;
+}
+
+// Capture to correct Directory
+hench_session -target "# CAL #" ;
+
+// Build slate //
+string $calSlate = $timeCode + "_" + "Offline" + "_" + $mode + "_01" ;
+
+captureOptions -name $calSlate ;

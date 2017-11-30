@@ -1,0 +1,42 @@
+int $dlg;
+int $parentForm;
+int $rect[4];
+
+int $dlg = `createWindow ""`;
+setWindowSize "" -width 250 -height 450;
+// Get a handle to the main user windows main layout form. All controls
+// will be descendants of this and will be placed/sized relative to it.
+$parentForm = `getTopLevelForm $dlg`;
+groupbox:8.000000,8.000000,236.000000,96.000000,Set Capture Targets,$grp_targets,0;
+editbox:12.000000,24.000000,232.000000,40.000000,Not Yet Set,$displayPath,0;
+button:12.000000,44.000000,120.000000,64.000000,Update Day,$button,0;
+button:124.000000,44.000000,232.000000,64.000000,Make Day Tool,$button,0;
+button:68.000000,68.000000,120.000000,88.000000,CAL,$button,0;
+button:12.000000,68.000000,64.000000,88.000000,ROM,$button,0;
+button:124.000000,68.000000,176.000000,88.000000,AM,$button,0;
+button:180.000000,68.000000,232.000000,88.000000,PM,$button,0;
+groupbox:8.000000,144.000000,236.000000,192.000000,Offline Cal Slater,$groupbox,0;
+groupbox:8.000000,100.000000,236.000000,140.000000,Metadata,$groupbox,0;
+button:12.000000,116.000000,64.000000,132.000000,Date,$button,0;
+editbox:68.000000,116.000000,120.000000,132.000000,Edit,$dateCode,0;
+button:124.000000,116.000000,176.000000,132.000000,Time,$button,0;
+editbox:180.000000,116.000000,232.000000,132.000000,Edit,$timeCode,0;
+button:12.000000,164.000000,64.000000,184.000000,Wand,$button,0;
+button:68.000000,164.000000,120.000000,184.000000,Orig,$button,0;
+button:124.000000,164.000000,176.000000,184.000000,Floor,$button,0;
+groupbox:8.000000,200.000000,236.000000,344.000000,ROM Slater,$groupbox,0;
+static:16.000000,240.000000,80.000000,260.000000,Slate Format,$static,0;
+editbox:84.000000,216.000000,232.000000,236.000000,,$subjectName,0;
+radiobutton:124.000000,268.000000,168.000000,284.000000,Giant,$rbGiant,0;
+radiobutton:72.000000,268.000000,116.000000,284.000000,Vicon,$rbVicon,0;
+button:124.000000,288.000000,176.000000,308.000000,Face,$button,0;
+button:68.000000,288.000000,120.000000,308.000000,Body,$button,0;
+button:12.000000,288.000000,64.000000,308.000000,Snap,$button,0;
+button:180.000000,288.000000,232.000000,308.000000,Prop,$button,0;
+button:180.000000,164.000000,232.000000,184.000000,Survey,$button,0;
+button:12.000000,216.000000,80.000000,236.000000,Generate,$button,0;
+editbox:84.000000,240.000000,232.000000,260.000000,,$slateName,0;
+radiobutton:12.000000,268.000000,64.000000,280.000000,Simple,$rbSimple,0;
+static:12.000000,316.000000,80.000000,336.000000,Patch Colour,$static,0;
+combobox:84.000000,316.000000,232.000000,336.000000,Combobox,$patchColour,0;
+radiobutton:176.000000,268.000000,232.000000,284.000000,Pipeline,$rbPipe,0;

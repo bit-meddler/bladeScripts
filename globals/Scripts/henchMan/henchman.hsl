@@ -1,0 +1,155 @@
+/* henchamn.hsl
+ *
+ *
+ */
+// Const
+string	$kUnset		= "__UNSET__" ;
+string	$kProfile	= "henchman.ini" ;
+string	$kSettings	= "SETTINGS" ;
+string	$kUIctrl		= "CONTROLS" ;
+
+// ProfilePath
+string $ProfilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
+
+// UI
+string 	$kAppName 	= "HenchMan v0.0.1" ;
+
+if ( `windowExists $kAppName` == true ) {
+	destroyWindow $kAppName ;
+}
+
+int $dlg = `createWindow $kAppName` ;
+setWindowSize $kAppName -width 250 -height 350 ;
+
+string $temp ;
+
+// Mostly Generated below
+int $rect[4];int $parentForm = `getTopLevelForm $dlg` ;
+int $ignore, $button ;
+
+/*************************  Session Switching  **************************************/
+$rect[0] = 8;$rect[1] = 8;$rect[2] = 236;$rect[3] = 96;$ignore = `createGroupBox $dlg -text "Set Capture Targets" -form $parentForm -pos $rect`;
+
+$temp = `getProfileString $kSettings "displayPath" "Not Yet Set" -file $ProfilePath` ;
+$rect[0] = 12;$rect[1] = 24;$rect[2] = 232;$rect[3] = 40;int $displayPath = `createTextBox $dlg -text $temp -form $parentForm -pos $rect` ;
+writeProfileInt $kUIctrl "displayPath" $displayPath -file $ProfilePath ;
+
+
+$rect[0] = 12;$rect[1] = 44;$rect[2] = 120;$rect[3] = 64;$button = `createPushButton $dlg -text "Update Day" -form $parentForm -pos $rect`;setPushButtonHandler $button -click "hench_update -mode \"PATH\";" ;
+
+$rect[0] = 124;$rect[1] = 44;$rect[2] = 232;$rect[3] = 64;$button = `createPushButton $dlg -text "Make Day Tool" -form $parentForm -pos $rect`;setPushButtonHandler $button -click dayBuild ;
+
+$rect[0] = 68;$rect[1] = 68;$rect[2] = 120;$rect[3] = 88;$button = `createPushButton $dlg -text "CAL" -form $parentForm -pos $rect`;setPushButtonHandler $button -click "hench_session -target \"# CAL #\";" ;
+
+$rect[0] = 12;$rect[1] = 68;$rect[2] = 64;$rect[3] = 88;$button = `createPushButton $dlg -text "ROM" -form $parentForm -pos $rect`;setPushButtonHandler $button -click "hench_session -target \"# ROM #\";" ;
+
+$rect[0] = 124;$rect[1] = 68;$rect[2] = 176;$rect[3] = 88;$button = `createPushButton $dlg -text "AM" -form $parentForm -pos $rect`;setPushButtonHandler $button -click "hench_session -target \"AM\";" ;
+
+$rect[0] = 180;$rect[1] = 68;$rect[2] = 232;$rect[3] = 88;$button = `createPushButton $dlg -text "PM" -form $parentForm -pos $rect`;setPushButtonHandler $button -click "hench_session -target \"PM\";" ;
+
+/*************************  METADATA  **************************************/
+$rect[0] = 8;$rect[1] = 100;$rect[2] = 236;$rect[3] = 140;$ignore = `createGroupBox $dlg -text "Metadata" -form $parentForm -pos $rect`;
+
+$rect[0] = 12;$rect[1] = 116;$rect[2] = 64;$rect[3] = 132;$button = `createPushButton $dlg -text "Date" -form $parentForm -pos $rect`;setPushButtonHandler $button -click "hench_genMeta -mode \"DATE\";" ;
+
+$temp = `getProfileString $kSettings "dateCode" "" -file $ProfilePath` ;
+$rect[0] = 68;$rect[1] = 116;$rect[2] = 120;$rect[3] = 132;int $dateCode = `createTextBox $dlg -text $temp -form $parentForm -pos $rect`;
+writeProfileInt $kUIctrl "dateCode" $dateCode -file $ProfilePath ;
+
+$rect[0] = 124;$rect[1] = 116;$rect[2] = 176;$rect[3] = 132;$button = `createPushButton $dlg -text "Time" -form $parentForm -pos $rect`;setPushButtonHandler $button -click "hench_genMeta -mode \"TIME\";" ;
+
+$rect[0] = 180;$rect[1] = 116;$rect[2] = 232;$rect[3] = 132;
+$temp = `getProfileString $kSettings "timeCode" "Not Yet Set" -file $ProfilePath` ;int $timeCode = `createTextBox $dlg -text $temp -form $parentForm -pos $rect`;
+writeProfileInt $kUIctrl "timeCode" $timeCode -file $ProfilePath ;
+
+/*************************  Calibration Helpers  ************************************/
+$rect[0] = 8;
+$rect[1] = 144;
+$rect[2] = 236;
+$rect[3] = 192;
+$ignore = `createGroupBox $dlg -text "Offline Cal Slater" -form $parentForm -pos $rect`;
+
+$rect[0] = 12;$rect[1] = 164;$rect[2] = 64;$rect[3] = 184;$button = `createPushButton $dlg -text "Wand" -form $parentForm -pos $rect`;setPushButtonHandler $button -click "hench_slateCal -mode \"Wand\";" ;
+
+$rect[0] = 68;$rect[1] = 164;$rect[2] = 120;$rect[3] = 184;$button = `createPushButton $dlg -text "Orig" -form $parentForm -pos $rect`;setPushButtonHandler $button -click "hench_slateCal -mode \"Orig\";" ;
+
+$rect[0] = 124;$rect[1] = 164;$rect[2] = 176;$rect[3] = 184;$button = `createPushButton $dlg -text "Floor" -form $parentForm -pos $rect`;setPushButtonHandler $button -click "hench_slateCal -mode \"Floor\";" ;
+
+$rect[0] = 180;
+$rect[1] = 164;
+$rect[2] = 232;
+$rect[3] = 184;
+$button = `createPushButton $dlg -text "Survey" -form $parentForm -pos $rect`;
+setPushButtonHandler $button -click "hench_slateCal -mode \"Survey\";" ;
+
+/*************************  ROM SLATE TOOLS  **************************************/
+$rect[0] = 8;$rect[1] = 200;$rect[2] = 236;$rect[3] = 344;$ignore = `createGroupBox $dlg -text "ROM Slater" -form $parentForm -pos $rect`;
+
+$rect[0] = 84;$rect[1] = 216;$rect[2] = 232;$rect[3] = 236;$temp = `getProfileString $kSettings "subjectName" "" -file $ProfilePath` ;
+int $subjectName = `createTextBox $dlg -text $temp -form $parentForm -pos $rect`;
+writeProfileInt $kUIctrl "subjectName" $subjectName -file $ProfilePath ;
+
+$rect[0] = 12;
+$rect[1] = 216;
+$rect[2] = 80;
+$rect[3] = 236;
+$button = `createPushButton $dlg -text "Generate" -form $parentForm -pos $rect`;
+setPushButtonHandler $button -click hench_genName ;
+
+$rect[0] = 16;
+$rect[1] = 240;
+$rect[2] = 80;
+$rect[3] = 260;
+$ignore = `createStaticBox $dlg -text "Slate Format" -form $parentForm -pos $rect`;
+
+$rect[0] = 84;
+$rect[1] = 240;
+$rect[2] = 232;
+$rect[3] = 260;
+$temp = `getProfileString $kSettings "slateName" "" -file $ProfilePath` ;
+int $slateName = `createTextBox $dlg -text $temp -form $parentForm -pos $rect`;
+writeProfileInt $kUIctrl "slateName" $slateName -file $ProfilePath ;
+
+
+// Start Radio Buttons 1 --------------------------------------------------
+$rect[0] = 12;
+$rect[1] = 268;
+$rect[2] = 64;
+$rect[3] = 280;
+int $rbSimple = `createRadioButton $dlg -text "Simple" -form $parentForm -pos $rect -first `;
+writeProfileInt $kUIctrl "rbSimple" $rbSimple -file $ProfilePath ;
+
+$rect[0] = 72;$rect[1] = 268;$rect[2] = 116;$rect[3] = 284;int $rbVicon = `createRadioButton $dlg -text "Vicon" -form $parentForm -pos $rect -check`;
+writeProfileInt $kUIctrl "rbVicon" $rbVicon -file $ProfilePath ;
+
+$rect[0] = 124;
+$rect[1] = 268;
+$rect[2] = 168;
+$rect[3] = 284;
+int $rbGiant = `createRadioButton $dlg -text "Giant" -form $parentForm -pos $rect`;
+writeProfileInt $kUIctrl "rbGiant" $rbGiant -file $ProfilePath ;
+
+$rect[0] = 176;
+$rect[1] = 268;
+$rect[2] = 232;
+$rect[3] = 284;
+int $rbPipe = `createRadioButton $dlg -text "Pipeline" -form $parentForm -pos $rect`;
+writeProfileInt $kUIctrl "rbPipe" $rbPipe -file $ProfilePath ;
+
+// End Radio Buttons 1 --------------------------------------------------
+
+
+$rect[0] = 124;$rect[1] = 288;$rect[2] = 176;$rect[3] = 308;$button = `createPushButton $dlg -text "Face" -form $parentForm -pos $rect`;setPushButtonHandler $button -click "hench_slateROM -type \"Face\";" ;
+
+$rect[0] = 68;$rect[1] = 288;$rect[2] = 120;$rect[3] = 308;$button = `createPushButton $dlg -text "Body" -form $parentForm -pos $rect`;setPushButtonHandler $button -click "hench_slateROM -type \"Body\";" ;
+
+$rect[0] = 12;$rect[1] = 288;$rect[2] = 64;$rect[3] = 308;$button = `createPushButton $dlg -text "Snap" -form $parentForm -pos $rect`;setPushButtonHandler $button -click "hench_slateROM -type \"Snap\";" ;
+
+$rect[0] = 180;$rect[1] = 288;$rect[2] = 232;$rect[3] = 308;$button = `createPushButton $dlg -text "Prop" -form $parentForm -pos $rect`;setPushButtonHandler $button -click "hench_slateROM -type \"Prop\";" ;
+
+
+$rect[0] = 12;$rect[1] = 316;$rect[2] = 80;$rect[3] = 336;$ignore = `createStaticBox $dlg -text "Patch Colour" -form $parentForm -pos $rect`;
+
+$rect[0] = 84;$rect[1] = 316;$rect[2] = 232;$rect[3] = 336;int $patchColour = `createDropList $dlg "None" "Black" "Green" "Blue" "Orange" "Pink" "Red" "Teal" "White" "Yellow"-form $parentForm -pos $rect -sel 0`;
+writeProfileInt $kUIctrl "patchColour" $patchColour -file $ProfilePath ;
+

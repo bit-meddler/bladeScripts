@@ -1,0 +1,37 @@
+/* hech_session.hsl
+ *
+ * Set Session
+ */
+// Const
+string	$kUnset 	 	= "__UNSET__" ;
+string	$kProfile 	= "henchman.ini" ;
+string	$kSettings	= "SETTINGS" ;
+string	$kUIctrl		= "CONTROLS" ;
+
+// inputs
+string	$target ;
+input		$target "__UNSET__" ; // expects "# CAL #", "# ROM #", "AM", "PM"
+
+// ProfilePath
+string $ProfilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
+
+// begin
+string $sesWorkingPath = `getProfileString $kSettings "workingPath" $ksUnset -file $ProfilePath ` ;
+
+// saftey
+if( $sesWorkingPath == $ksUnset ) {
+	// Unset, Update
+	hench_update -mode "PATH" ;
+	// recover working path
+	$sesWorkingPath = `getProfileString $kSettings "workingPath" $ksUnset -file $ProfilePath ` ;
+}
+
+// set capture path
+string $capturePath = $sesWorkingPath + $target + "/" ;
+print $capturePath ;
+setSession $capturePath ;
+
+// update currentSession
+writeProfileString $kSettings "currentSession" $target -file $ProfilePath ;
+
+hench_update -mode "UI" ;

@@ -1,0 +1,49 @@
+/* hench_slateROM.hsl
+ *
+ *
+ */
+// Const
+string	$kUnset		= "__UNSET__" ;
+string	$kProfile	= "henchman.ini" ;
+string	$kSettings	= "SETTINGS" ;
+string	$kUIctrl		= "CONTROLS" ;
+
+// inputs
+string	$type ;
+input		$type "Body" ; // "Body", "Face", "Prop", "Snap"
+
+// ProfilePath
+string $ProfilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
+
+// determine dateCode
+string $dateCode = `getProfileString $kSettings "dateCode" $ksUnset -file $ProfilePath` ;
+if( $dateCode == $ksUnset ) {
+	$dateCode  = `hench_genMeta -mode "DATE"` ;
+}
+
+// Capture to correct Directory
+hench_session -target "# ROM #" ;
+
+// Build slate //
+// Get codename
+string $slateFormat ;
+
+int $slateID = `getProfileInt $kUIctrl "slateName" 0 -file $ProfilePath`;
+$slateFormat = `getControlText $slateID` ;
+if( $slateFormat == "" ){
+	$slateFormat = "ROM_xxxxx_TYPE_TAKE" ;
+}
+
+// compose slate
+$slateFormat = `strReplace $slateFormat "DATE" $dateCode` ;
+$slateFormat = `strReplace $slateFormat "TYPE" $type` ;
+$slateFormat = `strReplace $slateFormat "TAKE" "01"` ;
+
+// Apply Colour code
+int $colourID = `getProfileInt $kUIctrl "patchColour" 0 -file $ProfilePath`;
+int $index = `getDropListSelItem $colourID`;
+string $colour = `getDropListItem $colourID $index`;
+
+// push
+captureOptions -name $slateFormat   ;
+captureOptions -description $colour ;

@@ -1,0 +1,128 @@
+/* hench_genName.hsl
+ *
+ *
+ */
+// Const
+string	$kUnset		= "__UNSET__" ;
+string	$kProfile	= "henchman.ini" ;
+string	$kSettings	= "SETTINGS" ;
+string	$kUIctrl		= "CONTROLS" ;
+
+// inputs
+string	$mode ;
+input		$mode "__UNSET__" ;
+
+// ProfilePath
+string $ProfilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
+
+/*
+Some standard Formatting Conventions
+
+Humans
+
+GIANT: "Andy Serkis"
+ase_DATE[am|pm].andy_serkis_[body|face|snap].scale
+
+VICON: "Andy Serkis"
+DATE_AndyS_[body|face|snap]_ROM_01
+
+SIMPLE: "Andy Serkis"
+ROM_Andy_[face|body|snap]_01
+
+Props
+???
+
+
+format strings:
+
+DATE_XxxxY_TYPE_ROM_TAKE
+xyy_DATEmm.xxxxx_yyyyy_TYPE_tkTAKE.scale
+ROM_xxxxx_TYPE_TAKE
+
+
+*/
+string $formattedName = "" ;
+string $names[] ;
+string $temp ;
+int $count ;
+int $i ;
+
+// Get Subject Name(s)
+int $nameID = `getProfileInt $kUIctrl "subjectName" 0 -file $ProfilePath`;
+$temp = `getControlText $nameID` ;
+$names = `strTokArray $temp -delims " "` ;
+$count = getCount( $names ) ;
+
+// determine formatting Mode
+int $rbGid = `getProfileInt $kUIctrl "rbGiant"  0 -file $ProfilePath`;
+int $rbVid = `getProfileInt $kUIctrl "rbVicon"  0 -file $ProfilePath`;
+int $rbSid = `getProfileInt $kUIctrl "rbSimple" 0 -file $ProfilePath`;
+
+if( `getRadioButtonCheck $rbGid` == true ) {
+	// Giant formatting
+	$temp = "" ;
+	if( $count == 1 ){
+		$temp += `strLeft $names[0] 3` ;
+	} else {
+		$temp += `strLeft $names[0] 1` ;
+		$temp += `strLeft $names[1] 2` ;
+	}
+	$formattedName = `LowerCase $temp` ;
+	$formattedName += "_DATE" ;
+
+	// detect am/pm
+	string $toks[] ;
+	$temp = formatTime( getSystemTime() ) ;
+	$toks = `strTokArray $temp -delims " ,"` ;
+	// Thursday, November 30, 2017 10:34:33
+	$temp = `strLeft $toks[4] 2` ;
+	$i = int( $temp ) ;
+	if( $i < 11 ) {
+		$formattedName += "am." ;
+	} else {
+		$formattedName += "pm." ;
+	}
+
+	// Name(s)
+	if( $count == 1 ){
+		$formattedName += `LowerCase $names[0]` ;
+	} else {
+		$formattedName += `LowerCase $names[0]` ;
+		$formattedName += "_" ;
+		$formattedName += `LowerCase $names[1]` ;
+	}
+
+	// finalize
+	$formattedName += "_TYPE_tkTAKE.scale" ;
+
+} else if( `getRadioButtonCheck $rbVid` == true ) {
+	// Vicon
+	$formattedName += "DATE_" ;
+	// Name(s)
+	$temp = `UpperCase $names[0]` ;
+	int $i = strLength( $temp ) ;
+	$i -= 1 ;
+	$formattedName += `strLeft $temp 1` ;
+	$temp = `LowerCase $names[0]` ;
+	$formattedName += `strRight $temp $i` ;
+	if( $count > 1 ) {
+		$temp = `UpperCase $names[1]` ;
+		$formattedName += `strLeft $temp 1` ;
+	}
+	$formattedName += "_TYPE_ROM_TAKE" ;
+
+} else {
+	// default to simple
+	$formattedName = "ROM_" ;
+	$temp = `UpperCase $names[0]` ;
+	int $i = strLength( $temp ) ;
+	$i -= 1 ;
+	$formattedName += `strLeft $temp 1` ;
+	$temp = `LowerCase $names[0]` ;
+	$formattedName += `strRight $temp $i` ;
+	$formattedName += "_TYPE_TAKE" ;
+}
+
+// publish
+int $slateID = `getProfileInt $kUIctrl "slateName" 0 -file $ProfilePath` ;
+setControlText $slateID $formattedName ;

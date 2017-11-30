@@ -1,0 +1,56 @@
+/* hench_update.hsl
+ *
+ * Get working path, display path, and update the UI
+ */
+
+// inputs
+string	$mode ;
+input 	$mode "UI" ; // "UI", "PATH"
+
+// Const
+string	$kUnset		= "__UNSET__" ;
+string	$kProfile	= "henchman.ini" ;
+string	$kSettings	= "SETTINGS" ;
+string	$kUIctrl		= "CONTROLS" ;
+
+// ProfilePath
+string $ProfilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
+
+string $displayPath = $kUnset ;
+string $session ;
+
+if( $mode == "PATH" ) {
+	// Determine capture day path
+	string $dayPath = getFileLocation( getEclipseActiveTrial() ) ;
+	string $toks[] = `strTokArray $dayPath -delims "/"`;
+	string $workingPath ;
+	int $i, $count ;
+
+	$count = getCount( $toks ) ;
+	$count -= 1 ; // Skip session
+
+	// Build Working Path
+	$workingPath = "" ;
+	for ( $i = 0; $i < $count; $i += 1 ) {
+		$workingPath = $workingPath + $toks[ $i ] + "/" ;
+	}
+
+	// Build Display Path (Skipping Root and ViconDB folder)
+	$displayPath = "" ;
+	for ( $i = 2; $i < $count; $i += 1 ) {
+		$displayPath = $displayPath + $toks[ $i ] + "\\" ;
+	}
+	writeProfileString $kSettings "displayPath" $displayPath -file $ProfilePath ;
+	writeProfileString $kSettings "workingPath" $workingPath -file $ProfilePath ;
+}
+
+// Allways Update UI
+if( $displayPath == $kUnset ) {
+	// read display path
+	$displayPath = `getProfileString $kSettings "displayPath" $kUnset -file $ProfilePath` ;
+	// currentSession
+	$session = `getProfileString $kSettings "currentSession" $kUnset -file $ProfilePath` ;
+	$displayPath = $displayPath + $session + "\\" ;
+}
+int $path_id = `getProfileInt $kUIctrl "displayPath" 0 -file $ProfilePath` ;
+setControlText $path_id $displayPath ;
