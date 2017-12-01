@@ -34,15 +34,23 @@ if( $slateFormat == "" ){
 	$slateFormat = "ROM_xxxxx_TYPE_TAKE" ;
 }
 
-// compose slate
-$slateFormat = `strReplace $slateFormat "DATE" $dateCode` ;
-$slateFormat = `strReplace $slateFormat "TYPE" $type` ;
-$slateFormat = `strReplace $slateFormat "TAKE" "01"` ;
-
 // Apply Colour code
 int $colourID = `getProfileInt $kUIctrl "patchColour" 0 -file $ProfilePath`;
 int $index = `getDropListSelItem $colourID`;
 string $colour = `getDropListItem $colourID $index`;
+
+// compose slate
+$slateFormat = `strReplace $slateFormat "DATE" $dateCode` ;
+if( $type != "Prop" ) {
+	$slateFormat = `strReplace $slateFormat "TYPE" $type` ;
+} else {
+	string $temp = $type ;
+	if( $colour != "None" ) {
+		$temp = $colour + "_" + $type ;
+	}
+	$slateFormat = `strReplace $slateFormat "TYPE" $temp` ;
+}
+$slateFormat = `strReplace $slateFormat "TAKE" "01"` ;
 
 // push
 captureOptions -name $slateFormat   ;
