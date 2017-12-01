@@ -2,3 +2,175 @@
  * 
  * UI To build out a capture day in a project, acording to a stubbed out folder structure
  */
+// Const
+string	$kUnset		= "__UNSET__" ;
+string	$kProfile	= "daybuild.ini" ;
+string	$kSettings	= "SETTINGS" ;
+string	$kUIctrl		= "CONTROLS" ;
+
+// inputs
+string	$mode ;
+input		$mode "__UNSET__" ;
+
+// ProfilePath
+string $ProfilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
+
+
+// UI
+string 	$kAppName = "Day Builder v0.0.1" ;
+
+if ( `windowExists $kAppName` == true ) {
+	destroyWindow $kAppName ;
+}
+
+int $parentForm ;
+int $rect[4] ;
+
+int $dlg = `createWindow $kAppName` ;
+setWindowSize $kAppName -width 248 -height 356 ;
+$parentForm = `getTopLevelForm $dlg` ;
+
+$rect[0] = 4;
+$rect[1] = 0;
+$rect[2] = 244;
+$rect[3] = 128;
+int $groupbox = `createGroupBox $dlg -text "Select Project" -form $parentForm -pos $rect`;
+$rect[0] = 8;
+
+$rect[1] = 20;
+
+$rect[2] = 48;
+
+$rect[3] = 40;
+
+int $static = `createStaticBox $dlg -text "Client" -form $parentForm -pos $rect`;
+$rect[0] = 8;
+
+$rect[1] = 48;
+
+$rect[2] = 48;
+
+$rect[3] = 68;
+
+int $static = `createStaticBox $dlg -text "Project" -form $parentForm -pos $rect`;
+$rect[0] = 8;
+
+$rect[1] = 76;
+
+$rect[2] = 72;
+
+$rect[3] = 96;
+
+int $button = `createPushButton $dlg -text "New Project" -form $parentForm -pos $rect`;
+
+
+$rect[0] = 56;
+
+$rect[1] = 20;
+
+$rect[2] = 164;
+
+$rect[3] = 40;
+
+int $combobox = `createDropList $dlg -form $parentForm -pos $rect`;
+$rect[0] = 56;
+
+$rect[1] = 48;
+
+$rect[2] = 164;
+
+$rect[3] = 68;
+
+int $combobox = `createDropList $dlg -form $parentForm -pos $rect`;
+$rect[0] = 80;
+
+$rect[1] = 76;
+
+$rect[2] = 240;
+
+$rect[3] = 92;
+
+int $editbox = `createTextBox $dlg -text "Edit" -form $parentForm -pos $rect`;
+$rect[0] = 8;
+
+$rect[1] = 104;
+
+$rect[2] = 96;
+
+$rect[3] = 124;
+
+int $button = `createPushButton $dlg -text "I Chose YOU!" -form $parentForm -pos $rect`;
+
+
+$rect[0] = 4;
+
+$rect[1] = 132;
+
+$rect[2] = 244;
+
+$rect[3] = 228;
+
+int $groupbox = `createGroupBox $dlg -text "Create Day" -form $parentForm -pos $rect`;
+$rect[0] = 8;
+
+$rect[1] = 148;
+
+$rect[2] = 68;
+
+$rect[3] = 164;
+
+int $editbox = `createTextBox $dlg -text "123456" -form $parentForm -pos $rect`;
+$rect[0] = 76;
+
+$rect[1] = 148;
+
+$rect[2] = 120;
+
+$rect[3] = 164;
+
+int $static = `createStaticBox $dlg -text "Location" -form $parentForm -pos $rect`;
+$rect[0] = 124;
+
+$rect[1] = 148;
+
+$rect[2] = 176;
+
+$rect[3] = 168;
+
+int $combobox = `createDropList $dlg -form $parentForm -pos $rect`;
+$rect[0] = 180;
+
+$rect[1] = 148;
+
+$rect[2] = 232;
+
+$rect[3] = 168;
+
+int $combobox = `createDropList $dlg -form $parentForm -pos $rect`;
+$rect[0] = 8;
+
+$rect[1] = 172;
+
+$rect[2] = 84;
+
+$rect[3] = 188;
+
+int $static = `createStaticBox $dlg -text "Day Descriptor" -form $parentForm -pos $rect`;
+$rect[0] = 92;
+
+$rect[1] = 172;
+
+$rect[2] = 232;
+
+$rect[3] = 192;
+
+int $editbox = `createTextBox $dlg -text "Edit" -form $parentForm -pos $rect`;
+$rect[0] = 8;
+
+$rect[1] = 200;
+
+$rect[2] = 80;
+
+$rect[3] = 220;
+
+int $button = `createPushButton $dlg -text "Generate" -form $parentForm -pos $rect`;
