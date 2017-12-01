@@ -16,58 +16,21 @@ input		$mode "TIME" ; // "DATE" "TIME"
 string $ProfilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
 
 // vars
-string	$toks[]	;
-string	$temp  	,
-			$output	;
+string	$output	;
 int		$i			;
 
 // begin
-$temp = formatTime( getSystemTime() ) ;
-$toks = `strTokArray $temp -delims " ,"` ;
-// Thursday, November 30, 2017 10:34:33
 
 if( $mode == "DATE" ){
-	$output = "" ;
-	// Year, trim out leading numbers
-	$output = `strRight $toks[3] 2` ;
-	// Month, decode from text
-	$temp = $toks[1] ;
-	if( "January" == $temp ) {
-		$output += "01" ;
-	} else if( "February" == $temp ) {
-		$output += "02" ;
-	} else if( "March"    == $temp ) {
-		$output += "03" ;
-	} else if( "April"    == $temp ) {
-		$output += "04" ;
-	} else if( "May"      == $temp ) {
-		$output += "05" ;
-	} else if( "June"     == $temp ) {
-		$output += "06" ;
-	} else if( "July"     == $temp ) {
-		$output += "07" ;
-	} else if( "August"   == $temp ) {
-		$output += "08" ;
-	} else if( "September"== $temp ) {
-		$output += "09" ;
-	} else if( "October"  == $temp ) {
-		$output += "10" ;
-	} else if( "November" == $temp ) {
-		$output += "11" ;
-	} else if( "December" == $temp ) {
-		$output += "12" ;
-	}
-	// day
-	$output += $toks[2] ;
+	$output = `genMeta -mode $mode` ;
 	// Record Datecode
 	writeProfileString $kSettings "dateCode" $output -file $ProfilePath ;
-
 	// Update UI
 	$i = `getProfileInt $kUIctrl "dateCode" 0 -file $ProfilePath`;
 	setControlText $i $output ;
 } else if( $mode == "TIME" ) {
 	// compress time to 6 digits
-	$output = `strReplace $toks[4] ":" ""` ;
+	$output = `genMeta -mode $mode` ;
 	// record Time
 	writeProfileString $kSettings "timeCode" $output -file $ProfilePath ;
 	// Update UI
