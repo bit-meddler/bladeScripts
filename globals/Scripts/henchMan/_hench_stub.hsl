@@ -10,7 +10,7 @@ string	$kUIctrl		= "CONTROLS" ;
 
 // inputs
 string	$mode ;
-input		$mode $kUnset ;
+input		$mode "__UNSET__" ;
 
 // ProfilePath
 string $ProfilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
