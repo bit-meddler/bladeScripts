@@ -27,7 +27,7 @@ hench_session -target "# ROM #" ;
 // Build slate //
 // Get codename
 string $slateFormat ;
-
+hench_genName ;
 int $slateID = `getProfileInt $kUIctrl "slateName" 0 -file $ProfilePath`;
 $slateFormat = `getControlText $slateID` ;
 if( $slateFormat == "" ){
