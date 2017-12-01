@@ -2,22 +2,26 @@
 
 ## ROM Tools
 + ROM Process pipeline
-+ oneHitter
++ autoLabSkel (_was 'bladeOneHitter'_)
 + autoColour
 + skelBuild (_wip_)
-+ RH VST
++ RH VST v1
 
 ## Stage Tools
-+ sideKick
-+ calMan
-+ maskRescue
++ henchMan
++ dayBuild (_wip_)
++ calMan (_wip_)
++ maskRescue (_wip_)
 
 ## Solver Tools
 + selection and drawing toggles
 
 ## Post Tools
-+ body Navigator
-+ helpers
++ bodyNavigator
++ testVeracity
++ superFiller
++ keyTools
++ misc helpers
 
 ## Giant Tools
 + BMO2VSK (_wip_)
