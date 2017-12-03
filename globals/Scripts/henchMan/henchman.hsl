@@ -9,7 +9,7 @@ string	$kSettings	= "SETTINGS" ;
 string	$kUIctrl		= "CONTROLS" ;
 
 // ProfilePath
-string $ProfilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
+string $profilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
 
 // UI
 string 	$kAppName 	= "HenchMan v0.0.1" ;
@@ -33,12 +33,12 @@ $rect[1] = 8;
 $rect[2] = 344;
 $rect[3] = 100;$ignore = `createGroupBox $dlg -text "Set Capture Targets" -form $parentForm -pos $rect`;
 
-$temp = `getProfileString $kSettings "displayPath" "Not Yet Set" -file $ProfilePath` ;
+$temp = `getProfileString $kSettings "displayPath" "Not Yet Set" -file $profilePath` ;
 $rect[0] = 14;
 $rect[1] = 24;
 $rect[2] = 338;
 $rect[3] = 40;int $displayPath = `createTextBox $dlg -text $temp -form $parentForm -pos $rect` ;
-writeProfileInt $kUIctrl "displayPath" $displayPath -file $ProfilePath ;
+writeProfileInt $kUIctrl "displayPath" $displayPath -file $profilePath ;
 
 $rect[0] = 12;
 $rect[1] = 48;
@@ -82,12 +82,12 @@ $rect[1] = 120;
 $rect[2] =  64;
 $rect[3] = 136;$button = `createPushButton $dlg -text "Date" -form $parentForm -pos $rect`;setPushButtonHandler $button -click "hench_genMeta -mode \"DATE\";" ;
 
-$temp = `getProfileString $kSettings "dateCode" "" -file $ProfilePath` ;
+$temp = `getProfileString $kSettings "dateCode" "" -file $profilePath` ;
 $rect[0] =  68;
 $rect[1] = 120;
 $rect[2] = 120;
 $rect[3] = 136;int $dateCode = `createTextBox $dlg -text $temp -form $parentForm -pos $rect`;
-writeProfileInt $kUIctrl "dateCode" $dateCode -file $ProfilePath ;
+writeProfileInt $kUIctrl "dateCode" $dateCode -file $profilePath ;
 
 $rect[0] = 124;
 $rect[1] = 120;
@@ -98,8 +98,8 @@ $rect[0] = 180;
 $rect[1] = 120;
 $rect[2] = 232;
 $rect[3] = 136;
-$temp = `getProfileString $kSettings "timeCode" "Not Yet Set" -file $ProfilePath` ;int $timeCode = `createTextBox $dlg -text $temp -form $parentForm -pos $rect`;
-writeProfileInt $kUIctrl "timeCode" $timeCode -file $ProfilePath ;
+$temp = `getProfileString $kSettings "timeCode" "Not Yet Set" -file $profilePath` ;int $timeCode = `createTextBox $dlg -text $temp -form $parentForm -pos $rect`;
+writeProfileInt $kUIctrl "timeCode" $timeCode -file $profilePath ;
 
 /*************************  Calibration Helpers  ************************************/
 $rect[0] =   8;
@@ -139,9 +139,9 @@ $rect[3] = 320;$ignore = `createGroupBox $dlg -text "ROM Slater" -form $parentF
 $rect[0] =  84;
 $rect[1] = 220;
 $rect[2] = 232;
-$rect[3] = 240;$temp = `getProfileString $kSettings "subjectName" "" -file $ProfilePath` ;
+$rect[3] = 240;$temp = `getProfileString $kSettings "subjectName" "" -file $profilePath` ;
 int $subjectName = `createTextBox $dlg -text $temp -form $parentForm -pos $rect`;
-writeProfileInt $kUIctrl "subjectName" $subjectName -file $ProfilePath ;
+writeProfileInt $kUIctrl "subjectName" $subjectName -file $profilePath ;
 
 $rect[0] =  12;
 $rect[1] = 220;
@@ -160,9 +160,9 @@ $rect[0] =  84;
 $rect[1] = 244;
 $rect[2] = 340;
 $rect[3] = 264;
-$temp = `getProfileString $kSettings "slateName" "" -file $ProfilePath` ;
+$temp = `getProfileString $kSettings "slateName" "" -file $profilePath` ;
 int $slateName = `createTextBox $dlg -text $temp -form $parentForm -pos $rect`;
-writeProfileInt $kUIctrl "slateName" $slateName -file $ProfilePath ;
+writeProfileInt $kUIctrl "slateName" $slateName -file $profilePath ;
 
 
 // Start Radio Buttons 1 --------------------------------------------------
@@ -171,27 +171,27 @@ $rect[1] = 272;
 $rect[2] =  64;
 $rect[3] = 284;
 int $rbSimple = `createRadioButton $dlg -text "Simple" -form $parentForm -pos $rect -first `;
-writeProfileInt $kUIctrl "rbSimple" $rbSimple -file $ProfilePath ;
+writeProfileInt $kUIctrl "rbSimple" $rbSimple -file $profilePath ;
 
 $rect[0] =  72;
 $rect[1] = 272;
 $rect[2] = 116;
 $rect[3] = 288;int $rbVicon = `createRadioButton $dlg -text "Vicon" -form $parentForm -pos $rect -check`;
-writeProfileInt $kUIctrl "rbVicon" $rbVicon -file $ProfilePath ;
+writeProfileInt $kUIctrl "rbVicon" $rbVicon -file $profilePath ;
 
 $rect[0] = 124;
 $rect[1] = 272;
 $rect[2] = 168;
 $rect[3] = 288;
 int $rbGiant = `createRadioButton $dlg -text "Giant" -form $parentForm -pos $rect`;
-writeProfileInt $kUIctrl "rbGiant" $rbGiant -file $ProfilePath ;
+writeProfileInt $kUIctrl "rbGiant" $rbGiant -file $profilePath ;
 
 $rect[0] = 176;
 $rect[1] = 272;
 $rect[2] = 232;
 $rect[3] = 288;
 int $rbPipe = `createRadioButton $dlg -text "Pipeline" -form $parentForm -pos $rect`;
-writeProfileInt $kUIctrl "rbPipe" $rbPipe -file $ProfilePath ;
+writeProfileInt $kUIctrl "rbPipe" $rbPipe -file $profilePath ;
 
 // End Radio Buttons 1 --------------------------------------------------
 
@@ -221,5 +221,5 @@ $rect[0] = 236;
 $rect[1] = 292;
 $rect[2] = 340;
 $rect[3] = 312;int $patchColour = `createDropList $dlg "None" "Black" "Blue" "Green" "Orange" "Pink" "Red" "Teal" "White" "Yellow" -form $parentForm -pos $rect -sel 0` ;
-writeProfileInt $kUIctrl "patchColour" $patchColour -file $ProfilePath ;
+writeProfileInt $kUIctrl "patchColour" $patchColour -file $profilePath ;
 
