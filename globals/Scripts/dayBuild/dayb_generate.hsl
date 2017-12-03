@@ -1,0 +1,28 @@
+/*
+ *
+ *
+ */
+// Const
+string	$kUnset		= "__UNSET__" ;
+string	$kProfile	= "daybuild.ini" ;
+string	$kSettings	= "SETTINGS" ;
+string	$kUIctrl		= "CONTROLS" ;
+
+// inputs
+string	$mode ;
+input		$mode "__UNSET__" ;
+
+// ProfilePath
+string $profilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
+
+
+// in directory build out..
+// day
+// day .enf
+// for x in [cal, rom, am, pm]
+// x folder
+// x enf
+// setSession $day + "/" + CAL
+refreshEclipse ;
+henchman ;
+hench_update ;

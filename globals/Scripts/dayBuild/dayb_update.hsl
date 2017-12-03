@@ -1,0 +1,80 @@
+/* dayb_update.hsl
+ *
+ * Update Drop lists of clients and projects by checking for .enfs in the apropreate path
+ */
+// Const
+string	$kUnset		= "__UNSET__" ;
+string	$kProfile	= "daybuild.ini" ;
+string	$kSettings	= "SETTINGS" ;
+string	$kUIctrl		= "CONTROLS" ;
+
+// inputs
+string	$mode ;
+input		$mode "Projects" ; // "Clients" "Projects"
+
+// profilePaths
+string $profilePath  = `appInfo "datalocation" -noFeedback` + $kProfile ;
+string $henchmanData = `appInfo "datalocation" -noFeedback` + "henchman.ini" ;
+
+string	$toks[] ;
+string	$temp ,
+			$test ;
+int 		$count ;
+int 		$i ;
+boolean 	$found ;
+
+// look in henchman's "workingPath" for the root and directory of the eclipse db
+$temp = `getProfileString $kSettings "workingPath" $kUnset -file $henchmanData` ;
+$toks = `strTokArray $temp -delims "/"` ;
+$count = getCount( $toks ) ;
+if( $count <5 ) {
+	print -warning "Bad Path in your Henchman!" ;
+	return -1 ;
+}
+
+string $dbPath = $toks[0] + "/" + $toks[1] ;
+
+if( $mode == "Clients" ) {
+	writeProfileString $kSettings "currentClient" $toks[2] -file $profilePath ;
+	// scan db for all dirs having an .enf and not starting with _
+	string $dirList[] = `getDirList $dbPath -nameOnly` ;
+	$count = getCount( $dirList ) ;
+	string $foundClients = "" ;
+	for( $i=0; $i<$count; $i+=1 ) {
+		$temp = `strLeft $dirList[$i] 1` ;
+		if(  "_" == $temp ) {
+			continue ;
+		}
+		$temp = $dirList[$i] ;
+		$test = $dbPath + "/" + $temp + "/" + $temp + ".enf" ;
+		$found = `pathExists $test` ;
+		if( $found ) {
+			$foundClients += $temp + "/" ;
+		}
+	}
+	print $foundClients ;
+	// stash clients in ini
+	writeProfileString $kSettings "knownClients" $foundClients -file $profilePath ;
+} else if( $mode == "Projects" ) {
+	// if no current client set, guess it's toks[2] from the henchman path
+	string $currentClient = `getProfileString $kSettings "currentClient" $toks[2] -file $profilePath` ;
+	$dbPath += "/" + $currentClient ;
+	// search this path for folders with a like-named .enf in them, not begining with an _
+	string $dirList[] = `getDirList $dbPath -nameOnly` ;
+	print $dirList ;
+
+	$count = getCount( $dirList ) ;
+	string $foundProjects = "" ;
+	for( $i=0; $i<$count; $i+=1 ) {
+		$temp = `strLeft $dirList[$i] 1` ;
+		if(  "_" == $temp ) {
+			// Blade Bug - continue fails to increment the counter!
+			continue ;
+		}
+		$temp = $dbPath + "/" + $dirList[$i] ;
+		$test = $dirList[$i] + "*.enf" ;
+		string $enfList[] = `getFileList $temp -pattern $test` ;
+		print $enfList ;
+
+	}
+}

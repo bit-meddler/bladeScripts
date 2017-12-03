@@ -12,8 +12,9 @@ string	$kUIctrl		= "CONTROLS" ;
 string	$mode ;
 input		$mode "__UNSET__" ;
 
-// ProfilePath
-string $ProfilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
+// profilePaths
+string $profilePath  = `appInfo "datalocation" -noFeedback` + $kProfile ;
+string $henchmanData = `appInfo "datalocation" -noFeedback` + "henchman.ini" ;
 
 
 // UI
@@ -137,7 +138,7 @@ $rect[2] = 176;
 
 $rect[3] = 168;
 
-int $combobox = `createDropList $dlg -form $parentForm -pos $rect`;
+int $combobox = `createDropList $dlg "A" "B" "C" "D" -form $parentForm -pos $rect`;
 $rect[0] = 180;
 
 $rect[1] = 148;
@@ -146,7 +147,7 @@ $rect[2] = 232;
 
 $rect[3] = 168;
 
-int $combobox = `createDropList $dlg -form $parentForm -pos $rect`;
+int $combobox = `createDropList $dlg "1" "2" "3" "4" -form $parentForm -pos $rect`;
 $rect[0] = 8;
 
 $rect[1] = 172;
