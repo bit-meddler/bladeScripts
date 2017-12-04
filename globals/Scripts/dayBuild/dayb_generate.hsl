@@ -1,4 +1,4 @@
-/*
+/* dayb_generate.hsl
  *
  *
  */
@@ -15,6 +15,27 @@ input		$mode "__UNSET__" ;
 // ProfilePath
 string $profilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
 
+int $sel_loc, $sel_stg ;
+// stuffs
+int $projectPath = `getProfileInt $kUIctrl "projectPath" -1 -file $profilePath` ;
+int $dateCode = `getProfileInt $kUIctrl "dateCode" -1 -file $profilePath` ;
+int $locationID = `getProfileInt $kUIctrl "locationID" -1 -file $profilePath` ;
+
+$sel_loc = `getDropListSelItem $locationID` ;
+
+int $stageID = `getProfileInt $kUIctrl "stageID" -1 -file $profilePath` ;
+$sel_stg = `getDropListSelItem $stageID` ;
+int $dayDescription = `getProfileInt $kUIctrl "dayDescription" -1 -file $profilePath` ;
+
+string $captureDay = "" ;
+$captureDay += `getControlText $dateCode` + "_" ;
+$captureDay += `getDropListItem $locationID $sel_loc` ;
+$captureDay += `getDropListItem $stageID $sel_stg` + "_" ;
+$captureDay += `getControlText $dayDescription` ;
+
+string $project = `getControlText $projectPath` ;
+
+print ($project + "/" + $captureDay) ;
 
 // in directory build out..
 // day
@@ -23,6 +44,9 @@ string $profilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
 // x folder
 // x enf
 // setSession $day + "/" + CAL
+
+/*
 refreshEclipse ;
 henchman ;
 hench_update ;
+*/

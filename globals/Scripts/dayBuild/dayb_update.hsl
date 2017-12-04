@@ -19,8 +19,9 @@ string $henchmanData = `appInfo "datalocation" -noFeedback` + "henchman.ini" ;
 string	$toks[] ;
 string	$temp ,
 			$test ;
-int 		$count ;
-int 		$i ;
+int 		$count ,
+			$i ,
+			$num ;
 boolean 	$found ;
 
 // look in henchman's "workingPath" for the root and directory of the eclipse db
@@ -43,17 +44,16 @@ if( $mode == "Clients" ) {
 	for( $i=0; $i<$count; $i+=1 ) {
 		$temp = `strLeft $dirList[$i] 1` ;
 		if(  "_" == $temp ) {
-			continue ;
-		}
-		$temp = $dirList[$i] ;
-		$test = $dbPath + "/" + $temp + "/" + $temp + ".enf" ;
-		$found = `pathExists $test` ;
-		if( $found ) {
-			$foundClients += $temp + "/" ;
+			print "continue" ;
+		} else {
+			$temp = $dirList[$i] ;
+			$test = $dbPath + "/" + $temp + "/" + $temp + ".enf" ;
+			$found = `pathExists $test` ;
+			if( $found ) {
+				$foundClients += $temp + "/" ;
+			}
 		}
 	}
-	print $foundClients ;
-	// stash clients in ini
 	writeProfileString $kSettings "knownClients" $foundClients -file $profilePath ;
 } else if( $mode == "Projects" ) {
 	// if no current client set, guess it's toks[2] from the henchman path
@@ -61,20 +61,26 @@ if( $mode == "Clients" ) {
 	$dbPath += "/" + $currentClient ;
 	// search this path for folders with a like-named .enf in them, not begining with an _
 	string $dirList[] = `getDirList $dbPath -nameOnly` ;
-	print $dirList ;
-
 	$count = getCount( $dirList ) ;
 	string $foundProjects = "" ;
+	string $projectName ;
 	for( $i=0; $i<$count; $i+=1 ) {
-		$temp = `strLeft $dirList[$i] 1` ;
+		$projectName = $dirList[$i] ;
+		$temp = `strLeft $projectName 1` ;
 		if(  "_" == $temp ) {
 			// Blade Bug - continue fails to increment the counter!
-			continue ;
+			print "continue" ;
+		} else {
+			$temp = $dbPath + "/" + $projectName ;
+			$test = $projectName + "*.enf" ;
+			string $enfList[] = `getFileList $temp -pattern $test` ;
+			$num = getCount( $enfList ) ;
+			if( $num>0 ) {
+				$foundProjects += $projectName + "/" ;
+			}
 		}
-		$temp = $dbPath + "/" + $dirList[$i] ;
-		$test = $dirList[$i] + "*.enf" ;
-		string $enfList[] = `getFileList $temp -pattern $test` ;
-		print $enfList ;
-
 	}
+	writeProfileString $kSettings "currentClientProjects" $foundProjects -file $profilePath ;
 }
+
+// update the projectPath

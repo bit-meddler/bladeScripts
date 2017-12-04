@@ -13,7 +13,7 @@ string	$mode ;
 input		$mode "__UNSET__" ;
 
 // ProfilePath
-string $profilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
+string $ProfilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
 
 
 // UI

@@ -1,0 +1,46 @@
+/*
+ *
+ *
+ */
+// Const
+string	$kUnset		= "__UNSET__" ;
+string	$kProfile	= "daybuild.ini" ;
+string	$kSettings	= "SETTINGS" ;
+string	$kUIctrl		= "CONTROLS" ;
+
+// inputs
+string	$mode ;
+input		$mode "__UNSET__" ;
+
+// ProfilePath
+string $profilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
+
+string $tempArray[] ;
+
+int $currentClientProjects = `getProfileInt $kUIctrl "currentClientProjects" -1 -file $profilePath` ;
+int $knownClients = `getProfileInt $kUIctrl "knownClients" -1 -file $profilePath` ;
+
+// find selected Clients, and update Project list
+if( $mode == "Clients" ) {
+	int $selID = `getDropListSelItem $knownClients` ;
+	string $selClient = `getDropListItem $knownClients $selID` ;
+	writeProfileString $kSettings "currentClient" $selClient -file $profilePath ;
+	dayb_update -mode "Projects" ;
+	$tempArray = `getProfileArray $kSettings "currentClientProjects" $kUnset $profilePath "/"` ;
+	populateDropList -items $tempArray -uiID $currentClientProjects -reverse false ;
+}
+// update Projects
+int $selID = `getDropListSelItem $currentClientProjects` ;
+string $selProject = `getDropListItem $currentClientProjects $selID` ;
+writeProfileString $kSettings "currentProject" $selProject -file $profilePath ;
+
+// update Project path
+int $id_pj = `getProfileInt $kUIctrl "pjLock" -1 -file $profilePath` ;
+int $pjLock = `getCheckBoxCheck $id_pj` ;
+if( $pjLock != 1 ) {
+	string $sel_client  = `getProfileString $kSettings "currentClient" $kUnset -file $profilePath` ;
+	string $sel_project = `getProfileString $kSettings "currentProject" $kUnset -file $profilePath` ;
+	string $projectPath = $sel_client + "/" + $sel_project ;
+	int $id_pp = `getProfileInt $kUIctrl "projectPath" -1 -file $profilePath` ;
+	setControlText $id_pp $projectPath ;
+}

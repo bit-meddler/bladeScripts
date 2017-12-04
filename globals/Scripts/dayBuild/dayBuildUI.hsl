@@ -3,7 +3,7 @@ int $parentForm;
 int $rect[4];
 
 int $dlg = `createWindow ""`;
-setWindowSize "" -width 248 -height 356;
+setWindowSize "" -width 250 -height 450;
 // Get a handle to the main user windows main layout form. All controls
 // will be descendants of this and will be placed/sized relative to it.
 $parentForm = `getTopLevelForm $dlg`;
@@ -11,7 +11,7 @@ $rect[0] = 4;
 $rect[1] = 0;
 $rect[2] = 244;
 $rect[3] = 128;
-int $groupbox = `createGroupBox $dlg -text "Select Project" -form $parentForm -pos $rect`;
+int $static = `createGroupBox $dlg -text "Select Project" -form $parentForm -pos $rect`;
 $rect[0] = 8;
 $rect[1] = 20;
 $rect[2] = 48;
@@ -22,87 +22,135 @@ $rect[1] = 48;
 $rect[2] = 48;
 $rect[3] = 68;
 int $static = `createStaticBox $dlg -text "Project" -form $parentForm -pos $rect`;
-$rect[0] = 8;
-$rect[1] = 76;
-$rect[2] = 72;
-$rect[3] = 96;
-int $button = `createPushButton $dlg -text "New Project" -form $parentForm -pos $rect`;
-
 $rect[0] = 56;
 $rect[1] = 20;
 $rect[2] = 164;
 $rect[3] = 40;
-int $combobox = `createDropList $dlg -form $parentForm -pos $rect`;
+int $knownClients = `createDropList $dlg -form $parentForm -pos $rect`;
 $rect[0] = 56;
 $rect[1] = 48;
 $rect[2] = 164;
 $rect[3] = 68;
-int $combobox = `createDropList $dlg -form $parentForm -pos $rect`;
-$rect[0] = 80;
-$rect[1] = 76;
-$rect[2] = 240;
-$rect[3] = 92;
-int $editbox = `createTextBox $dlg -text "Edit" -form $parentForm -pos $rect`;
+int $currentClientProjects = `createDropList $dlg -form $parentForm -pos $rect`;
 $rect[0] = 8;
 $rect[1] = 104;
-$rect[2] = 96;
+$rect[2] = 116;
 $rect[3] = 124;
 int $button = `createPushButton $dlg -text "I Chose YOU!" -form $parentForm -pos $rect`;
 
 $rect[0] = 4;
 $rect[1] = 132;
 $rect[2] = 244;
-$rect[3] = 228;
-int $groupbox = `createGroupBox $dlg -text "Create Day" -form $parentForm -pos $rect`;
+$rect[3] = 224;
+int $static = `createGroupBox $dlg -text "Create Day" -form $parentForm -pos $rect`;
 $rect[0] = 8;
 $rect[1] = 148;
 $rect[2] = 68;
 $rect[3] = 164;
-int $editbox = `createTextBox $dlg -text "123456" -form $parentForm -pos $rect`;
-$rect[0] = 76;
+int $dateCode = `createTextBox $dlg -text "123456" -form $parentForm -pos $rect`;
+$rect[0] = 88;
 $rect[1] = 148;
-$rect[2] = 120;
+$rect[2] = 132;
 $rect[3] = 164;
-int $static = `createStaticBox $dlg -text "Location" -form $parentForm -pos $rect`;
-$rect[0] = 124;
+int $static = `createStaticBox $dlg -text "Stage ID" -form $parentForm -pos $rect`;
+$rect[0] = 136;
 $rect[1] = 148;
-$rect[2] = 176;
+$rect[2] = 188;
 $rect[3] = 168;
-int $combobox = `createDropList $dlg -form $parentForm -pos $rect`;
-$rect[0] = 180;
+int $LocationID = `createDropList $dlg -form $parentForm -pos $rect`;
+$rect[0] = 192;
 $rect[1] = 148;
-$rect[2] = 232;
+$rect[2] = 240;
 $rect[3] = 168;
-int $combobox = `createDropList $dlg -form $parentForm -pos $rect`;
+int $stageID = `createDropList $dlg -form $parentForm -pos $rect`;
 $rect[0] = 8;
 $rect[1] = 172;
 $rect[2] = 84;
 $rect[3] = 188;
 int $static = `createStaticBox $dlg -text "Day Descriptor" -form $parentForm -pos $rect`;
-$rect[0] = 92;
+$rect[0] = 88;
 $rect[1] = 172;
-$rect[2] = 232;
+$rect[2] = 240;
 $rect[3] = 192;
-int $editbox = `createTextBox $dlg -text "Edit" -form $parentForm -pos $rect`;
-$rect[0] = 8;
+int $dayDescription = `createTextBox $dlg -text "Edit" -form $parentForm -pos $rect`;
+$rect[0] = 168;
 $rect[1] = 200;
-$rect[2] = 80;
+$rect[2] = 240;
 $rect[3] = 220;
 int $button = `createPushButton $dlg -text "Generate" -form $parentForm -pos $rect`;
 
+$rect[0] = 8;
+$rect[1] = 76;
+$rect[2] = 240;
+$rect[3] = 100;
+int $projectPath = `createTextBox $dlg -text "Project Path" -form $parentForm -pos $rect`;
+$rect[0] = 136;
+$rect[1] = 104;
+$rect[2] = 240;
+$rect[3] = 124;
+int $button = `createPushButton $dlg -text "Update Henchman" -form $parentForm -pos $rect`;
 
+$rect[0] = 8;
+$rect[1] = 204;
+$rect[2] = 112;
+$rect[3] = 220;
+int $button = `createCheckBox $dlg -text "Unlock Date Code" -form $parentForm -pos $rect`;
+$rect[0] = 176;
+$rect[1] = 52;
+$rect[2] = 224;
+$rect[3] = 68;
+int $ready = `createRadioButton $dlg -text "Ready" -form $parentForm -pos $rect`;
+setControlAnchor $static "left" "" 4 -target $currentClientProjects;
+setControlAnchor $static "bottom" "" 128 -target $currentClientProjects;
 
+setControlAnchor $static "left" "" 8 -target $currentClientProjects;
+setControlAnchor $static "bottom" "" 40 -target $currentClientProjects;
 
+setControlAnchor $static "left" "" 8 -target $currentClientProjects;
+setControlAnchor $static "bottom" "" 68 -target $currentClientProjects;
 
+setControlAnchor $knownClients "left" "" 56 -target $currentClientProjects;
+setControlAnchor $knownClients "bottom" "" 40 -target $currentClientProjects;
 
+setControlAnchor $currentClientProjects "left" "" 56 -target $currentClientProjects;
+setControlAnchor $currentClientProjects "bottom" "" 68 -target $currentClientProjects;
 
+setControlAnchor $button "left" "" 8 -target $currentClientProjects;
+setControlAnchor $button "bottom" "" 124 -target $currentClientProjects;
 
+setControlAnchor $static "left" "" 4 -target $currentClientProjects;
+setControlAnchor $static "bottom" "" 224 -target $currentClientProjects;
 
+setControlAnchor $dateCode "left" "" 8 -target $currentClientProjects;
+setControlAnchor $dateCode "bottom" "" 164 -target $currentClientProjects;
 
+setControlAnchor $static "left" "" 88 -target $currentClientProjects;
+setControlAnchor $static "bottom" "" 164 -target $currentClientProjects;
 
+setControlAnchor $LocationID "left" "" 136 -target $currentClientProjects;
+setControlAnchor $LocationID "bottom" "" 168 -target $currentClientProjects;
 
+setControlAnchor $stageID "left" "" 192 -target $currentClientProjects;
+setControlAnchor $stageID "bottom" "" 168 -target $currentClientProjects;
 
+setControlAnchor $static "left" "" 8 -target $currentClientProjects;
+setControlAnchor $static "bottom" "" 188 -target $currentClientProjects;
 
+setControlAnchor $dayDescription "left" "" 88 -target $currentClientProjects;
+setControlAnchor $dayDescription "bottom" "" 192 -target $currentClientProjects;
 
+setControlAnchor $button "left" "" 168 -target $currentClientProjects;
+setControlAnchor $button "bottom" "" 220 -target $currentClientProjects;
 
+setControlAnchor $projectPath "left" "" 8 -target $currentClientProjects;
+setControlAnchor $projectPath "bottom" "" 100 -target $currentClientProjects;
+
+setControlAnchor $button "left" "" 136 -target $currentClientProjects;
+setControlAnchor $button "bottom" "" 124 -target $currentClientProjects;
+
+setControlAnchor $button "left" "" 8 -target $currentClientProjects;
+setControlAnchor $button "bottom" "" 220 -target $currentClientProjects;
+
+setControlAnchor $ready "left" "" 176 -target $currentClientProjects;
+setControlAnchor $ready "bottom" "" 68 -target $currentClientProjects;
 

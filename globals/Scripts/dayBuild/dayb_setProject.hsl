@@ -1,0 +1,33 @@
+/*
+ *
+ *
+ */
+// Const
+string	$kUnset		= "__UNSET__" ;
+string	$kProfile	= "daybuild.ini" ;
+string	$kSettings	= "SETTINGS" ;
+string	$kUIctrl		= "CONTROLS" ;
+
+// inputs
+string	$mode ;
+input		$mode "__UNSET__" ; // Lock, Unlock
+
+// ProfilePath
+string $profilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
+
+// UI ids
+int $id_pl = `getProfileInt $kUIctrl "pjLock" -1 -file $profilePath` ;
+int $id_pp = `getProfileInt $kUIctrl "projectPath" -1 -file $profilePath` ;
+
+// Vars
+
+if( $mode=="Lock" ) {
+	// set the client/project in the text box, and lock the box
+	setCheckBoxCheck $id_pl 1 ;
+	enableControl $id_pp false ;
+	// publish
+
+} else if( $mode=="Unlock" ) {
+	setCheckBoxCheck $id_pl 0 ;
+	enableControl $id_pp true ;
+}

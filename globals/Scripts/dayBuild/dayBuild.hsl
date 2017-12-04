@@ -12,11 +12,16 @@ string	$kUIctrl		= "CONTROLS" ;
 string	$mode ;
 input		$mode "__UNSET__" ;
 
+// Prime with client Data
+dayb_update -mode "Clients" ;
+dayb_update -mode "Projects" ;
+
 // profilePaths
 string $profilePath  = `appInfo "datalocation" -noFeedback` + $kProfile ;
 string $henchmanData = `appInfo "datalocation" -noFeedback` + "henchman.ini" ;
 
-
+string $tempArray[] ;
+string $temp ;
 // UI
 string 	$kAppName = "Day Builder v0.0.1" ;
 
@@ -26,6 +31,8 @@ if ( `windowExists $kAppName` == true ) {
 
 int $parentForm ;
 int $rect[4] ;
+int $static ;
+int $button ;
 
 int $dlg = `createWindow $kAppName` ;
 setWindowSize $kAppName -width 248 -height 356 ;
@@ -35,143 +42,131 @@ $rect[0] = 4;
 $rect[1] = 0;
 $rect[2] = 244;
 $rect[3] = 128;
-int $groupbox = `createGroupBox $dlg -text "Select Project" -form $parentForm -pos $rect`;
-$rect[0] = 8;
+$static = `createGroupBox $dlg -text "Select Project" -form $parentForm -pos $rect`;
 
+$rect[0] = 8;
 $rect[1] = 20;
-
 $rect[2] = 48;
-
 $rect[3] = 40;
+$static = `createStaticBox $dlg -text "Client" -form $parentForm -pos $rect`;
 
-int $static = `createStaticBox $dlg -text "Client" -form $parentForm -pos $rect`;
 $rect[0] = 8;
-
 $rect[1] = 48;
-
 $rect[2] = 48;
-
 $rect[3] = 68;
-
-int $static = `createStaticBox $dlg -text "Project" -form $parentForm -pos $rect`;
-$rect[0] = 8;
-
-$rect[1] = 76;
-
-$rect[2] = 72;
-
-$rect[3] = 96;
-
-int $button = `createPushButton $dlg -text "New Project" -form $parentForm -pos $rect`;
-
+$static = `createStaticBox $dlg -text "Project" -form $parentForm -pos $rect`;
 
 $rect[0] = 56;
-
 $rect[1] = 20;
-
 $rect[2] = 164;
-
 $rect[3] = 40;
+int $knownClients = `createDropList $dlg -form $parentForm -pos $rect`;
+writeProfileInt $kUIctrl "knownClients" $knownClients -file $profilePath ;
+$tempArray = `getProfileArray $kSettings "knownClients" $kUnset $profilePath "/"` ;
+string $gotCurrentClient = `getProfileString $kSettings "currentClient" $kUnset -file $profilePath` ;
+populateDropList -items $tempArray -uiID $knownClients -reverse false -set $gotCurrentClient ;
+setDropListHandler $knownClients -selChange "dayb_boxCB -mode \"Clients\";";
 
-int $combobox = `createDropList $dlg -form $parentForm -pos $rect`;
 $rect[0] = 56;
-
 $rect[1] = 48;
-
 $rect[2] = 164;
-
 $rect[3] = 68;
+int $currentClientProjects = `createDropList $dlg -form $parentForm -pos $rect`;
+writeProfileInt $kUIctrl "currentClientProjects" $currentClientProjects -file $profilePath ;
+$tempArray = `getProfileArray $kSettings "currentClientProjects" $kUnset $profilePath "/"` ;
+populateDropList -items $tempArray -uiID $currentClientProjects -reverse false ;
+setDropListHandler $currentClientProjects -selChange "dayb_boxCB -mode \"Projects\";";
 
-int $combobox = `createDropList $dlg -form $parentForm -pos $rect`;
-$rect[0] = 80;
-
-$rect[1] = 76;
-
-$rect[2] = 240;
-
-$rect[3] = 92;
-
-int $editbox = `createTextBox $dlg -text "Edit" -form $parentForm -pos $rect`;
 $rect[0] = 8;
-
 $rect[1] = 104;
-
-$rect[2] = 96;
-
+$rect[2] = 116;
 $rect[3] = 124;
+$button = `createPushButton $dlg -text "I Chose YOU!" -form $parentForm -pos $rect`;
+setPushButtonHandler $button -click "dayb_setProject -mode \"Lock\";" ;
 
-int $button = `createPushButton $dlg -text "I Chose YOU!" -form $parentForm -pos $rect`;
-
+$rect[0] = 8;
+$rect[1] = 76;
+$rect[2] = 240;
+$rect[3] = 100;
+int $projectPath = `createTextBox $dlg -text "Project Path" -form $parentForm -pos $rect`;
+writeProfileInt $kUIctrl "projectPath" $projectPath -file $profilePath ;
 
 $rect[0] = 4;
-
 $rect[1] = 132;
-
 $rect[2] = 244;
+$rect[3] = 224;
+$static = `createGroupBox $dlg -text "Create Day" -form $parentForm -pos $rect`;
 
-$rect[3] = 228;
-
-int $groupbox = `createGroupBox $dlg -text "Create Day" -form $parentForm -pos $rect`;
 $rect[0] = 8;
-
 $rect[1] = 148;
-
 $rect[2] = 68;
-
 $rect[3] = 164;
+$temp = `genMeta -mode "DATE"` ;
+int $dateCode = `createTextBox $dlg -text $temp -form $parentForm -pos $rect`;
+enableControl $dateCode false ;
+writeProfileInt $kUIctrl "dateCode" $dateCode -file $profilePath ;
 
-int $editbox = `createTextBox $dlg -text "123456" -form $parentForm -pos $rect`;
-$rect[0] = 76;
-
+$rect[0] = 88;
 $rect[1] = 148;
-
-$rect[2] = 120;
-
+$rect[2] = 132;
 $rect[3] = 164;
+$static = `createStaticBox $dlg -text "Stage ID" -form $parentForm -pos $rect`;
 
-int $static = `createStaticBox $dlg -text "Location" -form $parentForm -pos $rect`;
-$rect[0] = 124;
-
+$rect[0] = 136;
 $rect[1] = 148;
-
-$rect[2] = 176;
-
+$rect[2] = 188;
 $rect[3] = 168;
+int $locationID = `createDropList $dlg "A" "B" "C" -form $parentForm -pos $rect -sel 0`;
+writeProfileInt $kUIctrl "locationID" $locationID -file $profilePath ;
 
-int $combobox = `createDropList $dlg "A" "B" "C" "D" -form $parentForm -pos $rect`;
-$rect[0] = 180;
-
+$rect[0] = 192;
 $rect[1] = 148;
-
-$rect[2] = 232;
-
+$rect[2] = 240;
 $rect[3] = 168;
+int $stageID = `createDropList $dlg "1" "2" "3" "4" -form $parentForm -pos $rect -sel 0`;
+writeProfileInt $kUIctrl "stageID" $stageID -file $profilePath ;
 
-int $combobox = `createDropList $dlg "1" "2" "3" "4" -form $parentForm -pos $rect`;
 $rect[0] = 8;
-
 $rect[1] = 172;
-
 $rect[2] = 84;
-
 $rect[3] = 188;
+$static = `createStaticBox $dlg -text "Day Descriptor" -form $parentForm -pos $rect`;
 
-int $static = `createStaticBox $dlg -text "Day Descriptor" -form $parentForm -pos $rect`;
-$rect[0] = 92;
-
+$rect[0] = 88;
 $rect[1] = 172;
-
-$rect[2] = 232;
-
+$rect[2] = 240;
 $rect[3] = 192;
+int $dayDescription = `createTextBox $dlg -text "Edit" -form $parentForm -pos $rect`;
+writeProfileInt $kUIctrl "dayDescription" $dayDescription -file $profilePath ;
 
-int $editbox = `createTextBox $dlg -text "Edit" -form $parentForm -pos $rect`;
-$rect[0] = 8;
-
+$rect[0] = 168;
 $rect[1] = 200;
-
-$rect[2] = 80;
-
+$rect[2] = 240;
 $rect[3] = 220;
+$button = `createPushButton $dlg -text "Generate" -form $parentForm -pos $rect`;
+setPushButtonHandler $button -click "dayb_generate" ;
 
-int $button = `createPushButton $dlg -text "Generate" -form $parentForm -pos $rect`;
+$rect[0] = 136;
+$rect[1] = 104;
+$rect[2] = 240;
+$rect[3] = 124;
+$button = `createPushButton $dlg -text "Update Henchman" -form $parentForm -pos $rect`;
+
+$rect[0] = 8;
+$rect[1] = 204;
+$rect[2] = 112;
+$rect[3] = 220;
+$button = `createCheckBox $dlg -text "Unlock Date Code" -form $parentForm -pos $rect`;
+$temp = "enableControl " + string($dateCode) + " toggle ;" ;
+setCheckBoxHandler $button -click $temp ;
+
+$rect[0] = 176;
+$rect[1] = 52;
+$rect[2] = 232;
+$rect[3] = 68;
+int $pjLock = `createCheckBox $dlg -text "Locked" -form $parentForm -pos $rect`;
+writeProfileInt $kUIctrl "pjLock" $pjLock -file $profilePath ;
+setCheckBoxHandler $pjLock -click "dayb_setProject -mode \"Unlock\";" ;
+
+// queue with inital settings
+dayb_boxCB ;
