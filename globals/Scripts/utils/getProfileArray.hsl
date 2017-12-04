@@ -1,0 +1,20 @@
+// getProfileArray
+string $heading ;
+input $heading "__UNSET__" ;
+
+string $item ;
+input $item "__UNSET__" ;
+
+string $unset ;
+input  $unset "__UNSET__" ;
+
+string $path ;
+input  $path "__UNSET__" ;
+
+string $delim ;
+input  $delim " " ;
+
+string $temp = `getProfileString $heading $item $unset -file $path` ;
+string $tempArray[] = `strTokArray $temp -delims $delim` ;
+
+return $tempArray ;

@@ -1,0 +1,44 @@
+// populate drop list
+
+string $items[] ;
+input $items [["__UNSET__"]];
+
+int $uiID ;
+input $uiID -1 ;
+
+boolean $reverse ;
+input $reverse false ;
+
+string $set ;
+input $set "__UNSET__" ;
+
+int $i, $count, $start, $end, $ofs ;
+
+$count = getCount( $items ) ;
+$i = -1 ;
+
+deleteAllDropListItems $uiID ;
+
+if( $reverse == true ) {
+	$start = $count - 1 ;
+	for( $i=$start; $i>=0; $i -= 1 ) {
+		if( $items[$i] != "__UNSET__" ) {
+			addDropListItem  $uiID $items[$i] ;
+		}
+	}
+} else {
+	for( $i=0; $i<$count; $i+=1 ) {
+		if( $items[$i] != "__UNSET__" ) {
+			addDropListItem  $uiID $items[$i] ;
+		}
+	}
+	$start = 0 ;
+}
+
+if( $set == "__UNSET__" ) {
+	$set = $items[$start] ;
+}
+
+$i = `findDropListItem $uiID $set -exact` ;
+selectDropListItem  $uiID $i ;
+return $i ;
