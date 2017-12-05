@@ -1,0 +1,20 @@
+/*
+ *
+ *
+ */
+// Const
+string	$kUnset		= "__UNSET__" ;
+string	$kProfile	= "daybuild.ini" ;
+string	$kSettings	= "SETTINGS" ;
+string	$kUIctrl		= "CONTROLS" ;
+
+// inputs
+string	$mode ;
+input		$mode "__UNSET__" ;
+
+// ProfilePath
+string $profilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
+
+// Publish the Client/Project setup to Henchman
+
+// arbitrerelly take the first capture day & session we can find

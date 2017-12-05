@@ -43,9 +43,7 @@ if( $mode == "Clients" ) {
 	string $foundClients = "" ;
 	for( $i=0; $i<$count; $i+=1 ) {
 		$temp = `strLeft $dirList[$i] 1` ;
-		if(  "_" == $temp ) {
-			print "continue" ;
-		} else {
+		if(  "_" != $temp ) {
 			$temp = $dirList[$i] ;
 			$test = $dbPath + "/" + $temp + "/" + $temp + ".enf" ;
 			$found = `pathExists $test` ;
@@ -67,10 +65,7 @@ if( $mode == "Clients" ) {
 	for( $i=0; $i<$count; $i+=1 ) {
 		$projectName = $dirList[$i] ;
 		$temp = `strLeft $projectName 1` ;
-		if(  "_" == $temp ) {
-			// Blade Bug - continue fails to increment the counter!
-			print "continue" ;
-		} else {
+		if(  "_" != $temp ) {
 			$temp = $dbPath + "/" + $projectName ;
 			$test = $projectName + "*.enf" ;
 			string $enfList[] = `getFileList $temp -pattern $test` ;

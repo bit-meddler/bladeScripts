@@ -15,10 +15,27 @@ input		$mode "__UNSET__" ;
 // ProfilePath
 string $profilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
 
-string $tempArray[] ;
-
+// droplist ids
 int $currentClientProjects = `getProfileInt $kUIctrl "currentClientProjects" -1 -file $profilePath` ;
 int $knownClients = `getProfileInt $kUIctrl "knownClients" -1 -file $profilePath` ;
+
+// If locked, return to origenal settings
+int $pjLock = `getProfileInt $kUIctrl "pjLock" -1 -file $profilePath` ;
+boolean $locked = `getCheckBoxCheck $pjLock` ;
+if( $locked ) {
+	// recover old settings
+	string $currentClient = `getProfileString $kSettings "currentClient" $kUnset -file $profilePath` ;
+	string $currentProject = `getProfileString $kSettings "currentProject" $kUnset -file $profilePath` ;
+	// find idx
+	int $sel_idx = `findDropListItem $knownClients $currentClient` ;
+	selectDropListItem $knownClients $sel_idx ;
+	$sel_idx = `findDropListItem $currentClientProjects $currentProject` ;
+	selectDropListItem $currentClientProjects $sel_idx ;
+	// bail
+	return ;
+}
+
+string $tempArray[] ;
 
 // find selected Clients, and update Project list
 if( $mode == "Clients" ) {

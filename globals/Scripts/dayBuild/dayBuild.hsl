@@ -35,7 +35,7 @@ int $static ;
 int $button ;
 
 int $dlg = `createWindow $kAppName` ;
-setWindowSize $kAppName -width 248 -height 356 ;
+setWindowSize $kAppName -width 252 -height 232 ;
 $parentForm = `getTopLevelForm $dlg` ;
 
 $rect[0] = 4;
@@ -74,8 +74,17 @@ $rect[3] = 68;
 int $currentClientProjects = `createDropList $dlg -form $parentForm -pos $rect`;
 writeProfileInt $kUIctrl "currentClientProjects" $currentClientProjects -file $profilePath ;
 $tempArray = `getProfileArray $kSettings "currentClientProjects" $kUnset $profilePath "/"` ;
-populateDropList -items $tempArray -uiID $currentClientProjects -reverse false ;
+$temp = `getProfileString $kSettings "currentProject" $kUnset -file $profilePath` ;
+populateDropList -items $tempArray -uiID $currentClientProjects -reverse false -set $temp;
 setDropListHandler $currentClientProjects -selChange "dayb_boxCB -mode \"Projects\";";
+
+$rect[0] = 176;
+$rect[1] = 52;
+$rect[2] = 232;
+$rect[3] = 68;
+int $pjLock = `createCheckBox $dlg -text "Locked" -form $parentForm -pos $rect`;
+writeProfileInt $kUIctrl "pjLock" $pjLock -file $profilePath ;
+setCheckBoxHandler $pjLock -click "dayb_setProject -mode \"Unlock\";" ;
 
 $rect[0] = 8;
 $rect[1] = 104;
@@ -136,7 +145,7 @@ $rect[0] = 88;
 $rect[1] = 172;
 $rect[2] = 240;
 $rect[3] = 192;
-int $dayDescription = `createTextBox $dlg -text "Edit" -form $parentForm -pos $rect`;
+int $dayDescription = `createTextBox $dlg -text "CaptureSession" -form $parentForm -pos $rect`;
 writeProfileInt $kUIctrl "dayDescription" $dayDescription -file $profilePath ;
 
 $rect[0] = 168;
@@ -160,13 +169,7 @@ $button = `createCheckBox $dlg -text "Unlock Date Code" -form $parentForm -pos $
 $temp = "enableControl " + string($dateCode) + " toggle ;" ;
 setCheckBoxHandler $button -click $temp ;
 
-$rect[0] = 176;
-$rect[1] = 52;
-$rect[2] = 232;
-$rect[3] = 68;
-int $pjLock = `createCheckBox $dlg -text "Locked" -form $parentForm -pos $rect`;
-writeProfileInt $kUIctrl "pjLock" $pjLock -file $profilePath ;
-setCheckBoxHandler $pjLock -click "dayb_setProject -mode \"Unlock\";" ;
-
 // queue with inital settings
 dayb_boxCB ;
+// Assume we're Pipelined, so lock down the Client/Project
+dayb_setProject -mode "Lock" ;

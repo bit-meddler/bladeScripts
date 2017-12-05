@@ -26,12 +26,12 @@ $sel_loc = `getDropListSelItem $locationID` ;
 int $stageID = `getProfileInt $kUIctrl "stageID" -1 -file $profilePath` ;
 $sel_stg = `getDropListSelItem $stageID` ;
 int $dayDescription = `getProfileInt $kUIctrl "dayDescription" -1 -file $profilePath` ;
-
+string $temp = `getControlText $dayDescription` ;
 string $captureDay = "" ;
 $captureDay += `getControlText $dateCode` + "_" ;
 $captureDay += `getDropListItem $locationID $sel_loc` ;
 $captureDay += `getDropListItem $stageID $sel_stg` + "_" ;
-$captureDay += `getControlText $dayDescription` ;
+$captureDay += `strReplace $temp " " ""` ;
 
 string $project = `getControlText $projectPath` + "/" ;
 
@@ -48,13 +48,23 @@ if( $count <5 ) {
 string $dbPath = $toks[0] + "/" + $toks[1] + "/" ;
 
 $dbPath += $project ;
-// in directory build out..
 // day
+// test same day doesn't already exist
+$temp = $captureDay + "*" ;
+
+string $files[] = `getDirList $dbPath -nameOnly `;//-pattern $temp` ;
+print $files ;
+/*
+
+*/
+return ;
+
+
 makeEnfNode -location $dbPath -name $captureDay -type "CAPTURE_DAY" ;
 refreshEclipse ;
 // Update Henchman
 $dbPath += $captureDay ;
-
+refreshEclipse ;
 // sessions
 string $sessions[] = [[ "PM", "AM", "#CAL#", "#ROM#" ]] ;
 int $i ;
@@ -67,7 +77,8 @@ for( $i=0; $i<4; $i+=1 ) {
 }
 
 refreshEclipse ;
-$dbPath += "/CAL/" ;
-print $dbPath ;
+$dbPath += "/#CAL#" ;
 setSession $dbPath ;
 hench_update -mode "PATH" ;
+hench_genMeta -mode "DATE" ;
+hench_genMeta -mode "TIME" ;
