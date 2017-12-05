@@ -1,0 +1,76 @@
+/* makeEnfNode.hsl
+ *
+ * Make a directory and ENF Node at a given Location
+ */
+
+string $location ;
+input  $location "__UNSET__" ;
+
+string $type ;
+input  $type "__UNSET__" ; //"PROJECT", "CAPTURE_DAY", "SESSION" 
+
+string $name ;
+input  $name "__UNSET__" ;
+
+// Enf fields to ouput
+// TYPE
+string $Reference, $PARENT, $HASCHILD, $CREATIONDATEANDTIME, $temp, $tag ;
+boolean $sessionInfo = false ;
+
+switch( $type ) {
+	case "PROJECT" : {
+		$Reference = "" ;
+		$PARENT = "" ;
+		$HASCHILD = "FALSE" ;
+		$sessionInfo = true ;
+		$tag = "Project 1" ;
+	}
+	break ;
+	case "CAPTURE_DAY" : {	
+		$Reference = "" ;
+		$PARENT = "Project 1" ;
+		$HASCHILD = "FALSE" ;
+		$sessionInfo = false ;
+		$tag = "Capture day 1" ;
+	}
+	break ;
+	case "SESSION" : {
+		$Reference = "" ;
+		$PARENT = "Capture day 1" ;
+		$HASCHILD = "FALSE" ;
+		$sessionInfo = true ;
+		$tag = "Session 1" ;
+	}
+	break ;
+}
+if( $sessionInfo ) {
+	$temp = "" ;
+	$temp += `genMeta -mode "DATE"` ;
+	$temp += `genMeta -mode "TIME"` ;
+	$CREATIONDATEANDTIME = "20" ;
+	int $i ;
+	for( $i=0; $i<12; $i+=2 ) {
+		$CREATIONDATEANDTIME += `strMid $temp $i 2` ;
+		if( $i<10 ) {
+			$CREATIONDATEANDTIME += "," ;
+		}
+	}
+}
+
+// make dir
+string $header ;
+string $enfPath = $location + "/" + $name ;
+createDir $enfPath ;
+
+// make enf
+$header = "Node Information" ;
+$enfPath += "/" + $name + "." + $tag + ".enf" ;
+writeProfileString $header "TYPE" $type -file $enfPath ;
+writeProfileString $header "Reference" $Reference -file $enfPath ;
+writeProfileString $header "PARENT" $PARENT -file $enfPath ;
+writeProfileString $header "NAME" $name -file $enfPath ;
+writeProfileString $header "HASCHILD" $HASCHILD -file $enfPath ;
+if( $sessionInfo ) {
+	$header = "SESSION_INFO" ;
+	writeProfileString $header "CREATIONDATEANDTIME" $CREATIONDATEANDTIME -file $enfPath ;
+}
