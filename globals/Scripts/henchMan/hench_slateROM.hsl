@@ -22,7 +22,7 @@ if( $dateCode == $ksUnset ) {
 }
 
 // Capture to correct Directory
-hench_session -target "# ROM #" ;
+hench_session -target "#ROM#" ;
 
 // Build slate //
 // Get codename

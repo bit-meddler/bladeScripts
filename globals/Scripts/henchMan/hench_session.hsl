@@ -10,7 +10,7 @@ string	$kUIctrl		= "CONTROLS" ;
 
 // inputs
 string	$target ;
-input		$target "__UNSET__" ; // expects "# CAL #", "# ROM #", "AM", "PM"
+input		$target "__UNSET__" ; // expects "#CAL#", "#ROM#", "AM", "PM"
 
 // ProfilePath
 string $ProfilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;

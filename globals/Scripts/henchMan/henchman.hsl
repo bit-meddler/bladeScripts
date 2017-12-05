@@ -54,12 +54,12 @@ $rect[0] = 12;
 $rect[1] = 72;
 $rect[2] = 76;
 $rect[3] = 92;
-$button = `createPushButton $dlg -text "CAL" -form $parentForm -pos $rect`;setPushButtonHandler $button -click "hench_session -target \"# CAL #\";" ;
+$button = `createPushButton $dlg -text "CAL" -form $parentForm -pos $rect`;setPushButtonHandler $button -click "hench_session -target \"#CAL#\";" ;
 
 $rect[0] = 100;
 $rect[1] = 72;
 $rect[2] = 164;
-$rect[3] = 92;$button = `createPushButton $dlg -text "ROM" -form $parentForm -pos $rect`;setPushButtonHandler $button -click "hench_session -target \"# ROM #\";" ;
+$rect[3] = 92;$button = `createPushButton $dlg -text "ROM" -form $parentForm -pos $rect`;setPushButtonHandler $button -click "hench_session -target \"#ROM#\";" ;
 
 $rect[0] = 188;
 $rect[1] =  72;
