@@ -33,20 +33,41 @@ $captureDay += `getDropListItem $locationID $sel_loc` ;
 $captureDay += `getDropListItem $stageID $sel_stg` + "_" ;
 $captureDay += `getControlText $dayDescription` ;
 
-string $project = `getControlText $projectPath` ;
+string $project = `getControlText $projectPath` + "/" ;
 
-print ($project + "/" + $captureDay) ;
+// get the dbPath from henchman
+string $henchmanData = `appInfo "datalocation" -noFeedback` + "henchman.ini" ;
+string $temp = `getProfileString $kSettings "workingPath" $kUnset -file $henchmanData` ;
+string $toks[] = `strTokArray $temp -delims "/"` ;
+int $count = getCount( $toks ) ;
+if( $count <5 ) {
+	print -warning "Bad Path in your Henchman!" ;
+	return -1 ;
+}
 
+string $dbPath = $toks[0] + "/" + $toks[1] + "/" ;
+
+$dbPath += $project ;
 // in directory build out..
 // day
-// day .enf
-// for x in [cal, rom, am, pm]
-// x folder
-// x enf
-// setSession $day + "/" + CAL
-
-/*
+makeEnfNode -location $dbPath -name $captureDay -type "CAPTURE_DAY" ;
 refreshEclipse ;
-henchman ;
-hench_update ;
-*/
+// Update Henchman
+$dbPath += $captureDay ;
+
+// sessions
+string $sessions[] = [[ "PM", "AM", "#CAL#", "#ROM#" ]] ;
+int $i ;
+for( $i=0; $i<4; $i+=1 ) {
+	makeEnfNode -location $dbPath -name $sessions[$i] -type "SESSION" ;
+	$temp = $dbPath + "/" + $sessions[$i] ;
+	refreshEclipse ;
+	setSession $temp ;
+	
+}
+
+refreshEclipse ;
+$dbPath += "/CAL/" ;
+print $dbPath ;
+setSession $dbPath ;
+hench_update -mode "PATH" ;
