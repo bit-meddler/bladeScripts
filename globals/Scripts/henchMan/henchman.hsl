@@ -220,6 +220,6 @@ $rect[3] = 312;$button = `createPushButton $dlg -text "Prop" -form $parentForm 
 $rect[0] = 236;
 $rect[1] = 292;
 $rect[2] = 340;
-$rect[3] = 312;int $patchColour = `createDropList $dlg "None" "Black" "Blue" "Green" "Orange" "Pink" "Red" "Teal" "White" "Yellow" -form $parentForm -pos $rect -sel 0` ;
+$rect[3] = 312;int $patchColour = `createDropList $dlg "None" "Black" "Blue" "Green" "Orange" "Pink" "Purple" "Red" "Teal" "White" "Yellow" -form $parentForm -pos $rect -sel 0` ;
 writeProfileInt $kUIctrl "patchColour" $patchColour -file $profilePath ;
 
