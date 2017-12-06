@@ -9,19 +9,19 @@
 
 ## Stage Tools
 + henchMan
-+ dayBuild (_wip_)
++ dayBuild
 + calMan (_wip_)
-+ maskRescue (_wip_)
+++ maskRescue (_wip_)
 
 ## Solver Tools
 + selection and drawing toggles
 
 ## Post Tools
-+ bodyNavigator
-+ testVeracity
-+ superFiller
-+ keyTools
-+ misc helpers
++ bodyNavigator (_wip_)
++ testVeracity (_wip_)
++ superFiller (_wip_)
++ keyTools (_wip_)
++ misc helpers (_wip_)
 
 ## Giant Tools
 + BMO2VSK (_wip_)
