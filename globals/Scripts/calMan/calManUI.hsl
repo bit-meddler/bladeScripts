@@ -1,0 +1,324 @@
+int $dlg ;int $parentForm ;int $rect[4] ;
+
+int $dlg = `createWindow ""`;
+setWindowSize "" -width 360 -height 296;
+// Get a handle to the main user windows main layout form. All controls
+// will be descendants of this and will be placed/sized relative to it.
+$parentForm = `getTopLevelForm $dlg`;
+$rect[0] = 4;$rect[1] = 4;$rect[2] = 356;$rect[3] = 100;int $static = `createGroupBox $dlg -text "Manage Calibrations" -form $parentForm -pos $rect`;
+
+$rect[0] = 280;
+$rect[1] = 20;
+$rect[2] = 336;
+$rect[3] = 36;
+int $okWand = `createCheckBox $dlg -text "Wand" -form $parentForm -pos $rect`;
+$rect[0] = 280;
+$rect[1] = 40;
+$rect[2] = 352;
+$rect[3] = 56;
+int $okOrig = `createCheckBox $dlg -text "Origin" -form $parentForm -pos $rect`;
+$rect[0] = 280;
+$rect[1] = 60;
+$rect[2] = 352;
+$rect[3] = 76;
+int $okFloor = `createCheckBox $dlg -text "Floor Plane" -form $parentForm -pos $rect`;
+$rect[0] = 280;
+$rect[1] = 80;
+$rect[2] = 332;
+$rect[3] = 96;
+int $okSurvey = `createCheckBox $dlg -text "Survey" -form $parentForm -pos $rect`;
+$rect[0] = 108;
+$rect[1] = 20;
+$rect[2] = 172;
+$rect[3] = 40;
+int $timeCode = `createTextBox $dlg -text "123456" -form $parentForm -pos $rect`;
+$rect[0] = 8;
+$rect[1] = 48;
+$rect[2] = 104;
+$rect[3] = 68;
+int $button = `createPushButton $dlg -text "New Calibration" -form $parentForm -pos $rect`;
+
+$rect[0] = 8;
+$rect[1] = 20;
+$rect[2] = 104;
+$rect[3] = 40;
+int $button = `createPushButton $dlg -text "Set Capture Day" -form $parentForm -pos $rect`;
+
+$rect[0] = 176;
+$rect[1] = 20;
+$rect[2] = 276;
+$rect[3] = 40;
+int $button = `createPushButton $dlg -text "Update Timecode" -form $parentForm -pos $rect`;
+
+$rect[0] = 108;
+$rect[1] = 48;
+$rect[2] = 220;
+$rect[3] = 68;
+int $calSets = `createDropList $dlg -form $parentForm -pos $rect`;
+$rect[0] = 224;
+$rect[1] = 48;
+$rect[2] = 276;
+$rect[3] = 68;
+int $button = `createPushButton $dlg -text "Rescan" -form $parentForm -pos $rect`;
+
+$rect[0] = 8;
+$rect[1] = 76;
+$rect[2] = 104;
+$rect[3] = 96;
+int $button = `createPushButton $dlg -text "Load Calibration" -form $parentForm -pos $rect`;
+
+$rect[0] = 108;
+$rect[1] = 76;
+$rect[2] = 204;
+$rect[3] = 96;
+int $button = `createPushButton $dlg -text "Export Calibration" -form $parentForm -pos $rect`;
+
+$rect[0] = 4;
+$rect[1] = 104;
+$rect[2] = 356;
+$rect[3] = 200;
+int $static = `createGroupBox $dlg -text "Record Calibration Data" -form $parentForm -pos $rect`;
+$rect[0] = 8;
+$rect[1] = 124;
+$rect[2] = 56;
+$rect[3] = 144;
+int $button = `createPushButton $dlg -text "Wand" -form $parentForm -pos $rect`;
+
+$rect[0] = 60;
+$rect[1] = 124;
+$rect[2] = 80;
+$rect[3] = 144;
+int $tkWand = `createTextBox $dlg -text "1" -form $parentForm -pos $rect`;
+$rect[0] = 96;
+$rect[1] = 124;
+$rect[2] = 152;
+$rect[3] = 144;
+int $button = `createPushButton $dlg -text "Origin" -form $parentForm -pos $rect`;
+
+$rect[0] = 156;
+$rect[1] = 124;
+$rect[2] = 176;
+$rect[3] = 144;
+int $tkOrig = `createTextBox $dlg -text "1" -form $parentForm -pos $rect`;
+$rect[0] = 184;
+$rect[1] = 124;
+$rect[2] = 240;
+$rect[3] = 144;
+int $button = `createPushButton $dlg -text "Floor" -form $parentForm -pos $rect`;
+
+$rect[0] = 244;
+$rect[1] = 124;
+$rect[2] = 264;
+$rect[3] = 144;
+int $tkFloor = `createTextBox $dlg -text "1" -form $parentForm -pos $rect`;
+$rect[0] = 272;
+$rect[1] = 124;
+$rect[2] = 328;
+$rect[3] = 144;
+int $button = `createPushButton $dlg -text "Survey" -form $parentForm -pos $rect`;
+
+$rect[0] = 332;
+$rect[1] = 124;
+$rect[2] = 352;
+$rect[3] = 144;
+int $tkBing = `createTextBox $dlg -text "1" -form $parentForm -pos $rect`;
+$rect[0] = 20;
+$rect[1] = 156;
+$rect[2] = 84;
+$rect[3] = 172;
+int $static = `createStaticBox $dlg -text "Select Wand" -form $parentForm -pos $rect`;
+$rect[0] = 88;
+$rect[1] = 152;
+$rect[2] = 268;
+$rect[3] = 172;
+int $wands = `createDropList $dlg -form $parentForm -pos $rect`;
+$rect[0] = 272;
+$rect[1] = 156;
+$rect[2] = 352;
+$rect[3] = 168;
+int $autoProc = `createCheckBox $dlg -text "Auto Process" -form $parentForm -pos $rect`;
+$rect[0] = 4;
+$rect[1] = 204;
+$rect[2] = 356;
+$rect[3] = 280;
+int $static = `createGroupBox $dlg -text "Process Calibration" -form $parentForm -pos $rect`;
+$rect[0] = 8;
+$rect[1] = 224;
+$rect[2] = 48;
+$rect[3] = 244;
+int $button = `createPushButton $dlg -text "Wand" -form $parentForm -pos $rect`;
+
+$rect[0] = 96;
+$rect[1] = 224;
+$rect[2] = 136;
+$rect[3] = 244;
+int $button = `createPushButton $dlg -text "Origin" -form $parentForm -pos $rect`;
+
+$rect[0] = 184;
+$rect[1] = 224;
+$rect[2] = 220;
+$rect[3] = 244;
+int $button = `createPushButton $dlg -text "Floor" -form $parentForm -pos $rect`;
+
+$rect[0] = 268;
+$rect[1] = 224;
+$rect[2] = 312;
+$rect[3] = 244;
+int $button = `createPushButton $dlg -text "Survey" -form $parentForm -pos $rect`;
+
+$rect[0] = 52;
+$rect[1] = 224;
+$rect[2] = 88;
+$rect[3] = 244;
+int $calWand = `createDropList $dlg -form $parentForm -pos $rect`;
+$rect[0] = 140;
+$rect[1] = 224;
+$rect[2] = 176;
+$rect[3] = 244;
+int $calOrig = `createDropList $dlg -form $parentForm -pos $rect`;
+$rect[0] = 224;
+$rect[1] = 224;
+$rect[2] = 260;
+$rect[3] = 244;
+int $calFloor = `createDropList $dlg -form $parentForm -pos $rect`;
+$rect[0] = 316;
+$rect[1] = 224;
+$rect[2] = 352;
+$rect[3] = 244;
+int $calBing = `createDropList $dlg -form $parentForm -pos $rect`;
+$rect[0] = 8;
+$rect[1] = 252;
+$rect[2] = 112;
+$rect[3] = 276;
+int $button = `createPushButton $dlg -text "Batch All Selected" -form $parentForm -pos $rect`;
+
+$rect[0] = 208;
+$rect[1] = 76;
+$rect[2] = 276;
+$rect[3] = 96;
+int $button = `createPushButton $dlg -text "Load Mask" -form $parentForm -pos $rect`;
+
+$rect[0] = 8;
+$rect[1] = 180;
+$rect[2] = 84;
+$rect[3] = 196;
+int $static = `createStaticBox $dlg -text "Last Recording" -form $parentForm -pos $rect`;
+$rect[0] = 88;
+$rect[1] = 176;
+$rect[2] = 352;
+$rect[3] = 196;
+int $lastRec = `createTextBox $dlg -text "" -form $parentForm -pos $rect`;
+setControlAnchor $static "left" "" 4 -target $lastRec;
+setControlAnchor $static "bottom" "" 100 -target $lastRec;
+
+setControlAnchor $okWand "left" "" 280 -target $lastRec;
+setControlAnchor $okWand "bottom" "" 36 -target $lastRec;
+
+setControlAnchor $okOrig "left" "" 280 -target $lastRec;
+setControlAnchor $okOrig "bottom" "" 56 -target $lastRec;
+
+setControlAnchor $okFloor "left" "" 280 -target $lastRec;
+setControlAnchor $okFloor "bottom" "" 76 -target $lastRec;
+
+setControlAnchor $okSurvey "left" "" 280 -target $lastRec;
+setControlAnchor $okSurvey "bottom" "" 96 -target $lastRec;
+
+setControlAnchor $timeCode "left" "" 108 -target $lastRec;
+setControlAnchor $timeCode "bottom" "" 40 -target $lastRec;
+
+setControlAnchor $button "left" "" 8 -target $lastRec;
+setControlAnchor $button "bottom" "" 68 -target $lastRec;
+
+setControlAnchor $button "left" "" 8 -target $lastRec;
+setControlAnchor $button "bottom" "" 40 -target $lastRec;
+
+setControlAnchor $button "left" "" 176 -target $lastRec;
+setControlAnchor $button "bottom" "" 40 -target $lastRec;
+
+setControlAnchor $calSets "left" "" 108 -target $lastRec;
+setControlAnchor $calSets "bottom" "" 68 -target $lastRec;
+
+setControlAnchor $button "left" "" 224 -target $lastRec;
+setControlAnchor $button "bottom" "" 68 -target $lastRec;
+
+setControlAnchor $button "left" "" 8 -target $lastRec;
+setControlAnchor $button "bottom" "" 96 -target $lastRec;
+
+setControlAnchor $button "left" "" 108 -target $lastRec;
+setControlAnchor $button "bottom" "" 96 -target $lastRec;
+
+setControlAnchor $static "left" "" 4 -target $lastRec;
+setControlAnchor $static "bottom" "" 200 -target $lastRec;
+
+setControlAnchor $button "left" "" 8 -target $lastRec;
+setControlAnchor $button "bottom" "" 144 -target $lastRec;
+
+setControlAnchor $tkWand "left" "" 60 -target $lastRec;
+setControlAnchor $tkWand "bottom" "" 144 -target $lastRec;
+
+setControlAnchor $button "left" "" 96 -target $lastRec;
+setControlAnchor $button "bottom" "" 144 -target $lastRec;
+
+setControlAnchor $tkOrig "left" "" 156 -target $lastRec;
+setControlAnchor $tkOrig "bottom" "" 144 -target $lastRec;
+
+setControlAnchor $button "left" "" 184 -target $lastRec;
+setControlAnchor $button "bottom" "" 144 -target $lastRec;
+
+setControlAnchor $tkFloor "left" "" 244 -target $lastRec;
+setControlAnchor $tkFloor "bottom" "" 144 -target $lastRec;
+
+setControlAnchor $button "left" "" 272 -target $lastRec;
+setControlAnchor $button "bottom" "" 144 -target $lastRec;
+
+setControlAnchor $tkBing "left" "" 332 -target $lastRec;
+setControlAnchor $tkBing "bottom" "" 144 -target $lastRec;
+
+setControlAnchor $static "left" "" 20 -target $lastRec;
+setControlAnchor $static "bottom" "" 172 -target $lastRec;
+
+setControlAnchor $wands "left" "" 88 -target $lastRec;
+setControlAnchor $wands "bottom" "" 172 -target $lastRec;
+
+setControlAnchor $autoProc "left" "" 272 -target $lastRec;
+setControlAnchor $autoProc "bottom" "" 168 -target $lastRec;
+
+setControlAnchor $static "left" "" 4 -target $lastRec;
+setControlAnchor $static "bottom" "" 280 -target $lastRec;
+
+setControlAnchor $button "left" "" 8 -target $lastRec;
+setControlAnchor $button "bottom" "" 244 -target $lastRec;
+
+setControlAnchor $button "left" "" 96 -target $lastRec;
+setControlAnchor $button "bottom" "" 244 -target $lastRec;
+
+setControlAnchor $button "left" "" 184 -target $lastRec;
+setControlAnchor $button "bottom" "" 244 -target $lastRec;
+
+setControlAnchor $button "left" "" 268 -target $lastRec;
+setControlAnchor $button "bottom" "" 244 -target $lastRec;
+
+setControlAnchor $calWand "left" "" 52 -target $lastRec;
+setControlAnchor $calWand "bottom" "" 244 -target $lastRec;
+
+setControlAnchor $calOrig "left" "" 140 -target $lastRec;
+setControlAnchor $calOrig "bottom" "" 244 -target $lastRec;
+
+setControlAnchor $calFloor "left" "" 224 -target $lastRec;
+setControlAnchor $calFloor "bottom" "" 244 -target $lastRec;
+
+setControlAnchor $calBing "left" "" 316 -target $lastRec;
+setControlAnchor $calBing "bottom" "" 244 -target $lastRec;
+
+setControlAnchor $button "left" "" 8 -target $lastRec;
+setControlAnchor $button "bottom" "" 276 -target $lastRec;
+
+setControlAnchor $button "left" "" 208 -target $lastRec;
+setControlAnchor $button "bottom" "" 96 -target $lastRec;
+
+setControlAnchor $static "left" "" 8 -target $lastRec;
+setControlAnchor $static "bottom" "" 196 -target $lastRec;
+
+setControlAnchor $lastRec "left" "" 88 -target $lastRec;
+setControlAnchor $lastRec "bottom" "" 196 -target $lastRec;
+
