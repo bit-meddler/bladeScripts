@@ -24,4 +24,4 @@ if ( `windowExists $kAppName` == true ) {
 }
 
 int $dlg = `createWindow $kAppName` ;
-setWindowSize $kAppName -width 250 -height 350 ;
+

@@ -1,0 +1,191 @@
+/* calMan.hsl
+ *
+ *
+ */
+// Const
+string	$kUnset		= "__UNSET__" ;
+string	$kProfile	= "calman.ini" ;
+string	$kSettings	= "SETTINGS" ;
+string	$kUIctrl		= "CONTROLS" ;
+
+// inputs
+string	$mode ;
+input		$mode "__UNSET__" ;
+
+// ProfilePath
+string $ProfilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
+
+
+// UI
+string 	$kAppName 	= "CalibMan v0.0.1" ;
+
+if ( `windowExists $kAppName` == true ) {
+	destroyWindow $kAppName ;
+}
+
+int $dlg = `createWindow $kAppName` ;
+setWindowSize $kAppName -width 364 -height 312;
+int $rect[4] ;
+// Get a handle to the main user windows main layout form. All controls// will be descendants of this and will be placed/sized relative to it.
+int $static, $button ;
+int $parentForm = `getTopLevelForm $dlg`;
+
+/*****************************  Calibration Sets  ******************************************/
+$rect[0] = 4;$rect[1] = 4;$rect[2] = 356;$rect[3] = 92;$static = `createGroupBox $dlg -text "Manage Calibration Sets" -form $parentForm -pos $rect`;
+
+// Set Day
+$rect[0] = 8;
+$rect[1] = 20;
+$rect[2] = 112;
+$rect[3] = 40;
+$button = `createPushButton $dlg -text "Set Capture Day" -form $parentForm -pos $rect`;
+$rect[0] = 116;
+$rect[1] = 20;
+$rect[2] = 272;
+$rect[3] = 40;
+int $currentDay = `createTextBox $dlg -text "" -form $parentForm -pos $rect`;
+enableControl $currentDay false ;
+
+// new Cal Set
+$rect[0] = 8;
+$rect[1] = 44;
+$rect[2] = 112;
+$rect[3] = 64;
+$button = `createPushButton $dlg -text "New Cal Set" -form $parentForm -pos $rect`;
+$rect[0] = 116;
+$rect[1] = 44;
+$rect[2] = 180;
+$rect[3] = 64;
+int $timeCode = `createTextBox $dlg -text "123456" -form $parentForm -pos $rect`;
+enableControl $timeCode false ;
+
+// select Cal Set
+$rect[0] = 8;
+$rect[1] = 68;
+$rect[2] = 112;
+$rect[3] = 88;
+$static = `createStaticBox $dlg -text "Use Existing Cal Set" -form $parentForm -pos $rect`;
+$rect[0] = 116;
+$rect[1] = 68;
+$rect[2] = 220;
+$rect[3] = 88;
+int $calSets = `createDropList $dlg -form $parentForm -pos $rect`;
+$rect[0] = 224;
+$rect[1] = 68;
+$rect[2] = 276;
+$rect[3] = 88;
+$button = `createPushButton $dlg -text "Rescan" -form $parentForm -pos $rect`;
+
+// Cal Set Trafic Lights
+$rect[0] = 280;$rect[1] = 12;$rect[2] = 336;$rect[3] = 28;int $okWand = `createCheckBox $dlg -text "Wand" -form $parentForm -pos $rect`;
+enableControl $okWand false ;
+$rect[0] = 280;$rect[1] = 32;$rect[2] = 352;$rect[3] = 48;int $okOrig = `createCheckBox $dlg -text "Origin" -form $parentForm -pos $rect`;
+enableControl $okOrig false ;
+$rect[0] = 280;$rect[1] = 52;$rect[2] = 352;$rect[3] = 68;int $okFloor = `createCheckBox $dlg -text "Floor Plane" -form $parentForm -pos $rect`;
+enableControl $okFloor false ;
+$rect[0] = 280;$rect[1] = 72;$rect[2] = 332;$rect[3] = 88;int $okSurvey = `createCheckBox $dlg -text "Survey" -form $parentForm -pos $rect`;
+enableControl $okSurvey false ;
+
+
+/*****************************  Record Cal Data  ******************************************/
+$rect[0] = 4;$rect[1] = 96;$rect[2] = 356;$rect[3] = 184;$static = `createGroupBox $dlg -text "Record Calibration Data" -form $parentForm -pos $rect`;
+
+// record components with take num
+$rect[0] = 8;$rect[1] = 112;$rect[2] = 56;$rect[3] = 132;$button = `createPushButton $dlg -text "Wand" -form $parentForm -pos $rect`;$rect[0] = 60;$rect[1] = 112;$rect[2] = 80;$rect[3] = 132;int $tkWand = `createTextBox $dlg -text "1" -form $parentForm -pos $rect`;
+
+$rect[0] = 96;$rect[1] = 112;$rect[2] = 152;$rect[3] = 132;$button = `createPushButton $dlg -text "Origin" -form $parentForm -pos $rect`;$rect[0] = 156;$rect[1] = 112;$rect[2] = 176;$rect[3] = 132;int $tkOrig = `createTextBox $dlg -text "1" -form $parentForm -pos $rect`;
+
+$rect[0] = 184;$rect[1] = 112;$rect[2] = 240;$rect[3] = 132;$button = `createPushButton $dlg -text "Floor" -form $parentForm -pos $rect`;$rect[0] = 244;$rect[1] = 112;$rect[2] = 264;$rect[3] = 132;int $tkFloor = `createTextBox $dlg -text "1" -form $parentForm -pos $rect`;
+
+$rect[0] = 272;$rect[1] = 112;$rect[2] = 328;$rect[3] = 132;$button = `createPushButton $dlg -text "Survey" -form $parentForm -pos $rect`;$rect[0] = 332;$rect[1] = 112;$rect[2] = 352;$rect[3] = 132;int $tkBing = `createTextBox $dlg -text "1" -form $parentForm -pos $rect`;
+$rect[0] = 20;$rect[1] = 140;$rect[2] = 84;$rect[3] = 156;
+// setup Calibration
+int $static = `createStaticBox $dlg -text "Select Wand" -form $parentForm -pos $rect`;
+$rect[0] = 88;$rect[1] = 136;$rect[2] = 268;$rect[3] = 156;int $wands = `createDropList $dlg -form $parentForm -pos $rect`;
+
+$rect[0] = 272;$rect[1] = 140;$rect[2] = 352;$rect[3] = 152;int $autoProc = `createCheckBox $dlg -text "Auto Process" -form $parentForm -pos $rect`;
+$rect[0] = 272;
+$rect[1] = 164;
+$rect[2] = 352;
+$rect[3] = 176;
+int $autoStop = `createCheckBox $dlg -text "Auto Stop" -form $parentForm -pos $rect`;
+// Last Recording
+$rect[0] = 8;
+$rect[1] = 164;
+$rect[2] = 84;
+$rect[3] = 180;
+$static = `createStaticBox $dlg -text "Last Recording" -form $parentForm -pos $rect`;
+$rect[0] = 88;
+$rect[1] = 160;
+$rect[2] = 268;
+$rect[3] = 180;
+int $lastRec = `createTextBox $dlg -text "" -form $parentForm -pos $rect`;
+
+
+/**************************  Process Calibration  ***********************************/
+$rect[0] = 4;$rect[1] = 188;$rect[2] = 356;$rect[3] = 260;$static = `createGroupBox $dlg -text "Process Calibration" -form $parentForm -pos $rect`;
+
+// Select Take
+$rect[0] = 8;$rect[1] = 204;$rect[2] = 48;$rect[3] = 224;$button = `createPushButton $dlg -text "Wand" -form $parentForm -pos $rect`;$rect[0] = 52;
+$rect[1] = 204;
+$rect[2] = 88;
+$rect[3] = 224;
+int $calWand = `createDropList $dlg -form $parentForm -pos $rect`;
+
+$rect[0] = 96;$rect[1] = 204;$rect[2] = 136;$rect[3] = 224;$button = `createPushButton $dlg -text "Origin" -form $parentForm -pos $rect`;$rect[0] = 140;
+$rect[1] = 204;
+$rect[2] = 176;
+$rect[3] = 224;
+int $calOrig = `createDropList $dlg -form $parentForm -pos $rect`;
+
+$rect[0] = 184;$rect[1] = 204;$rect[2] = 220;$rect[3] = 224;$button = `createPushButton $dlg -text "Floor" -form $parentForm -pos $rect`;$rect[0] = 224;
+$rect[1] = 204;
+$rect[2] = 260;
+$rect[3] = 224;
+int $calFloor = `createDropList $dlg -form $parentForm -pos $rect`;
+
+$rect[0] = 268;$rect[1] = 204;$rect[2] = 312;$rect[3] = 224;$button = `createPushButton $dlg -text "Survey" -form $parentForm -pos $rect`;$rect[0] = 316;$rect[1] = 204;$rect[2] = 352;$rect[3] = 224;int $calBing = `createDropList $dlg -form $parentForm -pos $rect`;
+
+// Calibrate
+$rect[0] = 8;
+$rect[1] = 228;
+$rect[2] = 104;
+$rect[3] = 252;
+$button = `createPushButton $dlg -text "Reset Calibration" -form $parentForm -pos $rect`;
+$rect[0] = 132;$rect[1] = 228;$rect[2] = 236;$rect[3] = 252;$button = `createPushButton $dlg -text "Batch All Selected" -form $parentForm -pos $rect`;
+// Calibration Options
+$rect[0] = 260;
+$rect[1] = 232;
+$rect[2] = 296;
+$rect[3] = 248;
+int $calFull = `createRadioButton $dlg -text "Full" -form $parentForm -pos $rect -first -check`;
+$rect[0] = 300;
+$rect[1] = 232;
+$rect[2] = 352;
+$rect[3] = 248;
+int $calRefine = `createRadioButton $dlg -text "Refine" -form $parentForm -pos $rect`;
+
+
+/*********************************  Load & Save  ***********************************/
+$rect[0] = 4;
+$rect[1] = 264;
+$rect[2] = 356;
+$rect[3] = 304;
+$static = `createGroupBox $dlg -text "Load / Save Calibration" -form $parentForm -pos $rect`;
+
+$rect[0] = 8;
+$rect[1] = 280;
+$rect[2] = 84;
+$rect[3] = 300;
+$button = `createPushButton $dlg -text "Import Cal" -form $parentForm -pos $rect`;
+$rect[0] = 88;
+$rect[1] = 280;
+$rect[2] = 160;
+$rect[3] = 300;
+$button = `createPushButton $dlg -text "Export Cal" -form $parentForm -pos $rect`;
+$rect[0] = 164;$rect[1] = 280;$rect[2] = 244;$rect[3] = 300;$button = `createPushButton $dlg -text "Import Masks" -form $parentForm -pos $rect`;$rect[0] = 248;$rect[1] = 280;$rect[2] = 352;$rect[3] = 300;$button = `createPushButton $dlg -text "Backup Wand X2D" -form $parentForm -pos $rect`;
+// Set Capture Day from henchman
+// Generate Timecode
+// rescan day (Populate Set List)
+// Update Trafic Lights from Active set list
+// Update Cal tk data
