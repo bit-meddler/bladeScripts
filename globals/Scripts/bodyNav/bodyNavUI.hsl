@@ -1,0 +1,217 @@
+int $dlg;
+int $parentForm;
+int $rect[4];
+
+int $dlg = `createWindow ""`;
+setWindowSize "" -width 400 -height 800;
+// Get a handle to the main user windows main layout form. All controls
+// will be descendants of this and will be placed/sized relative to it.
+$parentForm = `getTopLevelForm $dlg`;
+$rect[0] = 4;
+$rect[1] = 4;
+$rect[2] = 396;
+$rect[3] = 52;
+int $groupbox = `createGroupBox $dlg -text "Character Selection" -form $parentForm -pos $rect`;
+$rect[0] = 12;
+$rect[1] = 24;
+$rect[2] = 68;
+$rect[3] = 44;
+int $button = `createPushButton $dlg -text "Scan" -form $parentForm -pos $rect`;
+
+$rect[0] = 76;
+$rect[1] = 24;
+$rect[2] = 392;
+$rect[3] = 44;
+int $combobox = `createDropList $dlg -form $parentForm -pos $rect`;
+$rect[0] = 4;
+$rect[1] = 60;
+$rect[2] = 396;
+$rect[3] = 600;
+int $groupbox = `createGroupBox $dlg -text "Segment Selection" -form $parentForm -pos $rect`;
+$rect[0] = 168;
+$rect[1] = 72;
+$rect[2] = 232;
+$rect[3] = 128;
+int $button = `createPushButton $dlg -text "Head" -form $parentForm -pos $rect`;
+
+$rect[0] = 96;
+$rect[1] = 132;
+$rect[2] = 196;
+$rect[3] = 168;
+int $button = `createPushButton $dlg -text "R shoulder" -form $parentForm -pos $rect`;
+
+$rect[0] = 212;
+$rect[1] = 132;
+$rect[2] = 312;
+$rect[3] = 168;
+int $button = `createPushButton $dlg -text "L Shoulder" -form $parentForm -pos $rect`;
+
+$rect[0] = 44;
+$rect[1] = 140;
+$rect[2] = 92;
+$rect[3] = 212;
+int $button = `createPushButton $dlg -text "R upper" -form $parentForm -pos $rect`;
+
+$rect[0] = 44;
+$rect[1] = 216;
+$rect[2] = 92;
+$rect[3] = 288;
+int $button = `createPushButton $dlg -text "R fore" -form $parentForm -pos $rect`;
+
+$rect[0] = 316;
+$rect[1] = 140;
+$rect[2] = 364;
+$rect[3] = 212;
+int $button = `createPushButton $dlg -text "L upper" -form $parentForm -pos $rect`;
+
+$rect[0] = 316;
+$rect[1] = 216;
+$rect[2] = 364;
+$rect[3] = 288;
+int $button = `createPushButton $dlg -text "L fore" -form $parentForm -pos $rect`;
+
+$rect[0] = 144;
+$rect[1] = 172;
+$rect[2] = 256;
+$rect[3] = 240;
+int $button = `createPushButton $dlg -text "Chest" -form $parentForm -pos $rect`;
+
+$rect[0] = 144;
+$rect[1] = 244;
+$rect[2] = 256;
+$rect[3] = 312;
+int $button = `createPushButton $dlg -text "Hips" -form $parentForm -pos $rect`;
+
+$rect[0] = 124;
+$rect[1] = 316;
+$rect[2] = 176;
+$rect[3] = 416;
+int $button = `createPushButton $dlg -text "R leg" -form $parentForm -pos $rect`;
+
+$rect[0] = 232;
+$rect[1] = 316;
+$rect[2] = 284;
+$rect[3] = 416;
+int $button = `createPushButton $dlg -text "L leg" -form $parentForm -pos $rect`;
+
+$rect[0] = 124;
+$rect[1] = 420;
+$rect[2] = 172;
+$rect[3] = 520;
+int $button = `createPushButton $dlg -text "R shin" -form $parentForm -pos $rect`;
+
+$rect[0] = 232;
+$rect[1] = 420;
+$rect[2] = 284;
+$rect[3] = 520;
+int $button = `createPushButton $dlg -text "L shin" -form $parentForm -pos $rect`;
+
+$rect[0] = 84;
+$rect[1] = 524;
+$rect[2] = 172;
+$rect[3] = 560;
+int $button = `createPushButton $dlg -text "R foot" -form $parentForm -pos $rect`;
+
+$rect[0] = 232;
+$rect[1] = 524;
+$rect[2] = 320;
+$rect[3] = 560;
+int $button = `createPushButton $dlg -text "L foot" -form $parentForm -pos $rect`;
+
+$rect[0] = 44;
+$rect[1] = 292;
+$rect[2] = 92;
+$rect[3] = 336;
+int $button = `createPushButton $dlg -text "R hand" -form $parentForm -pos $rect`;
+
+$rect[0] = 316;
+$rect[1] = 292;
+$rect[2] = 364;
+$rect[3] = 336;
+int $button = `createPushButton $dlg -text "L hand" -form $parentForm -pos $rect`;
+
+$rect[0] = 4;
+$rect[1] = 604;
+$rect[2] = 164;
+$rect[3] = 648;
+int $groupbox = `createGroupBox $dlg -text "Primary Selection" -form $parentForm -pos $rect`;
+$rect[0] = 8;
+$rect[1] = 620;
+$rect[2] = 80;
+$rect[3] = 640;
+int $button = `createPushButton $dlg -text "<" -form $parentForm -pos $rect`;
+
+$rect[0] = 88;
+$rect[1] = 620;
+$rect[2] = 160;
+$rect[3] = 640;
+int $button = `createPushButton $dlg -text ">" -form $parentForm -pos $rect`;
+
+$rect[0] = 172;
+$rect[1] = 620;
+$rect[2] = 244;
+$rect[3] = 640;
+int $button = `createPushButton $dlg -text "Clear" -form $parentForm -pos $rect`;
+
+$rect[0] = 12;
+$rect[1] = 576;
+$rect[2] = 100;
+$rect[3] = 592;
+int $static = `createStaticBox $dlg -text "Current Segment" -form $parentForm -pos $rect`;
+$rect[0] = 108;
+$rect[1] = 576;
+$rect[2] = 228;
+$rect[3] = 592;
+int $editbox = `createTextBox $dlg -text "Edit" -form $parentForm -pos $rect`;
+$rect[0] = 236;
+$rect[1] = 576;
+$rect[2] = 324;
+$rect[3] = 596;
+int $button = `createPushButton $dlg -text "Select Again" -form $parentForm -pos $rect`;
+
+$rect[0] = 44;
+$rect[1] = 88;
+$rect[2] = 88;
+$rect[3] = 116;
+int $static = `createStaticBox $dlg -text "Green" -form $parentForm -pos $rect`;
+$rect[0] = 324;
+$rect[1] = 88;
+$rect[2] = 352;
+$rect[3] = 112;
+int $static = `createStaticBox $dlg -text "Red" -form $parentForm -pos $rect`;
+$rect[0] = 168;
+$rect[1] = 604;
+$rect[2] = 396;
+$rect[3] = 648;
+int $groupbox = `createGroupBox $dlg -text "Selection Helper" -form $parentForm -pos $rect`;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

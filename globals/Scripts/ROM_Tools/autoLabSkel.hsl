@@ -9,7 +9,7 @@
  */
 
 // Consts
-string	$SKEL_PATH = "C://Users//Public//Documents//Vicon//globals//Skels//" ;
+string	$SKEL_PATH = "C:/Users/Public/Documents/Vicon/globals/Skels/" ;
 string	$SKEL_BASE = "RH_Blade_v1_" ;
 string	$pose_type = "T-Pose" ; // is this a const?
 string 	$EXT 		  = ".1.hdf" ;
@@ -65,10 +65,12 @@ if( $len >= 57 ) { // Blade 3fingers
 } else { // Blade Active Markers
 	$skel_type = "active_v1" ;
 } // detect Fingers
+string $skelPath = string( $SKEL_PATH + $SKEL_BASE + $skel_type + ".vst" ) ;
+print ( "Loading :" + $skelPath ) ;
 
 // load correct VST - works best on the T-Frame
 loadTframe ;
-loadFile -importType "curClipCreateNew" string( $SKEL_PATH + $SKEL_BASE + $skel_type + ".vst" ) ;
+loadFile -importType "curClipCreateNew" $skelPath ;
 
 // Set Template to correct Subject Name
 setProperty "Name" $subject_name -onMod string( $SKEL_BASE + $skel_type ) ;

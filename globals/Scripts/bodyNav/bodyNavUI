@@ -1,0 +1,40 @@
+int $dlg;
+int $parentForm;
+int $rect[4];
+
+int $dlg = `createWindow ""`;
+setWindowSize "" -width 400 -height 800;
+// Get a handle to the main user windows main layout form. All controls
+// will be descendants of this and will be placed/sized relative to it.
+$parentForm = `getTopLevelForm $dlg`;
+groupbox:4.000000,4.000000,396.000000,52.000000,Character Selection,$groupbox,0;
+button:12.000000,24.000000,68.000000,44.000000,Scan,$button,0;
+combobox:76.000000,24.000000,392.000000,44.000000,Combobox,$combobox,0;
+groupbox:4.000000,60.000000,396.000000,600.000000,Segment Selection,$groupbox,0;
+button:168.000000,72.000000,232.000000,128.000000,Head,$button,0;
+button:96.000000,132.000000,196.000000,168.000000,R shoulder,$button,0;
+button:212.000000,132.000000,312.000000,168.000000,L Shoulder,$button,0;
+button:44.000000,140.000000,92.000000,212.000000,R upper,$button,0;
+button:44.000000,216.000000,92.000000,288.000000,R fore,$button,0;
+button:316.000000,140.000000,364.000000,212.000000,L upper,$button,0;
+button:316.000000,216.000000,364.000000,288.000000,L fore,$button,0;
+button:144.000000,172.000000,256.000000,240.000000,Chest,$button,0;
+button:144.000000,244.000000,256.000000,312.000000,Hips,$button,0;
+button:124.000000,316.000000,176.000000,416.000000,R leg,$button,0;
+button:232.000000,316.000000,284.000000,416.000000,L leg,$button,0;
+button:124.000000,420.000000,172.000000,520.000000,R shin,$button,0;
+button:232.000000,420.000000,284.000000,520.000000,L shin,$button,0;
+button:84.000000,524.000000,172.000000,560.000000,R foot,$button,0;
+button:232.000000,524.000000,320.000000,560.000000,L foot,$button,0;
+button:44.000000,292.000000,92.000000,336.000000,R hand,$button,0;
+button:316.000000,292.000000,364.000000,336.000000,L hand,$button,0;
+groupbox:4.000000,604.000000,164.000000,648.000000,Primary Selection,$groupbox,0;
+button:8.000000,620.000000,80.000000,640.000000,<,$button,0;
+button:88.000000,620.000000,160.000000,640.000000,>,$button,0;
+button:172.000000,620.000000,244.000000,640.000000,Clear,$button,0;
+static:12.000000,576.000000,100.000000,592.000000,Current Segment,$static,0;
+editbox:108.000000,576.000000,228.000000,592.000000,Edit,$editbox,0;
+button:236.000000,576.000000,324.000000,596.000000,Select Again,$button,0;
+static:44.000000,88.000000,88.000000,116.000000,Green,$static,0;
+static:324.000000,88.000000,352.000000,112.000000,Red,$static,0;
+groupbox:168.000000,604.000000,396.000000,648.000000,Selection Helper,$groupbox,0;
