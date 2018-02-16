@@ -1,0 +1,16 @@
+string $names[] = `getModules -selected` ;
+int $len = getCount( $names ) ;
+int $last = $len - 1 ;
+string $out = "[[\"" ;
+int $i ;
+
+for( $i=0; $i<$len; $i+=1 ){
+	$out += $names[$i] ;
+	$out += "\"" ;
+	if( $i<$last ) {
+		$out += ", \"" ;
+	}
+}
+
+$out += "]]" ;
+print $out ;

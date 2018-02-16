@@ -1,0 +1,36 @@
+/* makeSelSet.hsl
+ * 
+ * Guarded Selection set creater
+ */
+string $name ;
+input $name "__UNSET__" ;
+
+string $members[] ;
+input $members [[ "" ]] ;
+
+int $i, $num ;
+string $out ;
+// sanity
+$num = `getCount $members` ;
+if( $num < 1 ) {
+	print -warning "No Members" ;
+	return ;
+}
+if( $name == "__UNSET__" ) {
+	print -warning "No Name" ;
+	return ;
+}
+// Clear Existing
+select ;
+if( `isSelectionSet $name` == true ) {
+	// Clear Set
+	selectionSet $name -delete ;
+}
+
+// Make Set
+selectionSet $name ;
+for( $i=0; $i<$num; $i+=1 ) {
+	selectionSet -add $name $members[ $i ] ;
+	$out += $members[ $i ] + " " ;
+}
+print( "Created '" + $name + "' with [" + $out + "]" ) ;
