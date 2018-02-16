@@ -244,14 +244,14 @@ $rect[1] = 476;
 $rect[2] = 228;
 $rect[3] = 492;
 int $currSeg = `createTextBox $dlg -text "" -form $parentForm -pos $rect`;
-writeProfileInt $kUIctrl "currSeg" $currSeg -file $profilePath ;
+setGlobalVar "currSeg" $currSeg ;
 
 $rect[0] = 236;
 $rect[1] = 476;
 $rect[2] = 324;
 $rect[3] = 496;
 $button = `createPushButton $dlg -text "Select Again" -form $parentForm -pos $rect`;
-
+setPushButtonHandler $button -click "bodyNav_selectionTools -mode \"AGAIN\";" ;
 
 // *************************** Primary Selection *********************************************
 $rect[0] = 4;
@@ -265,13 +265,14 @@ $rect[1] = 520;
 $rect[2] = 80;
 $rect[3] = 540;
 $button = `createPushButton $dlg -text "<" -form $parentForm -pos $rect`;
+setPushButtonHandler $button -click "cyclePri -dir \"PREV\" ;" ;
 
 $rect[0] = 88;
 $rect[1] = 520;
 $rect[2] = 160;
 $rect[3] = 540;
 $button = `createPushButton $dlg -text ">" -form $parentForm -pos $rect`;
-
+setPushButtonHandler $button -click "cyclePri -dir \"NEXT\" ;" ;
 
 // *************************** Selection Helper *********************************************
 $rect[0] = 168;
@@ -285,19 +286,21 @@ $rect[1] = 520;
 $rect[2] = 252;
 $rect[3] = 540;
 $button = `createPushButton $dlg -text "Drop Primary" -form $parentForm -pos $rect`;
+setPushButtonHandler $button -click "bodyNav_selectionTools -mode \"DROPP\";" ;
 
 $rect[0] = 256;
 $rect[1] = 520;
 $rect[2] = 332;
 $rect[3] = 540;
 $button = `createPushButton $dlg -text "Select All" -form $parentForm -pos $rect`;
+setPushButtonHandler $button -click "bodyNav_selectionTools -mode \"ALL\";" ;
 
 $rect[0] = 336;
 $rect[1] = 520;
 $rect[2] = 392;
 $rect[3] = 540;
 $button = `createPushButton $dlg -text "Clear" -form $parentForm -pos $rect`;
-
+setPushButtonHandler $button -click "bodyNav_selectionTools -mode \"CLEAR\";" ;
 
 // *************************** Gap Finding *********************************************
 $rect[0] = 4;

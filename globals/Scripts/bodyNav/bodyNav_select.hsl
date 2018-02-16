@@ -14,6 +14,9 @@ string	$kUIctrl		= "CONTROLS" ;
 string	$selSet ;
 input		$selSet "__UNSET__" ;
 
+boolean $reset ;
+input   $reset true ;
+
 // ProfilePath
 string $ProfilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
 
@@ -33,46 +36,56 @@ switch( $selSet ) {
 		$setName = "BN_S_l_shoulder";
 		break ;
 	case "R upper":
-		$setName = "";
+		$setName = "BN_S_r_upper" ;
 		break ;
 	case "R fore":
-		$setName = "";
+		$setName = "BN_S_r_fore" ;
 		break ;
 	case "R hand":
-		$setName = "";
+		$setName = "BN_S_r_hand" ;
 		break ;
 	case "L upper":
-		$setName = "";
+		$setName = "BN_S_l_upper" ;
 		break ;
 	case "L fore":
-		$setName = "";
+		$setName = "BN_S_l_fore" ;
 		break ;
 	case "L hand":
-		$setName = "";
+		$setName = "BN_S_l_hand" ;
 		break ;
 	case "Chest":
-		$setName = "";
+		$setName = "BN_S_chest" ;
 		break ;
 	case "Hips":
-		$setName = "";
+		$setName = "BN_S_hips" ;
 		break ;
 	case "R leg":
-		$setName = "";
+		$setName = "BN_S_r_leg" ;
 		break ;
 	case "R shin":
-		$setName = "";
+		$setName = "BN_S_r_shin" ;
 		break ;
 	case "R foot":
-		$setName = "";
+		$setName = "BN_S_r_foot" ;
 		break ;
 	case "L leg":
-		$setName = "";
+		$setName = "BN_S_l_leg" ;
 		break ;
 	case "L shin":
-		$setName = "";
+		$setName = "BN_S_l_shin" ;
 		break ;
 	case "L foot":
-		$setName = "";
+		$setName = "BN_S_l_foot" ;
 		break ;
 }
 print $setName ;
+select ;
+selectSet $setName -a -priorityOnly ;
+if( $reset ) {
+	cyclePri -dir "ZERO" ;
+}
+int $currSeg = 0 ;
+if( `getGlobalVarExists "currSeg"` ){
+	$currSeg = `getGlobalIntVar "currSeg"` ;
+}
+setControlText $currSeg $selSet ;

@@ -1,0 +1,33 @@
+/* bodyNav_selectionTools.hsl
+ *
+ * Repete selection
+ */
+string $mode ;
+input $mode "NONE" -discrete "NONE" "AGAIN" "DROPP" "ALL" "CLEAR" ;
+
+if( $mode == "AGAIN" ) {
+	int $currSeg = 0 ;
+	if( `getGlobalVarExists "currSeg"` ){
+		$currSeg = `getGlobalIntVar "currSeg"` ;
+	}
+	string $seg = `getControlText $currSeg` ;
+	bodyNav_select -selSet $seg ;
+} else if( $mode == "DROPP" ) {
+	// find primary
+	int $priIdx = 0 ;
+	if( `getGlobalVarExists "priIdx"` ){
+		$priIdx = `getGlobalIntVar "priIdx"` ;
+	}
+	// find mod
+	string $mods[] = `getModules -selected` ;
+	string $mod = $mods[ $priIdx ] ;
+	// Drop mod
+	select -r  $mod ;
+	cyclePri -dir "PREV" ;
+	cyclePri -dir "NEXT" ;
+} else if( $mode == "ALL" ) {
+	string $char = `getPriority` ;
+	selectByType Marker -childOf $char ;
+} else if( $mode == "CLEAR" ) {
+	select ;
+}

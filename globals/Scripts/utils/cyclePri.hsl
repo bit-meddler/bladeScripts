@@ -1,0 +1,37 @@
+/* cyclePri.hsl
+ *
+ * setPrimary is broken -prev and -next do not respect the selection.
+ *
+ */
+// Input
+
+string $dir ;
+input  $dir "NEXT" -discrete "NEXT" "PREV" "ZERO" ;
+
+int $priIdx = 0 ;
+if( `getGlobalVarExists "priIdx"` ){
+	$priIdx = `getGlobalIntVar "priIdx"` ;
+}
+
+string $mods[] = `getModules -selected` ;
+int $len = `getCount $mods` ;
+if( $len < 1 ) {
+	return ;
+}
+
+if( $dir == "NEXT" ){
+	$priIdx += 1 ;
+	if( $priIdx >= $len ) {
+		$priIdx = 0 ;
+	}
+} else if( $dir == "PREV" ){
+	$priIdx -= 1 ;
+	if( $priIdx < 0 ) {
+		$priIdx = $len - 1 ;
+	}
+} else {
+	$priIdx = 0 ;
+}
+
+setPrimary $mods[ $priIdx ] ;
+setGlobalVar "priIdx" $priIdx ;

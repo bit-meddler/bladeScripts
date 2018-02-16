@@ -40,8 +40,8 @@ if( $mode == "SCAN" ) {
 	setPriority ;
 } else {
 	// get text
-	int $sel = `getDropListSelItem $listID` ;
-	string $newChar = `getDropListItem $listID $sel` ;
+	int $sel = `getDropListSelItem $listId` ;
+	string $newChar = `getDropListItem $listId $sel` ;
 	// make Priority
 	select $newChar ;
 	setPriority ;

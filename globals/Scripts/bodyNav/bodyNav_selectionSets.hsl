@@ -20,3 +20,82 @@ makeSelSet -name $setName -members $members ;
 $setName = "BN_S_l_shoulder" ;
 $members = [["C7", "T10", "CLAV", "LCLAV", "STRN", "LBSH", "LFSH", "LSCAP", "LSHO"]] ;
 makeSelSet -name $setName -members $members ;
+
+/* R upper */
+$setName = "BN_S_r_upper" ;
+$members = [["RBSH", "RFSH", "RUPA", "RELB"]] ;
+makeSelSet -name $setName -members $members ;
+
+/* R fore */
+$setName = "BN_S_r_fore" ;
+$members = [["RELB", "RIEL", "RWRE", "ROWR", "RIWR"]] ;
+makeSelSet -name $setName -members $members ;
+
+/* R hand */
+$setName = "BN_S_r_hand" ;
+$members = [["ROWR", "RIWR", "ROHAND", "RIHAND"]] ;
+makeSelSet -name $setName -members $members ;
+
+/* L upper */
+$setName = "BN_S_l_upper" ;
+$members = [["LBSH", "LFSH", "LUPA", "LELB"]] ;
+makeSelSet -name $setName -members $members ;
+
+/* L fore */
+$setName = "BN_S_l_fore" ;
+$members = [["LELB", "LIEL", "LWRE", "LOWR", "LIWR"]] ;
+makeSelSet -name $setName -members $members ;
+
+/* L hand */
+$setName = "BN_S_l_hand" ;
+$members = [["LOWR", "LIWR", "LOHAND", "LIHAND"]] ;
+makeSelSet -name $setName -members $members ;
+
+/* Chest */
+$setName = "BN_S_chest" ;
+$members = [["C7", "T10", "CLAV", "LCLAV", "RCLAV", "STRN"]] ;
+makeSelSet -name $setName -members $members ;
+
+/* Hips */
+$setName = "BN_S_hips" ;
+$members = [["LFWT", "LMWT", "LBWT", "RFWT", "RMWT", "RBWT"]] ;
+makeSelSet -name $setName -members $members ;
+
+/* R leg */
+$setName = "BN_S_r_leg" ;
+$members = [["RFWT", "RMWT", "RBWT", "RHIP", "RKNE"]] ;
+makeSelSet -name $setName -members $members ;
+
+/* R shin */
+$setName = "BN_S_r_shin" ;
+$members = [["RKNE", "RKNI", "RSHN", "RANK"]] ;
+makeSelSet -name $setName -members $members ;
+
+/* R foot */
+$setName = "BN_S_r_foot" ;
+$members = [["RANK", "RHEL", "RMT5", "RMT1", "RTOE"]] ;
+makeSelSet -name $setName -members $members ;
+
+/* L leg */
+$setName = "BN_S_l_leg" ;
+$members = [["LFWT", "LMWT", "LBWT", "LHIP", "LKNE"]] ;
+makeSelSet -name $setName -members $members ;
+
+/* L shin */
+$setName = "BN_S_l_shin" ;
+$members = [["LKNE", "LKNI", "LSHN", "LANK"]] ;
+makeSelSet -name $setName -members $members ;
+
+/* L foot */
+$setName = "BN_S_l_foot" ;
+$members = [["LANK", "LHEL", "LMT5", "LMT1", "LTOE"]] ;
+makeSelSet -name $setName -members $members ;
+
+
+
+/*
+$setName = "" ;
+$members = [[]] ;
+makeSelSet -name $setName -members $members ;
+*/
+//////////////////////////////////////////////
