@@ -1,0 +1,22 @@
+/* bodyNav_selectionSets.hsl
+ *
+ * Hand tuned selection sets for the Body Navigator
+ */
+string $members[] ;
+int $i, $num ;
+string $setName ;
+
+/* Head */
+$setName = "BN_S_head" ;
+$members = [["RFHD", "LBHD", "RBHD", "ARIEL", "FHEAD", "TPHD", "LFHD", "BHEAD", "LHEAD", "RHEAD"]] ;
+makeSelSet -name $setName -members $members ;
+
+/* R shoulder */
+$setName = "BN_S_r_shoulder" ;
+$members = [["C7", "T10", "CLAV", "RCLAV", "STRN", "RBSH", "RFSH", "RSCAP", "RSHO"]] ;
+makeSelSet -name $setName -members $members ;
+
+/* L shoulder */
+$setName = "BN_S_l_shoulder" ;
+$members = [["C7", "T10", "CLAV", "LCLAV", "STRN", "LBSH", "LFSH", "LSCAP", "LSHO"]] ;
+makeSelSet -name $setName -members $members ;

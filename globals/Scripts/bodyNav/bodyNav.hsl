@@ -1,0 +1,430 @@
+/* bodyNav.hsl
+ *
+ * Easy way to Post data.
+ */
+// Load selection sets
+bodyNav_selectionSets ;
+
+// Const
+string	$kUnset		= "__UNSET__" ;
+string	$kProfile	= "bodynav.ini" ;
+string	$kSettings	= "SETTINGS" ;
+string	$kUIctrl    = "CONTROLS" ;
+
+// ProfilePath
+string $profilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
+
+// UI
+string 	$kAppName 	= "BodyNav v0.0.1" ;
+
+if ( `windowExists $kAppName` == true ) {
+	destroyWindow $kAppName ;
+}
+
+// UI vars
+int $dlg ;
+int $parentForm ;
+int $rect[4] ;
+int $ignore ;
+int $button ;
+string $segment ;
+string $cmd ;
+
+
+$dlg = `createWindow $kAppName` ;
+setWindowSize $kAppName -width 408 -height 800 ;
+$parentForm = `getTopLevelForm $dlg` ;
+
+
+// *************************** Char Selection *********************************************
+$rect[0] = 4;
+$rect[1] = 4;
+$rect[2] = 396;
+$rect[3] = 52;
+int $ignore = `createGroupBox $dlg -text "Character Selection" -form $parentForm -pos $rect` ;
+
+$rect[0] = 12;
+$rect[1] = 24;
+$rect[2] = 68;
+$rect[3] = 44;
+$button = `createPushButton $dlg -text "Scan" -form $parentForm -pos $rect`;
+setPushButtonHandler $button -click "bodyNav_charSel -mode \"SCAN\";" ;
+
+$rect[0] = 76;
+$rect[1] = 24;
+$rect[2] = 392;
+$rect[3] = 44;
+int $lChars = `createDropList $dlg -form $parentForm -pos $rect` ;
+writeProfileInt $kUIctrl "lChars" $lChars -file $profilePath ;
+setDropListHandler $lChars -selChange "bodyNav_charSel -mode \"SET\";";
+
+
+// *************************** Segment Selection *********************************************
+// Legend
+$rect[0] = 4;
+$rect[1] = 60;
+$rect[2] = 396;
+$rect[3] = 500;
+$ignore = `createGroupBox $dlg -text "Segment Selection" -form $parentForm -pos $rect`;
+
+$rect[0] = 44;
+$rect[1] = 88;
+$rect[2] = 88;
+$rect[3] = 116;
+$ignore = `createStaticBox $dlg -text "Green" -form $parentForm -pos $rect`;
+
+$rect[0] = 324;
+$rect[1] = 88;
+$rect[2] = 352;
+$rect[3] = 112;
+$ignore = `createStaticBox $dlg -text "Red" -form $parentForm -pos $rect`;
+
+// Segment Buttons
+$segment = "Head" ;
+$rect[0] = 172;
+$rect[1] = 72;
+$rect[2] = 232;
+$rect[3] = 124;
+$button = `createPushButton $dlg -text $segment -form $parentForm -pos $rect`;
+$cmd = "bodyNav_select -selSet \"" + $segment + "\";" ;
+setPushButtonHandler $button -click $cmd ;
+
+$segment = "R shoulder" ;
+$rect[0] = 96;
+$rect[1] = 128;
+$rect[2] = 196;
+$rect[3] = 160;
+$button = `createPushButton $dlg -text $segment -form $parentForm -pos $rect`;
+$cmd = "bodyNav_select -selSet \"" + $segment + "\";" ;
+setPushButtonHandler $button -click $cmd ;
+
+$segment = "L Shoulder" ;
+$rect[0] = 212;
+$rect[1] = 128;
+$rect[2] = 312;
+$rect[3] = 160;
+$button = `createPushButton $dlg -text $segment -form $parentForm -pos $rect`;
+$cmd = "bodyNav_select -selSet \"" + $segment + "\";" ;
+setPushButtonHandler $button -click $cmd ;
+
+$segment = "R upper" ;
+$rect[0] = 44;
+$rect[1] = 136;
+$rect[2] = 92;
+$rect[3] = 200;
+$button = `createPushButton $dlg -text $segment -form $parentForm -pos $rect`;
+$cmd = "bodyNav_select -selSet \"" + $segment + "\";" ;
+setPushButtonHandler $button -click $cmd ;
+
+$segment = "R fore" ;
+$rect[0] = 44;
+$rect[1] = 204;
+$rect[2] = 92;
+$rect[3] = 268;
+$button = `createPushButton $dlg -text $segment -form $parentForm -pos $rect`;
+$cmd = "bodyNav_select -selSet \"" + $segment + "\";" ;
+setPushButtonHandler $button -click $cmd ;
+
+$segment = "R hand" ;
+$rect[0] = 44;
+$rect[1] = 272;
+$rect[2] = 92;
+$rect[3] = 316;
+$button = `createPushButton $dlg -text $segment -form $parentForm -pos $rect`;
+$cmd = "bodyNav_select -selSet \"" + $segment + "\";" ;
+setPushButtonHandler $button -click $cmd ;
+
+$segment = "L upper" ;
+$rect[0] = 316;
+$rect[1] = 136;
+$rect[2] = 364;
+$rect[3] = 200;
+$button = `createPushButton $dlg -text $segment -form $parentForm -pos $rect`;
+$cmd = "bodyNav_select -selSet \"" + $segment + "\";" ;
+setPushButtonHandler $button -click $cmd ;
+
+$segment = "L fore" ;
+$rect[0] = 316;
+$rect[1] = 204;
+$rect[2] = 364;
+$rect[3] = 268;
+$button = `createPushButton $dlg -text $segment -form $parentForm -pos $rect`;
+$cmd = "bodyNav_select -selSet \"" + $segment + "\";" ;
+setPushButtonHandler $button -click $cmd ;
+
+$segment = "L hand" ;
+$rect[0] = 316;
+$rect[1] = 272;
+$rect[2] = 364;
+$rect[3] = 316;
+$button = `createPushButton $dlg -text $segment -form $parentForm -pos $rect`;
+$cmd = "bodyNav_select -selSet \"" + $segment + "\";" ;
+setPushButtonHandler $button -click $cmd ;
+
+$segment = "Chest" ;
+$rect[0] = 144;
+$rect[1] = 164;
+$rect[2] = 256;
+$rect[3] = 224;
+$button = `createPushButton $dlg -text $segment -form $parentForm -pos $rect`;
+$cmd = "bodyNav_select -selSet \"" + $segment + "\";" ;
+setPushButtonHandler $button -click $cmd ;
+
+$segment = "Hips" ;
+$rect[0] = 144;
+$rect[1] = 228;
+$rect[2] = 256;
+$rect[3] = 288;
+$button = `createPushButton $dlg -text $segment -form $parentForm -pos $rect`;
+$cmd = "bodyNav_select -selSet \"" + $segment + "\";" ;
+setPushButtonHandler $button -click $cmd ;
+
+$segment = "R leg" ;
+$rect[0] = 124;
+$rect[1] = 292;
+$rect[2] = 168;
+$rect[3] = 360;
+$button = `createPushButton $dlg -text $segment -form $parentForm -pos $rect`;
+$cmd = "bodyNav_select -selSet \"" + $segment + "\";" ;
+setPushButtonHandler $button -click $cmd ;
+
+$segment = "R shin" ;
+$rect[0] = 124;
+$rect[1] = 364;
+$rect[2] = 168;
+$rect[3] = 432;
+$button = `createPushButton $dlg -text $segment -form $parentForm -pos $rect`;
+$cmd = "bodyNav_select -selSet \"" + $segment + "\";" ;
+setPushButtonHandler $button -click $cmd ;
+
+$segment = "R foot" ;
+$rect[0] = 76;
+$rect[1] = 436;
+$rect[2] = 164;
+$rect[3] = 464;
+$button = `createPushButton $dlg -text $segment -form $parentForm -pos $rect`;
+$cmd = "bodyNav_select -selSet \"" + $segment + "\";" ;
+setPushButtonHandler $button -click $cmd ;
+
+$segment = "L leg" ;
+$rect[0] = 232;
+$rect[1] = 292;
+$rect[2] = 276;
+$rect[3] = 360;
+$button = `createPushButton $dlg -text $segment -form $parentForm -pos $rect`;
+$cmd = "bodyNav_select -selSet \"" + $segment + "\";" ;
+setPushButtonHandler $button -click $cmd ;
+
+$segment = "L shin" ;
+$rect[0] = 232;
+$rect[1] = 364;
+$rect[2] = 276;
+$rect[3] = 432;
+$button = `createPushButton $dlg -text $segment -form $parentForm -pos $rect`;
+$cmd = "bodyNav_select -selSet \"" + $segment + "\";" ;
+setPushButtonHandler $button -click $cmd ;
+
+$segment = "L foot" ;
+$rect[0] = 236;
+$rect[1] = 436;
+$rect[2] = 324;
+$rect[3] = 464;
+$button = `createPushButton $dlg -text $segment -form $parentForm -pos $rect`;
+$cmd = "bodyNav_select -selSet \"" + $segment + "\";" ;
+setPushButtonHandler $button -click $cmd ;
+
+$rect[0] = 12;
+$rect[1] = 476;
+$rect[2] = 100;
+$rect[3] = 492;
+$ignore = `createStaticBox $dlg -text "Current Segment" -form $parentForm -pos $rect`;
+
+$rect[0] = 108;
+$rect[1] = 476;
+$rect[2] = 228;
+$rect[3] = 492;
+int $currSeg = `createTextBox $dlg -text "" -form $parentForm -pos $rect`;
+writeProfileInt $kUIctrl "currSeg" $currSeg -file $profilePath ;
+
+$rect[0] = 236;
+$rect[1] = 476;
+$rect[2] = 324;
+$rect[3] = 496;
+$button = `createPushButton $dlg -text "Select Again" -form $parentForm -pos $rect`;
+
+
+// *************************** Primary Selection *********************************************
+$rect[0] = 4;
+$rect[1] = 504;
+$rect[2] = 164;
+$rect[3] = 548;
+$ignore = `createGroupBox $dlg -text "Primary Selection" -form $parentForm -pos $rect`;
+
+$rect[0] = 8;
+$rect[1] = 520;
+$rect[2] = 80;
+$rect[3] = 540;
+$button = `createPushButton $dlg -text "<" -form $parentForm -pos $rect`;
+
+$rect[0] = 88;
+$rect[1] = 520;
+$rect[2] = 160;
+$rect[3] = 540;
+$button = `createPushButton $dlg -text ">" -form $parentForm -pos $rect`;
+
+
+// *************************** Selection Helper *********************************************
+$rect[0] = 168;
+$rect[1] = 504;
+$rect[2] = 396;
+$rect[3] = 548;
+$ignore = `createGroupBox $dlg -text "Selection Helper" -form $parentForm -pos $rect`;
+
+$rect[0] = 172;
+$rect[1] = 520;
+$rect[2] = 252;
+$rect[3] = 540;
+$button = `createPushButton $dlg -text "Drop Primary" -form $parentForm -pos $rect`;
+
+$rect[0] = 256;
+$rect[1] = 520;
+$rect[2] = 332;
+$rect[3] = 540;
+$button = `createPushButton $dlg -text "Select All" -form $parentForm -pos $rect`;
+
+$rect[0] = 336;
+$rect[1] = 520;
+$rect[2] = 392;
+$rect[3] = 540;
+$button = `createPushButton $dlg -text "Clear" -form $parentForm -pos $rect`;
+
+
+// *************************** Gap Finding *********************************************
+$rect[0] = 4;
+$rect[1] = 552;
+$rect[2] = 396;
+$rect[3] = 600;
+$ignore = `createGroupBox $dlg -text "Gap Finding" -form $parentForm -pos $rect`;
+
+$rect[0] = 12;
+$rect[1] = 568;
+$rect[2] = 100;
+$rect[3] = 592;
+$button = `createPushButton $dlg -text "Previous Gap" -form $parentForm -pos $rect`;
+
+$rect[0] = 108;
+$rect[1] = 568;
+$rect[2] = 196;
+$rect[3] = 592;
+$button = `createPushButton $dlg -text "Next Gap" -form $parentForm -pos $rect`;
+
+$rect[0] = 204;
+$rect[1] = 568;
+$rect[2] = 292;
+$rect[3] = 592;
+$button = `createPushButton $dlg -text "Biggest Gap" -form $parentForm -pos $rect`;
+
+$rect[0] = 300;
+$rect[1] = 568;
+$rect[2] = 392;
+$rect[3] = 592;
+$button = `createPushButton $dlg -text "Smallest Gap" -form $parentForm -pos $rect`;
+
+
+//************************* Gap Filling *****************************************
+$rect[0] = 4;
+$rect[1] = 604;
+$rect[2] = 396;
+$rect[3] = 748;
+$ignore = `createGroupBox $dlg -text "Gap Filling" -form $parentForm -pos $rect`;
+
+$rect[0] = 12;
+$rect[1] = 640;
+$rect[2] = 92;
+$rect[3] = 668;
+$button = `createPushButton $dlg -text "Spline" -form $parentForm -pos $rect`;
+
+$rect[0] = 112;
+$rect[1] = 676;
+$rect[2] = 192;
+$rect[3] = 704;
+$button = `createPushButton $dlg -text "Rigid Fill" -form $parentForm -pos $rect`;
+
+$rect[0] = 112;
+$rect[1] = 640;
+$rect[2] = 192;
+$rect[3] = 668;
+$button = `createPushButton $dlg -text "Copy Motion" -form $parentForm -pos $rect`;
+
+$rect[0] = 12;
+$rect[1] = 676;
+$rect[2] = 92;
+$rect[3] = 704;
+$button = `createPushButton $dlg -text "Del + Fill" -form $parentForm -pos $rect`;
+
+$rect[0] = 212;
+$rect[1] = 676;
+$rect[2] = 292;
+$rect[3] = 704;
+$button = `createPushButton $dlg -text "From Solving" -form $parentForm -pos $rect`;
+
+$rect[0] = 212;
+$rect[1] = 640;
+$rect[2] = 292;
+$rect[3] = 668;
+$button = `createPushButton $dlg -text "From Labelling" -form $parentForm -pos $rect`;
+
+$rect[0] = 28;
+$rect[1] = 620;
+$rect[2] = 76;
+$rect[3] = 636;
+$ignore = `createStaticBox $dlg -text "Spline Fill" -form $parentForm -pos $rect`;
+
+$rect[0] = 124;
+$rect[1] = 620;
+$rect[2] = 176;
+$rect[3] = 636;
+$ignore = `createStaticBox $dlg -text "Associated" -form $parentForm -pos $rect`;
+
+$rect[0] = 220;
+$rect[1] = 620;
+$rect[2] = 276;
+$rect[3] = 636;
+$ignore = `createStaticBox $dlg -text "Kinematics" -form $parentForm -pos $rect`;
+
+$rect[0] = 308;
+$rect[1] = 676;
+$rect[2] = 388;
+$rect[3] = 704;
+$button = `createPushButton $dlg -text "Hold Backward" -form $parentForm -pos $rect`;
+
+$rect[0] = 308;
+$rect[1] = 640;
+$rect[2] = 388;
+$rect[3] = 668;
+$button = `createPushButton $dlg -text "Hold Forward" -form $parentForm -pos $rect`;
+
+$rect[0] = 320;
+$rect[1] = 620;
+$rect[2] = 376;
+$rect[3] = 636;
+$ignore = `createStaticBox $dlg -text "Frame Hold" -form $parentForm -pos $rect`;
+
+$rect[0] = 16;
+$rect[1] = 720;
+$rect[2] = 40;
+$rect[3] = 736;
+$ignore = `createStaticBox $dlg -text "Max" -form $parentForm -pos $rect`;
+
+$rect[0] = 48;
+$rect[1] = 716;
+$rect[2] = 88;
+$rect[3] = 736;
+int $editbox = `createTextBox $dlg -text "Edit" -form $parentForm -pos $rect`;
+
+$rect[0] = 112;
+$rect[1] = 712;
+$rect[2] = 192;
+$rect[3] = 740;
+$button = `createPushButton $dlg -text "Seed Rigid" -form $parentForm -pos $rect`;
+// Phew!

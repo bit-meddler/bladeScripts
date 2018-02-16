@@ -1,0 +1,48 @@
+/* bodyNav_charSel.hsl
+ *
+ * Manage Character 'Priority'.  Scan scene for Characters, and allow easy selection of them
+ */
+// Const
+string	$kUnset		= "__UNSET__" ;
+string	$kProfile	= "bodynav.ini" ;
+string	$kSettings	= "SETTINGS" ;
+string	$kUIctrl		= "CONTROLS" ;
+
+// inputs
+string	$mode ;
+input		$mode "SCAN" -discrete "SCAN" "SET" ;
+
+string	$char ;
+input		$char "__UNSET__" ;
+
+// ProfilePath
+string $ProfilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
+
+int $listId  = `getProfileInt $kUIctrl "lChars"  0 -file $ProfilePath`;
+
+if( $mode == "SCAN" ) {
+	// Scan for active characters in the scene, update droplist
+	string $ca[] = `getModules -type "Character"` ;
+	int $num = `getCount $ca` ;
+	if( $num < 1 ) {
+		// Error
+		print -warning "No Characters in Scene" ;
+		return ;
+	}
+	// clear droplist
+	deleteAllDropListItems $listId ;
+	// populate with char array
+	int $i ;
+	for( $i = 0; $i<$num; $i+=1 ){
+		addDropListItem $listId $ca[ $i ] ;
+	}
+	select $ca[0] ;
+	setPriority ;
+} else {
+	// get text
+	int $sel = `getDropListSelItem $listID` ;
+	string $newChar = `getDropListItem $listID $sel` ;
+	// make Priority
+	select $newChar ;
+	setPriority ;
+}

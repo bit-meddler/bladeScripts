@@ -1,0 +1,78 @@
+/* bodyNav_select.hsl
+ *
+ * Select a given selection set, log it's name, and display a friendly retort
+ *
+ * This is the lookup between friendly names and selection sets
+ */
+// Const
+string	$kUnset		= "__UNSET__" ;
+string	$kProfile	= "bodynav.ini" ;
+string	$kSettings	= "SETTINGS" ;
+string	$kUIctrl		= "CONTROLS" ;
+
+// inputs
+string	$selSet ;
+input		$selSet "__UNSET__" ;
+
+// ProfilePath
+string $ProfilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
+
+int $currSeg  = `getProfileInt $kUIctrl "currSeg"  0 -file $ProfilePath`;
+
+// Look up
+string $setName ;
+
+switch( $selSet ) {
+	case "Head":
+		$setName = "BN_S_head" ;
+		break ;
+	case "R shoulder":
+		$setName = "BN_S_r_shoulder" ;
+		break ;
+	case "L Shoulder":
+		$setName = "BN_S_l_shoulder";
+		break ;
+	case "R upper":
+		$setName = "";
+		break ;
+	case "R fore":
+		$setName = "";
+		break ;
+	case "R hand":
+		$setName = "";
+		break ;
+	case "L upper":
+		$setName = "";
+		break ;
+	case "L fore":
+		$setName = "";
+		break ;
+	case "L hand":
+		$setName = "";
+		break ;
+	case "Chest":
+		$setName = "";
+		break ;
+	case "Hips":
+		$setName = "";
+		break ;
+	case "R leg":
+		$setName = "";
+		break ;
+	case "R shin":
+		$setName = "";
+		break ;
+	case "R foot":
+		$setName = "";
+		break ;
+	case "L leg":
+		$setName = "";
+		break ;
+	case "L shin":
+		$setName = "";
+		break ;
+	case "L foot":
+		$setName = "";
+		break ;
+}
+print $setName ;
