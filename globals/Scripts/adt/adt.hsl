@@ -1,0 +1,96 @@
+/* adt.hsl
+ *
+ * Make multidimentional access to Blade's flat arrays
+ */
+
+string	$sArray[] ;
+input		$sArray [["__UNSET__"]] ;
+
+int		$iArray[] ;
+input		$iArray [[0]] ;
+
+float 	$fArray[] ;
+input		$fArray [[0.0]] ;
+
+int		$idx[] ;
+input		$idx [[-1]] ;
+
+int		$dims[] ;
+input		$dims [[-1]] ;
+
+boolean	$I ;
+input		$I false -advanced ;
+
+int		$i,
+			$len,
+			$ofs,
+			$temp ;
+
+// Sanity tests
+// Idx exists?
+$len = getCount( $idx ) ;
+if( ($len<1)||($idx[0]==-1) ){
+	// no idx
+	return ;
+}
+// dims exist
+$temp = $len ;
+$len = getCount( $dims ) ;
+if( ($len!=$temp)||($dims[0]==-1) ){
+	// dimention missmatch
+	return ;
+}
+// bounds
+$ofs  = 0 ;
+$temp = 0 ;
+for( $i=0; $i<$len; $i+=1 ){
+	$temp += $dims[$i] ;
+	$ofs  += $dims[$i] * $idx[$i] ;
+}
+if( $ofs>=$temp ){
+	// overflow
+	return ;
+}
+////////////// Index is Saine! ///////////
+if( $I ) {
+	// only want the Idx returned
+	return $ofs ;
+}
+
+// Get dtype
+string $mode = "NONE" ;
+
+$len = getCount( $sArray ) ;
+if( ($len>1) && ($mode=="NONE") ){
+	$mode = "STR" ;
+}
+
+$len = getCount( $iArray ) ;
+if( ($len>1) && ($mode=="NONE") ){
+	$mode = "INT" ;
+}
+
+$len = getCount( $fArray ) ;
+if( ($len>1) && ($mode=="NONE") ){
+	$mode = "FLO" ;
+}
+
+if( $mode=="NONE" ){
+	// No data
+	return ;
+}
+
+///////////////// Data is Saine! //////////////
+
+switch( $mode ){
+	case "STR":
+		return $sArray[ $ofs ] ;
+		break ;
+	case "INT":
+		return $iArray[ $ofs ] ;
+		break ;
+	case "FLO":
+		return $fArray[ $ofs ] ;
+		break ;
+}
+print -warning "ADT is doing it wrong" ;
