@@ -1,0 +1,70 @@
+/* bodyNav_getGap.hsl
+ *
+ * Get the Biggest or smallest Gap in the Primary marker
+ */
+// inputs
+string	$dir ;
+input		$dir ">" -discrete "<" ">" "N" "P" ;
+
+// Get head/tail over-eat
+int $in = 0 ;
+int $out = 0 ;
+if( `getGlobalVarExists "BN_head"` ){
+		$in = `getGlobalIntVar "BN_head"` ;
+}
+if( `getGlobalVarExists "BN_tail"` ){
+		$out = `getGlobalIntVar "BN_tail"` ;
+}
+
+// clear Range Selection
+selectRange 0 10000000 -r ;
+int $gapList[] ;
+int $len ;
+
+// get gap
+switch( $dir ){
+	case ">":
+	case "<":
+		// get Gaplist of Primary Marker
+		string $mods[] = `getModules -primary` ;
+		$gapList = `getGaps $mods[0] -any -sort -noFeedback` ;
+		$len = getCount( $gapList ) ;
+		if( $len == 0 ){
+			break ;
+		}
+		// Biggest = $len -2, smallest = 0
+		int $idx = -1 ;
+		if( $dir==">" ) {
+			$idx = $len - 2 ;
+		} else if( $dir=="<" ) {
+			$idx = 0 ;
+		}
+		// sanity
+		if( $idx<0 ){
+			return ;
+		}
+		// add tails
+		$in  += $gapList[$idx] ;
+		$out += $gapList[$idx+1] ;
+		selectRange $in $out ;
+		$out -= $in ;
+		$out = $out / 2 ;
+		$in += $out ;
+		setTime $in ;
+		break ;
+	case "N":
+		findGap -selectGapRange $in $out -frameGraph -any -primaryOnly -noFeedback;
+		break ;
+	case "P":
+		findGap -b -selectGapRange $in $out -frameGraph -any -primaryOnly -noFeedback;
+		break ;
+}
+$gapList = `getSelectedTimeRanges -noFeedback` ;
+$len = getCount( $gapList ) ;
+if( $len == 0 ) {
+	print "No Gaps Found!" ;
+} else {
+	$in = $gapList[1] - $gapList[0] + 1 ;
+	print( string( $in ) + " Frame Gap found" ) ;
+	CameraView_frameSelected ;
+}

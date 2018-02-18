@@ -314,27 +314,34 @@ $rect[1] = 568;
 $rect[2] = 100;
 $rect[3] = 592;
 $button = `createPushButton $dlg -text "Previous Gap" -form $parentForm -pos $rect`;
+$cmd = "bodyNav_getGap -dir \"P\" ;" ;
+setPushButtonHandler $button -click $cmd ;
 
 $rect[0] = 108;
 $rect[1] = 568;
 $rect[2] = 196;
 $rect[3] = 592;
 $button = `createPushButton $dlg -text "Next Gap" -form $parentForm -pos $rect`;
+$cmd = "bodyNav_getGap -dir \"N\" ;" ;
+setPushButtonHandler $button -click $cmd ;
 
 $rect[0] = 204;
 $rect[1] = 568;
 $rect[2] = 292;
 $rect[3] = 592;
 $button = `createPushButton $dlg -text "Biggest Gap" -form $parentForm -pos $rect`;
+$cmd = "bodyNav_getGap -dir \">\" ;" ;
+setPushButtonHandler $button -click $cmd ;
 
 $rect[0] = 300;
 $rect[1] = 568;
 $rect[2] = 392;
 $rect[3] = 592;
 $button = `createPushButton $dlg -text "Smallest Gap" -form $parentForm -pos $rect`;
+$cmd = "bodyNav_getGap -dir \"<\" ;" ;
+setPushButtonHandler $button -click $cmd ;
 
-
-//************************* Gap Filling *****************************************
+// ************************* Gap Filling *****************************************
 $rect[0] = 4;
 $rect[1] = 604;
 $rect[2] = 396;
@@ -346,36 +353,49 @@ $rect[1] = 640;
 $rect[2] = 92;
 $rect[3] = 668;
 $button = `createPushButton $dlg -text "Spline" -form $parentForm -pos $rect`;
+$cmd = "bodyNav_fillTools -mode \"SPLINE\"" ;
+setPushButtonHandler $button -click $cmd ;
 
 $rect[0] = 112;
 $rect[1] = 676;
 $rect[2] = 192;
 $rect[3] = 704;
 $button = `createPushButton $dlg -text "Rigid Fill" -form $parentForm -pos $rect`;
+$cmd = "bodyNav_fillTools -mode \"RIGID\"" ;
+setPushButtonHandler $button -click $cmd ;
 
 $rect[0] = 112;
 $rect[1] = 640;
 $rect[2] = 192;
 $rect[3] = 668;
 $button = `createPushButton $dlg -text "Copy Motion" -form $parentForm -pos $rect`;
+$cmd = "bodyNav_fillTools -mode \"COPY\"" ;
+setPushButtonHandler $button -click $cmd ;
 
 $rect[0] = 12;
 $rect[1] = 676;
 $rect[2] = 92;
 $rect[3] = 704;
 $button = `createPushButton $dlg -text "Del + Fill" -form $parentForm -pos $rect`;
+$cmd = "bodyNav_fillTools -mode \"DELFILL\"" ;
+setPushButtonHandler $button -click $cmd ;
 
 $rect[0] = 212;
 $rect[1] = 676;
 $rect[2] = 292;
 $rect[3] = 704;
 $button = `createPushButton $dlg -text "From Solving" -form $parentForm -pos $rect`;
+// TODO: Write this for Vicon
+$cmd = "bodyNav_fillTools -mode \"KSOL\"" ;
+setPushButtonHandler $button -click $cmd ;
 
 $rect[0] = 212;
 $rect[1] = 640;
 $rect[2] = 292;
 $rect[3] = 668;
 $button = `createPushButton $dlg -text "From Labelling" -form $parentForm -pos $rect`;
+$cmd = "bodyNav_fillTools -mode \"KLAB\"" ;
+setPushButtonHandler $button -click $cmd ;
 
 $rect[0] = 28;
 $rect[1] = 620;
@@ -400,12 +420,16 @@ $rect[1] = 676;
 $rect[2] = 388;
 $rect[3] = 704;
 $button = `createPushButton $dlg -text "Hold Backward" -form $parentForm -pos $rect`;
+$cmd = "bodyNav_fillTools -mode \"HOLDB\"" ;
+setPushButtonHandler $button -click $cmd ;
 
 $rect[0] = 308;
 $rect[1] = 640;
 $rect[2] = 388;
 $rect[3] = 668;
 $button = `createPushButton $dlg -text "Hold Forward" -form $parentForm -pos $rect`;
+$cmd = "bodyNav_fillTools -mode \"HOLDF\"" ;
+setPushButtonHandler $button -click $cmd ;
 
 $rect[0] = 320;
 $rect[1] = 620;
@@ -423,11 +447,13 @@ $rect[0] = 48;
 $rect[1] = 716;
 $rect[2] = 88;
 $rect[3] = 736;
-int $editbox = `createTextBox $dlg -text "Edit" -form $parentForm -pos $rect`;
+int $editbox = `createTextBox $dlg -text "TODO!" -form $parentForm -pos $rect`;
 
 $rect[0] = 112;
 $rect[1] = 712;
 $rect[2] = 192;
 $rect[3] = 740;
 $button = `createPushButton $dlg -text "Seed Rigid" -form $parentForm -pos $rect`;
+$cmd = "bodyNav_fillTools -mode \"SEED\"" ;
+setPushButtonHandler $button -click $cmd ;
 // Phew!

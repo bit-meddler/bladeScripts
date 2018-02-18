@@ -1,0 +1,47 @@
+/* bodyNav_fillTools.hsl
+ *
+ * All because you can't have a 2 command macro on a button...
+ */
+
+
+// inputs
+string	$mode ;
+input		$mode "NONE" -discrete "NONE" "SPLINE" "DELFILL" "COPY" "RIGID" "SEED" "KLAB" "KSOL" "HOLDF" "HOLDB" ;
+
+switch( $mode ){
+	case "NONE":
+		// DFA
+		break ;
+	case "SPLINE":
+		fillGaps -ranges -primaryOnly ;
+		break ;
+	case "DELFILL":
+		cutKeys -ranges ;
+		fillGaps -ranges -primaryOnly ;
+		break ;
+	case "COPY":
+		copyPattern ;
+		break ;
+	case "RIGID":
+		fillGaps -rigid -ranges ;
+		break ;
+	case "SEED":
+		fillGaps -rigid -ranges -useCurrentFrame ;
+		break ;
+	case "KLAB":
+		fillGaps -ranges -primaryOnly -labelingConstraints ;
+		break ;
+	case "KSOL":
+		// Only works for SINGLE constraints
+		fillGaps -ranges -primaryOnly -solvingConstraints ;
+		/* TODO: average all constraints the Primary Marker Influences
+		 *       'copyPattern' this average location.
+		 */
+		break ;
+	case "HOLDF":
+		//
+		break ;
+	case "HOLDB":
+		//
+		break ;
+}

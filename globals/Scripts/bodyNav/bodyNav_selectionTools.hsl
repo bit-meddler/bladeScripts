@@ -14,15 +14,9 @@ if( $mode == "AGAIN" ) {
 	bodyNav_select -selSet $seg ;
 } else if( $mode == "DROPP" ) {
 	// find primary
-	int $priIdx = 0 ;
-	if( `getGlobalVarExists "priIdx"` ){
-		$priIdx = `getGlobalIntVar "priIdx"` ;
-	}
-	// find mod
-	string $mods[] = `getModules -selected` ;
-	string $mod = $mods[ $priIdx ] ;
+	string $mods[] = `getModules -primary` ;
 	// Drop mod
-	select -r  $mod ;
+	select -r  $mods[0] ;
 	cyclePri -dir "PREV" ;
 	cyclePri -dir "NEXT" ;
 } else if( $mode == "ALL" ) {
