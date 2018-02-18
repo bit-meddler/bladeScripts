@@ -1,0 +1,19 @@
+int $tDims[] = [[ 3, 4 ]] ;
+int $t[12] ;
+
+int $cell[] ;
+int $idx ;
+
+$cell = [[ 0,0 ]] ;
+$idx = `adt -dims $tDims -idx $cell -iArray $t -I 1` ;
+$t[$idx] = 1 ;
+
+$cell = [[ 1,1 ]] ;
+$idx = `adt -dims $tDims -idx $cell -iArray $t -I 1` ;
+$t[$idx] = 1 ;
+
+$cell = [[ 2,2 ]] ;
+$idx = `adt -dims $tDims -idx $cell -iArray $t -I 1` ;
+$t[$idx] = 1 ;
+
+print $t ;

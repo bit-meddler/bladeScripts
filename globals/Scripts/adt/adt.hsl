@@ -30,25 +30,31 @@ int		$i,
 // Idx exists?
 $len = getCount( $idx ) ;
 if( ($len<1)||($idx[0]==-1) ){
-	// no idx
+	print -warning "no idx" ;
 	return ;
 }
 // dims exist
 $temp = $len ;
 $len = getCount( $dims ) ;
 if( ($len!=$temp)||($dims[0]==-1) ){
-	// dimention missmatch
+	print -warning "dimention missmatch" ;
 	return ;
 }
 // bounds
 $ofs  = 0 ;
-$temp = 0 ;
+$temp = 1 ;
+$len -= 1 ;
 for( $i=0; $i<$len; $i+=1 ){
-	$temp += $dims[$i] ;
+	$temp *= $dims[$i] ;
 	$ofs  += $dims[$i] * $idx[$i] ;
 }
-if( $ofs>=$temp ){
-	// overflow
+$temp *= $dims[$len] ;
+$ofs  += $idx[$len] ;
+
+print( "sz: " + string( $temp ) + ", os: " + string( $ofs ) ) ;
+
+if( $ofs>$temp ){
+	print -warning "overflow" ;
 	return ;
 }
 ////////////// Index is Saine! ///////////
@@ -56,6 +62,7 @@ if( $I ) {
 	// only want the Idx returned
 	return $ofs ;
 }
+print -warning "HERE" ;
 
 // Get dtype
 string $mode = "NONE" ;
