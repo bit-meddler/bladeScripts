@@ -39,9 +39,29 @@ switch( $mode ){
 		 */
 		break ;
 	case "HOLDF":
-		//
+		// clear Range Selection
+		selectRange -r 0 100000 ;
+		int $start, $end ;
+		$start = `getTime` ;
+		$start += 1 ; // This frame is the seed
+		$end = `getAnimEnd` ;
+		selectRange $start $end ;
+		// select Markers
+		bodyNav_selectionTools -mode "ALL" ;
+		// Freeze!
+		frameHoldSelected ;
 		break ;
 	case "HOLDB":
-		//
+		// clear Range Selection
+		selectRange -r 0 100000 ;
+		int $start, $end ;
+		$start = `getAnimStart` ;
+		$end = = `getTime` ;
+		$end -= 1 ; // This frame is the seed
+		selectRange $start $end ;
+		// select Markers
+		bodyNav_selectionTools -mode "ALL" ;
+		// Freeze!
+		frameHoldSelected ;
 		break ;
 }
