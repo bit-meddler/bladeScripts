@@ -18,7 +18,10 @@ input		$char "__UNSET__" ;
 // ProfilePath
 string $ProfilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
 
-int $listId  = `getProfileInt $kUIctrl "lChars"  0 -file $ProfilePath`;
+int $listId  = 0 ;
+if( `getGlobalVarExists "lCharsUI"` ) {
+	$listId = `getGlobalIntVar "lCharsUI"` ;
+}
 
 if( $mode == "SCAN" ) {
 	// Scan for active characters in the scene, update droplist

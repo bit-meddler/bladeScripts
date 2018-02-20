@@ -55,7 +55,7 @@ $rect[1] = 24;
 $rect[2] = 392;
 $rect[3] = 44;
 int $lChars = `createDropList $dlg -form $parentForm -pos $rect` ;
-writeProfileInt $kUIctrl "lChars" $lChars -file $profilePath ;
+setGlobalVar "lCharsUI" $lChars ;
 setDropListHandler $lChars -selChange "bodyNav_charSel -mode \"SET\";";
 
 
@@ -233,6 +233,43 @@ $button = `createPushButton $dlg -text $segment -form $parentForm -pos $rect`;
 $cmd = "bodyNav_select -selSet \"" + $segment + "\";" ;
 setPushButtonHandler $button -click $cmd ;
 
+// --- Trim Tail settings
+$rect[0] = 52;
+$rect[1] = 332;
+$rect[2] = 88;
+$rect[3] = 348;
+$ignore = `createStaticBox $dlg -text "Trim In" -form $parentForm -pos $rect`;
+
+$rect[0] = 320;
+$rect[1] = 332;
+$rect[2] = 364;
+$rect[3] = 348;
+$ignore = `createStaticBox $dlg -text "Trim Out" -form $parentForm -pos $rect`;
+
+string $val = `getProfileString $kSettings "trimIn" "0" -file $profilePath` ;
+print $val ;
+$rect[0] = 56;
+$rect[1] = 352;
+$rect[2] = 80;
+$rect[3] = 372;
+int $trimIn = `createTextBox $dlg -text $val -form $parentForm -pos $rect`;
+$cmd = "bodyNav_editCB -var \"trimIn\" -caller \"" + string( $trimIn ) + "\"" ;
+print $cmd ;
+setTextBoxHandler $trimIn -change $cmd ;
+setGlobalVar "trimIn" int($val) ;
+
+$val = `getProfileString $kSettings "trimOut" "0" -file $profilePath` ;
+$rect[0] = 328;
+$rect[1] = 352;
+$rect[2] = 352;
+$rect[3] = 372;
+int $trimOut = `createTextBox $dlg -text $val -form $parentForm -pos $rect`;
+$cmd = "bodyNav_editCB -var \"trimOut\" -caller \"" + string( $trimOut ) + "\"" ;
+setTextBoxHandler $trimOut -change $cmd ;
+setGlobalVar "trimOut" int($val) ;
+
+// --- Segment Helpers
+
 $rect[0] = 12;
 $rect[1] = 476;
 $rect[2] = 100;
@@ -252,6 +289,15 @@ $rect[2] = 324;
 $rect[3] = 496;
 $button = `createPushButton $dlg -text "Select Again" -form $parentForm -pos $rect`;
 setPushButtonHandler $button -click "bodyNav_selectionTools -mode \"AGAIN\";" ;
+
+$rect[0] = 328;
+$rect[1] = 476;
+$rect[2] = 392;
+$rect[3] = 496;
+$button = `createPushButton $dlg -text "Gap Count" -form $parentForm -pos $rect`;
+$cmd = "bodyNav_getGap -dir \"S\" ;" ;
+setPushButtonHandler $button -click $cmd ;
+
 
 // *************************** Primary Selection *********************************************
 $rect[0] = 4;
@@ -385,7 +431,6 @@ $rect[1] = 676;
 $rect[2] = 292;
 $rect[3] = 704;
 $button = `createPushButton $dlg -text "From Solving" -form $parentForm -pos $rect`;
-// TODO: Write this for Vicon
 $cmd = "bodyNav_fillTools -mode \"KSOL\"" ;
 setPushButtonHandler $button -click $cmd ;
 
@@ -443,11 +488,15 @@ $rect[2] = 40;
 $rect[3] = 736;
 $ignore = `createStaticBox $dlg -text "Max" -form $parentForm -pos $rect`;
 
+$val = `getProfileString $kSettings "splineMax" "0" -file $profilePath` ;
 $rect[0] = 48;
 $rect[1] = 716;
 $rect[2] = 88;
 $rect[3] = 736;
-int $editbox = `createTextBox $dlg -text "TODO!" -form $parentForm -pos $rect`;
+int $splineMax = `createTextBox $dlg -text $val -form $parentForm -pos $rect`;
+$cmd = "bodyNav_editCB -var \"splineMax\" -caller \"" + string( $splineMax ) + "\"" ;
+setTextBoxHandler $splineMax -change $cmd ;
+setGlobalVar "splineMax" int($val) ;
 
 $rect[0] = 112;
 $rect[1] = 712;

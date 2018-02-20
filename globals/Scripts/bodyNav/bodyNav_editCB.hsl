@@ -1,0 +1,31 @@
+/* bodyNav_editCB.hsl
+ *
+ * Callback when edit box content changed?
+ */
+// Const
+string	$kUnset		= "__UNSET__" ;
+string	$kProfile	= "bodynav.ini" ;
+string	$kSettings	= "SETTINGS" ;
+string	$kUIctrl		= "CONTROLS" ;
+
+// inputs
+string	$var ;
+input		$var "__UNSET__" ;
+
+string	$caller ;
+input		$caller "__UNSET__" ;
+
+// ProfilePath
+string $profilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
+
+// get new value
+int	 $callerID = int( $caller ) ;
+string $valueString = `getControlText $callerID` ;
+
+int $newValue = int( $valueString ) ;
+
+// set value in Profile
+writeProfileInt $kSettings $var $newValue -file $profilePath ;
+
+// set Global Var
+setGlobalVar $var $newValue ;

@@ -6,18 +6,24 @@
 
 // inputs
 string	$mode ;
-input		$mode "NONE" -discrete "NONE" "SPLINE" "DELFILL" "COPY" "RIGID" "SEED" "KLAB" "KSOL" "HOLDF" "HOLDB" ;
+input		$mode "DELFILL" -discrete "NONE" "SPLINE" "DELFILL" "COPY" "RIGID" "SEED" "KLAB" "KSOL" "HOLDF" "HOLDB" ;
+
+// get SplineMax
+int $splineMax = 12 ;
+if( `getGlobalVarExists "splineMax"` ){
+	$splineMax = `getGlobalIntVar "splineMax"` ;
+}
 
 switch( $mode ){
 	case "NONE":
 		// DFA
 		break ;
 	case "SPLINE":
-		fillGaps -ranges -primaryOnly ;
+		fillGaps -ranges -primaryOnly -maxGapWidth $splineMax ;
 		break ;
 	case "DELFILL":
 		cutKeys -ranges ;
-		fillGaps -ranges -primaryOnly ;
+		fillGaps -ranges -primaryOnly -maxGapWidth $splineMax ;
 		break ;
 	case "COPY":
 		copyPattern ;
@@ -56,7 +62,7 @@ switch( $mode ){
 		selectRange -r 0 100000 ;
 		int $start, $end ;
 		$start = `getAnimStart` ;
-		$end = = `getTime` ;
+		$end = `getTime` ;
 		$end -= 1 ; // This frame is the seed
 		selectRange $start $end ;
 		// select Markers

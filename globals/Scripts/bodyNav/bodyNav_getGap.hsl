@@ -4,18 +4,17 @@
  */
 // inputs
 string	$dir ;
-input		$dir ">" -discrete "<" ">" "N" "P" ;
+input		$dir "S" -discrete "<" ">" "N" "P" "S" ;
 
 // Get head/tail over-eat
 int $in = 0 ;
 int $out = 0 ;
-if( `getGlobalVarExists "BN_head"` ){
-		$in = `getGlobalIntVar "BN_head"` ;
+if( `getGlobalVarExists "trimIn"` ){
+		$in = `getGlobalIntVar "trimIn"` ;
 }
-if( `getGlobalVarExists "BN_tail"` ){
-		$out = `getGlobalIntVar "BN_tail"` ;
+if( `getGlobalVarExists "trimOut"` ){
+		$out = `getGlobalIntVar "trimOut"` ;
 }
-
 // clear Range Selection
 selectRange 0 10000000 -r ;
 int $gapList[] ;
@@ -58,13 +57,36 @@ switch( $dir ){
 	case "P":
 		findGap -b -selectGapRange $in $out -frameGraph -any -primaryOnly -noFeedback;
 		break ;
+	case "S":
+		// Gap Survey
+		// for selected markers
+		string $mods[] = `getModules -selected -type Marker` ;
+		int $num = getCount( $mods ) ;
+
+		int $i, $big ;
+		int $count = 0 ;
+		int $max = 0 ;
+
+		for( $i=0; $i<$num; $i+=1 ) {
+			$gapList = `getGaps $mods[$i] -any -sort -noFeedback` ;
+			$len = getCount( $gapList ) ;
+			$count += ($len/2) ;
+			if( $len>1 ){
+				$big = $gapList[$len - 1] - $gapList[$len - 2] ;
+				if( $big>$max ) {
+					$max = $big ;
+				}
+			}
+		}
+		print( string( $count ) + " Gaps found on " + string( $num ) + " Markers.  Largest Gap is " + string( $max ) ) ;
+		return ;
+		
 }
 $gapList = `getSelectedTimeRanges -noFeedback` ;
 $len = getCount( $gapList ) ;
 if( $len == 0 ) {
 	print "No Gaps Found!" ;
 } else {
-	$in = $gapList[1] - $gapList[0] + 1 ;
-	print( string( $in ) + " Frame Gap found" ) ;
+	print( "Gap found" ) ;
 	CameraView_frameSelected ;
 }

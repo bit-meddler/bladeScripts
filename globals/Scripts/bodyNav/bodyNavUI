@@ -3,7 +3,7 @@ int $parentForm;
 int $rect[4];
 
 int $dlg = `createWindow ""`;
-setWindowSize "" -width 400 -height 750;
+setWindowSize "" -width 404 -height 750;
 // Get a handle to the main user windows main layout form. All controls
 // will be descendants of this and will be placed/sized relative to it.
 $parentForm = `getTopLevelForm $dlg`;
@@ -58,6 +58,11 @@ static:220.000000,620.000000,276.000000,636.000000,Kinematics,$static,0;
 button:308.000000,676.000000,388.000000,704.000000,Hold Backward,$button,0;
 button:308.000000,640.000000,388.000000,668.000000,Hold Forward,$button,0;
 static:320.000000,620.000000,376.000000,636.000000,Frame Hold,$static,0;
-editbox:48.000000,716.000000,88.000000,736.000000,Edit,$editbox,0;
+editbox:48.000000,716.000000,88.000000,736.000000,15,$splineMax,0;
 static:16.000000,720.000000,40.000000,736.000000,Max,$static,0;
 button:112.000000,712.000000,192.000000,740.000000,Seed Rigid,$button,0;
+editbox:56.000000,352.000000,80.000000,372.000000,1,$trimIn,0;
+editbox:328.000000,352.000000,352.000000,372.000000,1,$trimOut,0;
+static:52.000000,332.000000,88.000000,348.000000,Trim In,$static,0;
+static:320.000000,332.000000,364.000000,348.000000,Trim Out,$static,0;
+button:328.000000,476.000000,392.000000,496.000000,Gap Survey,$button,0;
