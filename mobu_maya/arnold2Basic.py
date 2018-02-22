@@ -1,17 +1,17 @@
 import maya.cmds as MC
 
 blinn_LUT = { # source  :  target    dtype    conversion
-    'color'             : ( 'color', "float3", lambda x: x ),
-    'emissionColor'     : ( 'incandescence', "float3", lambda x: x ),
-    'Kb'                : ( 'translucence', "float", lambda x: x ),
-    'Kd'                : ( 'diffuse', "float", lambda x: x ),
-    'Kr'                : ( 'reflectivity', "float", lambda x: x ),
-    'KrColor'           : ( 'reflectedColor', "float3", lambda x: x ),
-    'Ks'                : ( 'specularRollOff', "float", lambda x: x ),
-    'KsColor'           : ( 'specularColor', "float3", lambda x: x ),
-    'normalCamera'      : ( 'normalCamera', "float3", lambda x: x ),
-    'opacity'           : ( 'transparency', "float3", lambda x: 1.0 - x ),
-    'specularRoughness' : ( 'eccentricity', "float", lambda x: x ),
+    'color'             : ( 'color',           "float3", lambda x: x ),
+    'emissionColor'     : ( 'incandescence',   "float3", lambda x: x ),
+    'Kb'                : ( 'translucence',    "float",  lambda x: x ),
+    'Kd'                : ( 'diffuse',         "float",  lambda x: x ),
+    'Kr'                : ( 'reflectivity',    "float",  lambda x: x ),
+    'KrColor'           : ( 'reflectedColor',  "float3", lambda x: x ),
+    'Ks'                : ( 'specularRollOff', "float",  lambda x: x ),
+    'KsColor'           : ( 'specularColor',   "float3", lambda x: x ),
+    'normalCamera'      : ( 'normalCamera',    "float3", lambda x: x ),
+    'opacity'           : ( 'transparency',    "float3", lambda x: 1.0 - x ),
+    'specularRoughness' : ( 'eccentricity',    "float",  lambda x: x ),
 }
     
 def aiToBlinn( ai_shader ):
