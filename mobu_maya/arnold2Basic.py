@@ -1,5 +1,8 @@
 import maya.cmds as MC
 
+# Encountered Arnold Shaders
+arnold_shaders = [ "aiStandardSurface", "aiStandard" ]
+
 # Converters
 def passThru( v ):
     return v
@@ -48,31 +51,32 @@ def aiToBlinn( ai_shader ):
                 MC.setAttr( tpath, convert( value ) )
         else:
             print( "'{}' not present in '{}'",  source, ai_shader )
-    # txture
+            
+    # texture Experiment ?
     X = MC.attributeQuery( "Kd_color", node=ai_shader, exists=True )
     if X:
         print "KD_c", MC.getAttr( ai_shader + ".Kd_color" )
     return blinn
 
 # ---------------------------- start 
-# get all Arnold Shaders
-al = MC.ls( exactType='aiStandard' )
-print al
-
+# Session Settings
 destructive = False
 new_shaders = []
 
-for ai_shader in al:
-    # TODO: Determine what type replacement shader we need?
-    # convert to Blinn
-    blinn = aiToBlinn( ai_shader )
-    new_shaders.append( blinn )
-    # Replace Shading group
-    sg = MC.listConnections( ai_shader, type="shadingEngine" )
-    print "SG:", sg
-    MC.connectAttr( blinn + ".outColor", sg[0] + ".surfaceShader", force=True )
-    if destructive:
-        MC.delete( ai_shader )
-        # if current sg has no more connections delete it too.
+# get all Arnold Shaders
+for shader_type in arnold_shaders:
+    shaders = MC.ls( exactType=shader_type )
+    for ai_shader in shaders:
+        # TODO: Determine what type replacement shader we need?
+        # convert to Blinn
+        blinn = aiToBlinn( ai_shader )
+        new_shaders.append( blinn )
+        # Replace Shading group
+        sg = MC.listConnections( ai_shader, type="shadingEngine" )
+        print "SG:", sg
+        MC.connectAttr( blinn + ".outColor", sg[0] + ".surfaceShader", force=True )
+        if destructive:
+            MC.delete( ai_shader )
+            # if current sg has no more connections delete it too.
 
 print( "Replaced {} Shaders".format( len( new_shaders ) ) )
