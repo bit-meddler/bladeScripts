@@ -11,7 +11,7 @@
 + henchMan
 + dayBuild
 + calMan (_wip_)
-++ maskRescue (_wip_)
++ maskRescue (_wip_)
 
 ## Solver Tools
 + selection and drawing toggles
@@ -26,3 +26,11 @@
 ## Giant Tools
 + BMO2VSK (_wip_)
 
+
+# mobu_maya
+
+## MoBu Prep Scripts
++ joint save/restore
++ arnold2Basic 
++ MoBu Scene-Clean (_wip_)
++ Null from joint (_wip_)
