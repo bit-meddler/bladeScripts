@@ -15,23 +15,23 @@ def flip3d( v ):
 
 # Conversion LUT
 blinn_LUT = { # source  :   target              dtype    conversion
-    'color'             : ( 'color',           "float3", passThru ),
-    'emissionColor'     : ( 'incandescence',   "float3", flip3d ),
-    'Kb'                : ( 'translucence',    "float",  passThru ),
-    'Kd'                : ( 'diffuse',         "float",  passThru ),
-    'Kr'                : ( 'reflectivity',    "float",  passThru ),
-    'KrColor'           : ( 'reflectedColor',  "float3", passThru ),
-    'Ks'                : ( 'specularRollOff', "float",  passThru ),
-    'KsColor'           : ( 'specularColor',   "float3", passThru ),
-    'normalCamera'      : ( 'normalCamera',    "float3", passThru ),
-    'opacity'           : ( 'transparency',    "float3", flip3d   ),
-    'specularRoughness' : ( 'eccentricity',    "float",  passThru ),
+    "color"             : ( "color",           "float3", passThru ),
+    "emissionColor"     : ( "incandescence",   "float3", flip3d ),
+    "Kb"                : ( "translucence",    "float",  passThru ),
+    "Kd"                : ( "diffuse",         "float",  passThru ),
+    "Kr"                : ( "reflectivity",    "float",  passThru ),
+    "KrColor"           : ( "reflectedColor",  "float3", passThru ),
+    "Ks"                : ( "specularRollOff", "float",  passThru ),
+    "KsColor"           : ( "specularColor",   "float3", passThru ),
+    "normalCamera"      : ( "normalCamera",    "float3", passThru ),
+    "opacity"           : ( "transparency",    "float3", flip3d   ),
+    "specularRoughness" : ( "eccentricity",    "float",  passThru ),
 }
     
 def aiToBlinn( ai_shader ):
     new_name = ai_shader + "_blinn"
     # create new shader
-    blinn = MC.shadingNode( 'blinn', name=new_name, asShader=True )
+    blinn = MC.shadingNode( "blinn", name=new_name, asShader=True )
     for source in blinn_LUT.keys():
         exists = MC.attributeQuery( source, node=ai_shader, exists=True )
         if exists:
