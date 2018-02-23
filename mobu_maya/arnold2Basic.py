@@ -1,17 +1,28 @@
 import maya.cmds as MC
 
-blinn_LUT = { # source  :  target    dtype    conversion
-    'color'             : ( 'color',           "float3", lambda x: x ),
-    'emissionColor'     : ( 'incandescence',   "float3", lambda x: x ),
-    'Kb'                : ( 'translucence',    "float",  lambda x: x ),
-    'Kd'                : ( 'diffuse',         "float",  lambda x: x ),
-    'Kr'                : ( 'reflectivity',    "float",  lambda x: x ),
-    'KrColor'           : ( 'reflectedColor',  "float3", lambda x: x ),
-    'Ks'                : ( 'specularRollOff', "float",  lambda x: x ),
-    'KsColor'           : ( 'specularColor',   "float3", lambda x: x ),
-    'normalCamera'      : ( 'normalCamera',    "float3", lambda x: x ),
-    'opacity'           : ( 'transparency',    "float3", lambda x: 1.0 - x ),
-    'specularRoughness' : ( 'eccentricity',    "float",  lambda x: x ),
+# Converters
+def passThru( v ):
+    return v
+    
+def flip1d( v ):
+    return (1. - v)
+    
+def flip3d( v ):
+    return ( (1. - v[0]), (1. - v[1]), (1. - v[2]) )
+
+# Conversion LUT
+blinn_LUT = { # source  :   target              dtype    conversion
+    'color'             : ( 'color',           "float3", passThru ),
+    'emissionColor'     : ( 'incandescence',   "float3", passThru ),
+    'Kb'                : ( 'translucence',    "float",  passThru ),
+    'Kd'                : ( 'diffuse',         "float",  passThru ),
+    'Kr'                : ( 'reflectivity',    "float",  passThru ),
+    'KrColor'           : ( 'reflectedColor',  "float3", passThru ),
+    'Ks'                : ( 'specularRollOff', "float",  passThru ),
+    'KsColor'           : ( 'specularColor',   "float3", passThru ),
+    'normalCamera'      : ( 'normalCamera',    "float3", passThru ),
+    'opacity'           : ( 'transparency',    "float3", flip1d   ),
+    'specularRoughness' : ( 'eccentricity',    "float",  passThru ),
 }
     
 def aiToBlinn( ai_shader ):
@@ -39,6 +50,7 @@ def aiToBlinn( ai_shader ):
             print( "'{}' not present in '{}'",  source, aiShader )
     return blinn
 
+# ---------------------------- start 
 # get all Arnold Shaders
 al = MC.ls( exactType='aiStandard' )
 print sl
