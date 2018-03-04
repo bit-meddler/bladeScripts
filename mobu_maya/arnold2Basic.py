@@ -1,7 +1,7 @@
 import maya.cmds as MC
 
 # Encountered Arnold Shaders
-arnold_shaders = [ "aiStandardSurface", "aiStandard" ]
+arnold_shaders = ( "aiStandardSurface", "aiStandard" )
 
 # Converters
 def passThru( v ):
@@ -67,7 +67,9 @@ new_shaders = []
 for shader_type in arnold_shaders:
     shaders = MC.ls( exactType=shader_type )
     for ai_shader in shaders:
-        # TODO: Determine what type replacement shader we need?
+        # TODO: Determine what type replacement shader we need - needs to be MoBu
+        #       compatible and lightweight
+        
         # convert to Blinn
         blinn = aiToBlinn( ai_shader )
         new_shaders.append( blinn )
