@@ -1,0 +1,29 @@
+/* getNumChars.hsl
+ *		Count (Human) Chars in a scene.  Assumes *ALL* Props and Cameras have an _prop or _camera
+ *      appendage.
+ *
+ */
+
+///////
+// Vars
+string	$chars[] ;
+int		$numChars,
+			$i,
+			$numActors;
+
+        
+////////
+// Begin
+$chars = `getModules -type Character` ;
+$numChars = getCount( $chars ) ;
+$numActors = 0 ;
+
+for( $i = 0; $i<$numChars; $i += 1 ) {
+	if( strFind( $chars[ $i ], "_prop", 0 ) < 1 ) {
+		if( strFind( $chars[ $i ], "_camera", 0 ) < 1 ) {
+			$numActors += 1 ;
+		}
+	} // if character not an _prop or an _camera, it's a human
+} // for each char in scene
+
+return $numActors ;

@@ -1,0 +1,32 @@
+/* retryLastCal.hsl
+ *		uses x2d of last wand wave and calibrates from it
+ */
+
+string $toks[] ;
+string $path2Wand,
+		 $version ;
+
+$path2Wand = "C:/Users/Public/Documents/Vicon/Blade" ;
+
+// Determine Blade version
+
+$version = `appInfo "version" -noFeedback` ;
+$toks = `strTokArray $version -delims "."` ;
+
+if ( $toks[ 2 ] == "0" ) {
+	// 1 dec place
+	$path2Wand += $toks[ 0 ] + "." + $toks[ 1 ] ;
+} else {
+	// 2 Dec Place
+	$path2Wand += $toks[ 0 ] + "." + $toks[ 1 ] + "." + $toks[ 2 ] ;
+} 
+
+
+// Complete Path
+$path2Wand += "/Calibrations/LatestCalibration.x2d" ;
+
+// reset potentially faulted calibration
+resetCalibration ;
+
+// Calibrate with last captured Wand
+calibrateCameras -fromFile -file $path2Wand ;
