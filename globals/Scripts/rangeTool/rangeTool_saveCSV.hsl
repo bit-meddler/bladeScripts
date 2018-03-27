@@ -1,0 +1,63 @@
+/* rangeTool_saveCSV.hsl
+ *   Exports selects to a CSV
+ */
+ 
+// Consts
+int $kTakeList = getGlobalIntVar( "RT_takeList" ) ;
+int $kSesPath = getGlobalIntVar( "RT_sesPath" ) ;
+
+// Vars
+string  $pathToks[] ;
+string  $sTemp, $outFile, $sesPath ;
+int     $count, $loop, $fileHandle ;
+
+// get Session Path
+$sesPath = `getControlText $kSesPath` ;
+if ( $sesPath =="" ) {
+    return ;
+}
+
+// Determine Capture Day from sesPath
+$pathToks = `strTokArray $sesPath -delims "/"` ;
+$count = getCount( $pathToks ) ;
+$sTemp = $pathToks[ ( $count - 1 ) ] ;
+
+// prepare out file name
+$outFile = $sesPath + "/" + $sTemp + ".csv" ;
+
+// test for existance of CSV
+if ( `pathExists $outFile` ) {
+    // there already is a CSV in the Dir.  What to do with it?
+    print( "Replacing old CSV" )
+}
+
+// Open File
+$fileHandle = `fileOpen $outFile "w"` ;
+
+// write header
+writeString $fileHandle "Filename,In frame,Out frame\n" ;
+
+// for each item in list view
+$count = `getNumListViewItems $kTakeList` ;
+for ( $loop = 0; $loop < $count; $loop += 1 ) {
+    // write name
+    $sTemp  = `getListViewItemText $kTakeList $loop 0` ;
+	$sTemp += "," ;
+    // write in
+    $sTemp += `getListViewItemText $kTakeList $loop 1` ;
+	$sTemp += "," ;
+    // write out
+    $sTemp += `getListViewItemText $kTakeList $loop 2` ;
+    $sTemp += "," ;
+    // write duration (frames)
+    $sTemp += `getListViewItemText $kTakeList $loop 3` ;
+    $sTemp += "," ;
+    // write char count
+    $sTemp += `getListViewItemText $kTakeList $loop 4` ;
+	$sTemp += ",\n" ;
+    writeString $fileHandle $sTemp ;
+}
+// close file
+fileClose $fileHandle ;
+
+//end

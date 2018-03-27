@@ -1,0 +1,145 @@
+/* RangeTool.hsl
+ *      Tool to help examine a sessions HDF files (Client Selections) and export a CSV of
+ *      Client chosen IN and OUT frames.  Aslo keep a per session count of total Seconds
+ *          WARNING Currently only supports single charactors
+ *
+ */
+
+// Consts
+string $kAppName = "Range Selection Tool" ;
+string $kUnset   = "__UNSET__" ;
+setGlobalVar "RT_DAYALLOCATION" 119000 ; // 1000 char/secs @ ~119.88 fps
+// Vars
+// UI vars
+int $dlg ;
+int $parentForm ;
+int $rect[4] ;
+int $ignore ;
+int $button ;
+        
+////////
+// Begin
+// Destroy Old instance
+if( `windowExists $kAppName` ) {
+	destroyWindow $kAppName ;
+}
+// New Window
+int $dlg = `createWindow $kAppName` ;
+setWindowSize $kAppName -width 450 -height 450;
+// Get a handle to the user window's main layout form. All controls
+// will be descendants of this and will be placed/sized relative to it.
+$parentForm = `getTopLevelForm $dlg`;
+setGlobalVar "RT_parentForm" $parentForm ;
+
+$rect[0] = 16;
+$rect[1] = 16;
+$rect[2] = 94;
+$rect[3] = 42;
+$button = `createPushButton $dlg -text "Pick Session" -form $parentForm -pos $rect`;
+setPushButtonHandler $button -click "rangeTool_pickSession;" ;
+setControlTip $button "Pick the MoCap session you want to examine" ;
+
+$rect[0] = 112;
+$rect[1] = 16;
+$rect[2] = 424;
+$rect[3] = 38;
+int $sesPath = `createTextBox $dlg -text "" -form $parentForm -pos $rect`;
+setGlobalVar "RT_sesPath" $sesPath ;
+setControlTip $sesPath "Path to the MoCap session" ;
+
+$rect[0] = 16;
+$rect[1] = 56;
+$rect[2] = 424;
+$rect[3] = 324;
+int $takeList = `createListView $dlg -form $parentForm -pos $rect -singleSel`;
+setGlobalVar "RT_takeList" $takeList ;
+
+// Create the columns
+string $columns[5];
+int $widths[5];
+$columns[0] = "Take Name";
+$columns[1] = "In";
+$columns[2] = "Out";
+$columns[3] = "Time";
+$columns[4] = "Chars";
+$widths[0] = 245;
+$widths[1] = 38;
+$widths[2] = 38;
+$widths[3] = 40;
+$widths[4] = 42;
+setListViewColumns $takeList $columns $widths;
+setListViewHandler $takeList -selChange "rangeTool_loadTake;";
+setControlTip $takeList "Click a Take Name to Open it" ;
+
+// Update List Entry
+$rect[0] = 16;
+$rect[1] = 336;
+$rect[2] = 122;
+$rect[3] = 360;
+$button = `createPushButton $dlg -text "Update" -form $parentForm -pos $rect`;
+setPushButtonHandler $button -click "rangeTool_updateList;" ;
+setControlTip $button "Update this display with the Range IN and OUT points you have selected" ;
+
+// Time Counter
+$rect[0] = 328;
+$rect[1] = 336;
+$rect[2] = 424;
+$rect[3] = 356;
+int $totalSecs = `createTextBox $dlg -text "" -form $parentForm -pos $rect`;
+setGlobalVar "RT_totalSecs" $totalSecs ;
+setControlTip $totalSecs "Total Seconds selected" ;
+
+// Save CSV
+$rect[0] = 136;
+$rect[1] = 336;
+$rect[2] = 228;
+$rect[3] = 360;
+$button = `createPushButton $dlg -text "Save" -form $parentForm -pos $rect`;
+setPushButtonHandler $button -click "rangeTool_saveCSV;" ;
+setControlTip $button "Save the range selctions as a CSV into the session Directory" ;
+
+// Update Time USed / Remaining Calculation
+$rect[0] = 240;
+$rect[1] = 336;
+$rect[2] = 315;
+$rect[3] = 360;
+$button = `createPushButton $dlg -text "Calculate" -form $parentForm -pos $rect`;
+setPushButtonHandler $button -click "rangeTool_updateTime;" ;
+setControlTip $button "Update the Total Seconds for this sesssion, based on selected ranges" ;
+
+// Set In
+$rect[0] =  16;
+$rect[1] = 368;
+$rect[2] = 120;
+$rect[3] = 392;
+$button = `createPushButton $dlg -text "Set In Point" -form $parentForm -pos $rect`;
+setPushButtonHandler $button -click "rangeTool_setIn;" ;
+setControlTip $button "Set In Point" ;
+
+// Set Out
+$rect[0] = 136;
+$rect[1] = 368;
+$rect[2] = 224;
+$rect[3] = 392;
+$button = `createPushButton $dlg -text "Set Out Point" -form $parentForm -pos $rect`;
+setPushButtonHandler $button -click "rangeTool_setOut;" ;
+setControlTip $button "Set Out point" ;
+
+// Play Control
+$rect[0] = 240;
+$rect[1] = 368;
+$rect[2] = 312;
+$rect[3] = 392;
+$button = `createPushButton $dlg -text "Play" -form $parentForm -pos $rect`;
+setPushButtonHandler $button -click "rangeTool_playTog;" ;
+setControlTip $button "Play / Stop the current file" ;
+setGlobalVar "RT_playTog" $button ;
+
+// Seconds Countdown
+$rect[0] = 328;
+$rect[1] = 368;
+$rect[2] = 423;
+$rect[3] = 388;
+int $remains = `createTextBox $dlg -text "" -form $parentForm -pos $rect`;
+setControlTip $remains "countdown of Time allocation remaining" ;
+setGlobalVar "RT_remains" $remains ;

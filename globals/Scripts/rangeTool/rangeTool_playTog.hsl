@@ -1,0 +1,17 @@
+/* rangeTool_playTog.hsl
+ *   Toggle Play/Pause
+ */
+  
+// Consts
+int $kPlayTog = getGlobalIntVar( "RT_playTog" ) ;
+
+// Vars
+string $msg = `getControlText $kPlayTog` ;
+
+if ( $msg == "Play" ) {
+	play ;
+	setControlText $kPlayTog "Pause" ;
+} else {
+	stop ;
+	setControlText $kPlayTog "Play" ;
+}

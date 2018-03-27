@@ -1,0 +1,52 @@
+/* rangeTool_updateTime.hsl
+ *   update total time available.
+ */
+
+// Consts
+int $kTakeList = getGlobalIntVar( "RT_takeList" ) ;
+int $kTotalSecs = getGlobalIntVar( "RT_totalSecs" ) ;
+int $kRemains = getGlobalIntVar( "RT_remains" ) ;
+int $kDayAllocation =  getGlobalIntVar( "RT_DAYALLOCATION" ) ;
+
+// Vars
+string  $sTemp ;
+int     $count, $loop, $total,
+        $in,  $out, $takeTime,
+        $charCount, $remains ;
+
+// reset count
+$total = 0 ;
+
+// for each item in list view
+$count = `getNumListViewItems $kTakeList` ;
+
+// for each item
+for ( $loop = 0; $loop < $count; $loop += 1 ) {
+    // In
+    $sTemp = `getListViewItemText $kTakeList $loop 1` ;
+    $in = int( $sTemp ) ;
+    
+    // Out
+    $sTemp = `getListViewItemText $kTakeList $loop 2` ;
+    $out = int( $sTemp ) ;
+    $takeTime = ( $out - $in ) ;
+       
+    // Multiply by Chars
+    $sTemp = `getListViewItemText $kTakeList $loop 4` ;
+    $charCount = int( $sTemp ) ;
+    $takeTime *= $charCount ;
+    
+    // update session total
+    $total += $takeTime ;
+}
+
+$sTemp = `frameToSmpte -ignoreOffset $total` ;
+$sTemp = `rangeTool_smallTime $sTemp `;
+
+setControlText $kTotalSecs $sTemp ;
+
+// Set count down
+$remains = $kDayAllocation - $total ;
+$sTemp = `frameToSmpte -ignoreOffset $remains` ;
+$sTemp = `rangeTool_smallTime $sTemp `;
+setControlText $kRemains  $sTemp ;

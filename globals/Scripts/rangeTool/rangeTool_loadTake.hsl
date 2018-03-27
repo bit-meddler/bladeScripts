@@ -1,0 +1,61 @@
+/* rangeTool_loadTake.hsl
+ *   Handler to load a take from the takeList, and set in & out points
+ *
+ */
+
+// Consts
+int $kTakeList = getGlobalIntVar( "RT_takeList" ) ;
+int $kSesPath  = getGlobalIntVar( "RT_sesPath"  ) ;
+
+//Vars
+string $sesPath, $takeName, $sTemp ;
+int $listIdxs[] ;
+int $listIdx, $iTemp ;
+
+// get Session Path
+$sesPath = `getControlText $kSesPath` ;
+$sesPath += "/" ;
+
+// get Trial Name from List Box
+$listIdxs = `getListViewSelItems $kTakeList` ;
+$listIdx = $listIdxs[ 0 ] ;
+$sTemp = `getListViewItemText $kTakeList $listIdx 0` ;
+
+// Assemble
+$takeName = $sesPath + $sTemp + ".hdf" ;
+
+// Load
+newFile ;
+loadFile $takeName ;
+
+// Set In & Out points to match those in List
+// In
+$sTemp = `getListViewItemText $kTakeList $listIdx 1` ;
+$iTemp = int( $sTemp ) ;
+if( $iTemp > 0 ) {
+	// has been changed
+	playRange $iTemp -start ;
+}
+// Out
+$sTemp = `getListViewItemText $kTakeList $listIdx 2` ;
+$iTemp = int( $sTemp ) ;
+if( $iTemp > 0 ) {
+	// has been changed
+	playRange $iTemp -end ;
+}
+
+// Chars
+$sTemp = `getListViewItemText $kTakeList $listIdx 4` ;
+$iTemp = int( $sTemp ) ;
+
+if ( $iTemp < 1 ) {
+    // Count Chars
+    $iTemp = getNumChars() ;
+} // if Num Chars not set, count them.
+
+$sTemp = string( $iTemp ) ;
+setListViewItemText $kTakeList $listIdx 4 $sTemp ;
+
+// TODO: Handle Sub-selects properly!
+
+//end

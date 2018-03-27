@@ -1,0 +1,81 @@
+// consts
+int $kSesPath  = getGlobalIntVar( "RT_sesPath"    ) ;
+int $kiListRef = getGlobalIntVar( "RT_takeList"   ) ;
+int $kiFormRef = getGlobalIntVar( "RT_parentForm" ) ;
+
+// Vars
+string $pathToks[] ;
+string $sTemp, $csvPath, $sesPath ;
+int $count, $fileHandle, $listIdx ;
+
+
+// get Session Path
+$sesPath = `getControlText $kSesPath` ;
+if ( $sesPath =="" ) {
+    return ;
+}
+
+// Determine Capture Day from $sesPath
+$pathToks = `strTokArray $sesPath -delims "/"`;
+$count = getCount( $pathToks ) ;
+$sTemp = $pathToks[ ( $count - 1 ) ] ;
+
+// prepare out file name
+$csvPath = $sesPath + "/" + $sTemp + ".csv" ;
+print $csvPath ;
+// test for existance of CSV
+boolean	$exists = `pathExists $csvPath` ;
+if ( $exists != true ) {
+	// no CSV to load, generate one
+	print( "Making CSV" ) ;
+	rangeTool_makeCSV ;
+}
+
+// clear List
+deleteAllListViewItems $kiListRef ;
+
+// Open File, skip 1st Line
+$fileHandle = `fileOpen $csvPath "r"` ;
+$sTemp = `readLine $fileHandle` ;
+$listIdx = 0 ;
+
+while( `isEndOfFile $fileHandle` == false ) {
+	$sTemp = `readLine $fileHandle` ;
+	if( strLength( $sTemp ) > 6 ) {
+		$pathToks = `strTokArray $sTemp -delims ","` ;
+
+		int $iRow = `addListViewItem $kiListRef $pathToks[ 0 ] -insert $listIdx`;
+	   $listIdx += 1 ;
+	    
+      // Bit of casting sillyness to fully integerize the tokens
+        
+	   // In
+      $sTemp = string( int( $pathToks[ 1 ] ) ) ;
+	   setListViewItemText $kiListRef $iRow 1 $sTemp ;
+        
+	   // Out
+		$sTemp = string( int( $pathToks[ 2 ] ) ) ;
+	   setListViewItemText $kiListRef $iRow 2 $sTemp ;	
+		
+	    // Duration
+	    int $iDuration = int( $pathToks[ 2 ] ) - int( $pathToks[ 1 ] ) ;
+	    string $sDuration = `frameToSmpte -ignoreOffset $iDuration` ;
+ 		 $sDuration = `rangeTool_smallTime $sDuration` ;
+	    setListViewItemText $kiListRef $iRow 3 $sDuration ;
+        
+        // Chars
+        $sTemp = string( int( $pathToks[ 4 ] ) ) ;
+	    setListViewItemText $kiListRef $iRow 4 $sTemp ;
+	} // if the string contained something
+
+} // while not end of file
+
+// Close File Handle
+fileClose $fileHandle ;
+
+// Update display (Hopefully)
+showControl $kiListRef true ;
+layoutForm $kiFormRef ;
+
+// Recalculate total seconds
+rangeTool_updateTime ;

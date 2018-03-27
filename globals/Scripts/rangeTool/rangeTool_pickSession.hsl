@@ -1,0 +1,8 @@
+/* rangeTool_PickSession.hsl
+ *   Pick a Mocap session to make selects in.
+ *   Loads a CSV of existing selects if available
+ */
+int $kSesPath = getGlobalIntVar( "RT_sesPath" ) ;
+string $rootDir = `dirChooser -title "Directory to Examine" -failOnCancel` ;
+setControlText $kSesPath $rootDir ;
+rangeTool_loadCSV ;

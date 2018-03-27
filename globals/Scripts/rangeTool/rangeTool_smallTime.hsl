@@ -1,0 +1,25 @@
+/* smallTime.hsl
+ *		convert a large hh:mm:ss:ff(uu) "01:02:03:04(5)" timecode into mm:ss:ff "02:03:04"
+ *
+ *
+ */
+
+// inputs
+string $timecode ;
+input	 $timecode "00:00:00:00(0)" ;
+
+// Vars
+string	$sTemp ;
+int		$temp ;
+
+//Begin
+// Trim Hours
+$temp = `strLength $timecode` ;
+$temp -= 3 ;
+$sTemp = `strRight $timecode $temp` ;
+
+$temp -= 3 ;
+// Trim Sub Frames
+$timecode = `strLeft $sTemp $temp` ;
+
+return $timecode ;

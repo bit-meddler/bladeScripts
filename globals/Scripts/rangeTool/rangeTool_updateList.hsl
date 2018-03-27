@@ -1,0 +1,45 @@
+// Consts
+int $kTakeList = getGlobalIntVar( "RT_takeList" ) ;
+int $kParentForm = getGlobalIntVar( "RT_parentForm" ) ;
+
+// Vars
+int $itemIdxs[] ;
+int $iTemp, $in, $out ;
+            
+// read IN and OUT from current open scene
+$in = `getPlayStart` ;
+$out = `getPlayEnd` ;
+
+// find Index
+$itemIdxs = `getListViewSelItems $kTakeList` ;
+$iTemp = getCount( $itemIdxs ) ;
+//print $itemIdxs ;
+
+if ( $iTemp >= 1 ) {
+	$iTemp = $itemIdxs[ 0 ] ;
+} else {
+	$iTemp = 0 ;
+}
+//print( $iTemp ) ;
+
+// update list item with these values...
+//showControl $kTakeList false ;
+// In
+setListViewItemText $kTakeList $iTemp 1 string( $in  ) ;
+// Out
+setListViewItemText $kTakeList $iTemp 2 string( $out ) ;
+	
+// Duration
+int $time = ($out - $in) ;
+string $duration = `frameToSmpte -ignoreOffset $time` ;
+$duration = `rangeTool_smallTime $duration` ;
+setListViewItemText $kTakeList $iTemp 3 $duration ;
+
+showControl $kTakeList true ;
+layoutForm $kParentForm ;
+
+// Update Total
+rangeTool_updateTime ;
+
+// saveCSV
+rangeTool_saveCSV ;

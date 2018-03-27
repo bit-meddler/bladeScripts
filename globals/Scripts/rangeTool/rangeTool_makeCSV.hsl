@@ -1,0 +1,56 @@
+// consts
+int $kSesPath = `getGlobalIntVar "RT_sesPath"` ;
+
+
+// Vars
+string  $pathToks[], $fileList[] ;
+string $sTemp, $outFile, $sesPath ;
+int $count, $loop, $fileHandle ;
+
+// get Session Path
+$sesPath = `getControlText $kSesPath` ;
+if ( $sesPath =="" ) {
+    return ;
+}
+
+// Determine Capture Day from $sesPath
+$pathToks = `strTokArray $sesPath -delims "/"`;
+$count = getCount( $pathToks ) ;
+$sTemp = $pathToks[ ( $count - 1 ) ] ;
+
+// prepare out file name
+$outFile = $sesPath + "/" + $sTemp + ".csv" ;
+
+// test for existance of CSV
+if ( `pathExists $outFile` ) {
+    // there already is a CSV in the Dir.  What to do with it?
+    wait( 0 ) ;
+}
+
+// get list of HDF files in the RootDir
+$fileList = `getFileList $sesPath -pattern "*.hdf" -sort "name" "asc"` ;
+$count = getCount( $fileList ) ;
+
+// prepare OutFile
+$fileHandle = `fileOpen $outFile "w"` ;
+
+// write header
+writeString $fileHandle "Filename,In frame,Out frame,Chars,Total\n" ;
+
+// for each item
+for ( $loop = 0; $loop < $count; $loop += 1 ) {
+    // write name
+    $sTemp = `getFileTitle $fileList[ $loop ]` ;
+    // write in
+    $sTemp += ",0" ;
+    // write out
+    $sTemp += ",0" ;
+    // write chars
+    $sTemp += ",0" ;
+    // write total
+    $sTemp += ",0,\n" ;
+    // output
+    writeString $fileHandle $sTemp ;
+}
+// close file
+fileClose $fileHandle ;

@@ -1,0 +1,2 @@
+int $iTime = `getTime` ;
+playRange $iTime -end ;
