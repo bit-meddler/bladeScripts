@@ -28,7 +28,7 @@ $outFile = $sesPath + "/" + $sTemp + ".csv" ;
 // test for existance of CSV
 if ( `pathExists $outFile` ) {
     // there already is a CSV in the Dir.  What to do with it?
-    print( "Replacing old CSV" )
+    print( "Replacing old CSV" ) ;
 }
 
 // Open File
