@@ -8,8 +8,14 @@
 // Consts
 string $kAppName = "Range Selection Tool" ;
 string $kUnset   = "__UNSET__" ;
+string $kProfile	= "rangeTool.ini" ;
+string $kSettings	= "SETTINGS" ;
+string $profilePath = `appInfo "datalocation" -noFeedback` + $kProfile ;
+
 setGlobalVar "RT_DAYALLOCATION" 119000 ; // 1000 char/secs @ ~119.88 fps
 // Vars
+string $temp ;
+
 // UI vars
 int $dlg ;
 int $parentForm ;
@@ -17,8 +23,7 @@ int $rect[4] ;
 int $ignore ;
 int $button ;
         
-////////
-// Begin
+
 // Destroy Old instance
 if( `windowExists $kAppName` ) {
 	destroyWindow $kAppName ;
@@ -39,11 +44,12 @@ $button = `createPushButton $dlg -text "Pick Session" -form $parentForm -pos $re
 setPushButtonHandler $button -click "rangeTool_pickSession;" ;
 setControlTip $button "Pick the MoCap session you want to examine" ;
 
+$temp = `getProfileString $kSettings "sesPath" "" -file $profilePath` ;
 $rect[0] = 112;
 $rect[1] = 16;
 $rect[2] = 424;
 $rect[3] = 38;
-int $sesPath = `createTextBox $dlg -text "" -form $parentForm -pos $rect`;
+int $sesPath = `createTextBox $dlg -text $temp -form $parentForm -pos $rect`;
 setGlobalVar "RT_sesPath" $sesPath ;
 setControlTip $sesPath "Path to the MoCap session" ;
 
@@ -143,3 +149,6 @@ $rect[3] = 388;
 int $remains = `createTextBox $dlg -text "" -form $parentForm -pos $rect`;
 setControlTip $remains "countdown of Time allocation remaining" ;
 setGlobalVar "RT_remains" $remains ;
+
+// If session is persisted, try to load it
+rangeTool_loadCSV ;
