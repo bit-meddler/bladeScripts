@@ -6,10 +6,12 @@
 + autoColour
 + skelBuild (_wip_)
 + RH VST v1
++ RH VST v2 (_wip_)
 
 ## Stage Tools
-+ henchMan
-+ dayBuild
++ henchMan v0.1
++ dayBuild v0.1
++ retryLastCal
 + calMan (_wip_)
 + maskRescue (_wip_)
 
@@ -17,7 +19,8 @@
 + selection and drawing toggles
 
 ## Post Tools
-+ bodyNavigator (_wip_)
++ bodyNavigator v0.1
++ rangeTools v0.1
 + testVeracity (_wip_)
 + superFiller (_wip_)
 + keyTools (_wip_)
