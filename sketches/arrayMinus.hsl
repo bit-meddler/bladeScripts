@@ -1,0 +1,50 @@
+/* arrayMinus.hsl
+ *		Remove an element from an array, returning the array that doesn't hold
+ *		the element in question.
+ *
+ */
+
+// Inputs
+string	$source[] ;
+input	$source [[ "str", "str2", "str3" ]] ; 
+
+string	$remove ;
+input	$remove "" ;
+
+
+///////
+// Vars
+int		$source_size,
+		$idx		,
+		$loop		;
+
+// Initalise
+$source_size = `getCount $source` ;
+$idx = 0 ;
+
+string	$temp_array[ $source_size ] ;
+
+// search array for offending article
+for( $loop = 0; $loop<$source_size; $loop+=1 ) {
+	if( $source[ $loop ] == $remove ) {
+		print ( "Found " + $remove ) ;
+	} else {
+		$temp_array[ $idx ] = $source[ $loop ] ;
+		$idx += 1 ;
+	}
+}
+
+// if item to remove couldn't be found, both arrays will be the same
+if( $source_size==$idx ) {
+	// so return it
+	return $temp_array ;
+} else {
+	// need to shrinnk the returned array
+	string $ret[ $idx ] ; // $idx == size of target
+	for ( $loop = 0; $loop<$idx; $loop+=1 ) {
+		$ret[ $loop ] = $temp_array[ $loop ] ;
+	}
+	return $ret ;
+}
+
+// Done
