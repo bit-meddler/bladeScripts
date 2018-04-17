@@ -1,0 +1,80 @@
+/* lt_newHint.hsl
+ *
+ *		Find the constraint end-effector closest to the given unlabelled marker on this frame.
+ *    Select the subject closest to it.
+ *    The subject hinting requires a solved skelaton, and is _only_ a hint.
+ */
+
+string $marker ;
+input  $marker "__UNSET__" ;
+
+// Sanity test
+if( $marker == "__UNSET__" ) {
+	return ;
+}
+
+// List constraints
+string $cons[] = `getModules -type "LabelingConstraint" -fullPath` ;
+string $temp ;
+int $num = `getCount $cons` ;
+int $loop = 0 ;
+
+// Marker position
+vector $pos_c, $pos_m, $delta ;
+$pos_m = `getPosition $marker -ws` ;
+
+string $winner = "" ;
+float  $close = 10000.0 ;
+float $val = 0 ;
+// for every constraint, find the closest to the marker
+for( $loop=0; $loop<$num; $loop+=1 ) {
+	$pos_c = `getConstraintPos $cons[ $loop ]` ;
+	$delta = $pos_m - $pos_c ;
+	$val = `getLength $delta` ;
+	if( $val < $close ) {
+		$close = $val ;
+		$winner = $cons[ $loop ] ;
+	}
+}
+
+// Sanity test
+if ( $close > 1200.0 ) {
+	print( "The Marker isn't really close to anything" ) ;
+	select $marker ; // Only want Marker selected
+	zoomView -selected ;
+	// early exit
+	return 0 ;
+} // if Marker too far from bone to be plausable
+
+string $label =  `getStringProperty $winner "Source" -fullPath` ;
+string $bone = `getStringProperty $winner "Target" -fullPath` ;
+
+// Try and frame a nice view of the Marker & bone
+select $bone ;
+selectParent $bone ; // This helps in most cases
+select -a $label ;
+zoomView -selected ;
+manipulator ; // disable the manipulator, just in case
+
+// Select the subject we think is most relevent
+
+// Test number of Subjects
+string $chars[] = `getModules -type Character` ;
+int $num = `getCount $chars` ; // Reusing iLoop
+
+if ( $num >= 1 ) {
+	// Find Charactor owning the bone
+	$temp = `strTok $bone -delims "\\"` ;
+	print $temp ;
+	// Set this Charactor in the Labeling editor
+	labelOptions -curChar $temp ;
+} // if more than one subject
+
+// Retort
+print( "The marker is closest to '" + $label + "'" );
+
+// Make ready for labeling
+select ;
+select $label ; // Only want Marker selected
+
+// End
