@@ -1,0 +1,46 @@
+/* isDataAroundSel.hsl $testFrame $window
+ *
+ * Tests for data arounding $frame on selected module, it will normall look 2 frames
+ * before or after for data
+ */
+ 
+// Inputs
+int 	$testFrame ;
+int 	$window ;
+
+input	$testFrame -1 ;
+input	$window 2 ;
+
+// Vars
+int 	$offset ;
+int 	$loop ;
+
+// If no $frame passed, use current time
+if( $testFrame < 0 ) {
+	$testFrame = `getTime` ;
+}
+
+setTime $testFrame ;
+for ( $loop = 0; $loop < $window; $loop += 1 ) {
+	stepKey -s ;
+}
+$offset = `getTime` ;
+
+if( ($offset - $testFrame) != $window ) {
+	return false ;
+}
+
+
+
+setTime $testFrame ;
+for ( $loop = 0; $loop<$window; $loop+=1 ) {
+	stepKey -s -b ;
+}
+$offset = `getTime` ;
+
+if( ($offset - $testFrame) != (0-$window) ) {
+	return false ;
+}
+
+// if we get here, it's OK
+return true ;

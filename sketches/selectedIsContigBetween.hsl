@@ -1,0 +1,57 @@
+/* SelectedIsContigBetween $in $out
+ *	Returns True/False
+ *
+ * For the selected Marker, see if there is good data at the in and out points,
+ * and that there are no gaps between the in and out points.
+ */
+
+
+// Input
+int		$in      ,
+		$out     ;
+        
+input	$in    1 ;
+input	$out 100 ;
+
+
+// Vars
+int		$startFrame	,
+		$endFrame   ;
+
+// Initalise
+$startFrame = `getPlayStart` ;
+$endFrame   = `getPlayEnd` ;
+
+string $mods[] = `getModules -selected` ;
+
+// Test In & Out Frames - be aware of very begining or very end of file!
+if( isDataAroundSel( $in, 2 ) == false ) {
+	//	Probably Bad starting frame
+	$startFrame +=1 ;
+	// test for proximity to start of file
+	if ( $in > $startFrame ) {
+		return false ;
+	} // if far enough from start of file
+} // test *In* Frame
+
+if( isDataAroundSel( $out, 2 ) == false ) {
+	//	Bad Ending frame
+	$endFrame -= 1 ;
+	if ( $out < $endFrame ) {
+		return false ;
+	} // if far enough from end of file
+} // test *Out* Frame
+
+
+// Now test for gaps...
+
+setTime $in ;
+selectRange $in $out ;
+int $gaps[] = `findGap -ranges -noFeedback` ;
+
+// check for Gaps
+if( getCount( $gaps ) > 1 ) {
+	return false ;
+} else {
+	return true ;
+}
