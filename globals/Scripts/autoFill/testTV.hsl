@@ -1,0 +1,14 @@
+// test harness for TestVeracity
+
+int $in, $out ;
+string $mkrs[] = `getModules -selected` ;
+string $pri[] = `getModules -primary` ;
+
+int $ranges[] = `getSelectedTimeRanges` ;
+
+$in  = $ranges[ 0 ] ;
+$out = $ranges[ 1 ] ;
+
+string $good[] = `testVeracity $in $out $mkrs` ;
+select $good ;
+select -a $pri[0] ;

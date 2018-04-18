@@ -1,11 +1,8 @@
 /*	TestVeracity $iInFrame $iOutFrame $saGroup
  *		Returns subset of Group who are contigious between in and out.
  *
- *	Uses:
- *		RH_SelectedIsContigBetween
- *
- *	15/07/11 - RichH
  */
+
 // Inputs
 string 	$testMkrs[]	; // 
 int		$in	; // 
@@ -14,10 +11,6 @@ int		$out	; //
 input 	$in    1 ;
 input 	$out 100 ;
 input 	$testMkrs   [[ "LMT1", "LMT5", "LTOE" ]] ;
-
-if( false ) {
-	print( $testMkrs + " [" + string($in) + " ~ " + string($out) + "]" ) ;
-} // debug
 
 // Constants
 int		$ARRAY_MAX = 32 ;
@@ -29,15 +22,14 @@ int		$loop				; // Loop
 int		$head_idx = 0		; // Head of variably Sized Array
 
 // for each Marker in Group
-int		$gap_count = `getCount $testMkrs` ;
+int		$mkr_count = `getCount $testMkrs` ;
 
-for( $loop=0; $loop<$gap_count; $loop+=1 ) {
+for( $loop=0; $loop<$mkr_count; $loop+=1 ) {
 	$marker = $testMkrs[ $loop ] ;
     
 	// Test for existance of marker
 	if( exists( $marker ) ) {
 		// Test this Marker
-		select ;
 		select $marker ;
 		boolean $isContig = selectedIsContigBetween( $in,  $out) ;
 		if( $isContig ) {
@@ -47,7 +39,7 @@ for( $loop=0; $loop<$gap_count; $loop+=1 ) {
 			// Prevent Overflow
 			if( $head_idx>$ARRAY_MAX ) {
 				//bail
-				$loop = $gap_count + 1 ;
+				$loop = $mkr_count + 1 ;
 			}
 		} // if Marker is contig
 	} else {

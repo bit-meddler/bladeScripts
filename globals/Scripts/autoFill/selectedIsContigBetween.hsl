@@ -16,7 +16,7 @@ input	$out 100 ;
 
 // Vars
 int		$startFrame	,
-		$endFrame   ;
+		 $endFrame   ;
 
 // Initalise
 $startFrame = `getPlayStart` ;
