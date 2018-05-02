@@ -75,9 +75,7 @@ class ViconCamera( object ):
 
         x, y, z, w = self._rotQ
         self.Q.setQ( x, y, z, w )
-        # These transposed RotMats are driving me mad!
-        self.R = self.Q.toRotMat2().T
-        self.R = self.Q.toRotMat()
+        self.R = self.Q.toRotMatT()
         
         # from Vicon's "Cara Reference" pdf (/Fileformats/XCP)
         # Assuming (!) XCPs are the same between products
