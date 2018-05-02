@@ -214,10 +214,15 @@ if( __name__ == "__main__" ):
 
     file_path = r"C:\temp\xcp_examples"
 
+    center_test = {   18955 : [    1.4343, 1669.543, 2405.95  ],
+                    2107343 : [ -178.20,   -408.21,   142.86  ],
+                    2106443 : [  -65.095,    80.5978,  25.967 ]
+    }
+
     cal_reader = CalReader()
 
     cal_list = glob.glob( os.path.join( file_path, "*.xcp" ) )
-
+    retorts = ""
     for cal in cal_list:
         print( "Testing:'{}'---------------------------------".format( os.path.basename( cal ) ) )
         cal_reader.reset()
@@ -226,7 +231,11 @@ if( __name__ == "__main__" ):
         for cid in cal_reader.camera_order:
             cam = cal_reader.cameras[ cid ]
             print( "Camera '{}' is at T:{} R:{}".format( cid, cam.T, np.degrees( cam.Q.toAngles2() ) ) )
-
+            if( cid in center_test ):
+                retorts += "Camera {} projected to {} (sensor size {})\n".format(
+                    cid,
+                    cam.projectPoint( center_test[ cid ] ),
+                    cam.sensor_wh )
 
     # Specific test
     cal_reader.read( os.path.join( file_path, "170202_WictorK_Body_ROM_01.xcp" ) )
@@ -238,7 +247,4 @@ if( __name__ == "__main__" ):
     print np.degrees( cam.Q.toAngles2() )
     print np.degrees( cam.Q.toAngles3() )
     
-    # 178, 408, 142 is about the center of 2107343
-    print cam.projectPoint( [-178.20, -408.21, 142.86, 1.] )
-    # not bad :)
-    
+    print retorts

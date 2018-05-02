@@ -378,9 +378,10 @@ class Quaternion( object ):
         # should I normalize?
 
 
-    def toRotMat( self ):
+    def toRotMatT( self ):
         # http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
-        M = np.zeros( (3,3), dtype=np.float32 )
+        # Directly Transposed - for use with OpenGL
+        M = np.zeros( (3,3), dtype=FLOAT_T )
 
         XX = self.X * self.X
         XY = self.X * self.Y
@@ -411,9 +412,9 @@ class Quaternion( object ):
 
         return M
 
-    def toRotMat2( self ):
+    def toRotMat( self ):
         # http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
-        M = np.zeros( (3,3), dtype=np.float32 )
+        M = np.zeros( (3,3), dtype=FLOAT_T )
 
         XX = self.X * self.X
         XY = self.X * self.Y
@@ -448,14 +449,16 @@ class Quaternion( object ):
     def toAngles( self ):
         # http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm
         x, y, z = 0., 0., 0.
+        # something's up with the mixing here!
+        _X, _Y, _Z, _W = self.Y, self.W, self.X, self.Z
+
+        XX = _X * _X
+        YY = _Y * _Y
+        ZZ = _Z * _Z
+        WW = _W * _W
         
-        XX = self.X * self.X
-        YY = self.Y * self.Y
-        ZZ = self.Z * self.Z
-        WW = self.W * self.W
-        
-        XY = self.X * self.Y
-        ZW = self.Z * self.W
+        XY = _X * _Y
+        ZW = _Z * _W
 
         test = (XY - ZW)
         #scale = XX + YY + ZZ + WW
@@ -465,46 +468,47 @@ class Quaternion( object ):
             #
             x = 0.
             y = np.PI / 2.
-            z = 2. * np.arctan2( self.X, self.W )
+            z = 2. * np.arctan2( _X, _W )
         elif( test < -0.499 ):#(-0.499 * scale) ):
             #
             x = 0.
             y = np.PI / -2.
-            z = -2. * np.arctan2( self.X, self.W )
+            z = -2. * np.arctan2( _X, _W )
         else:
             #
-            XW = self.X * self.W
-            YZ = self.Y * self.Z
-            YW = self.Y * self.W
-            XZ = self.X * self.Z
+            XW = _X * _W
+            YZ = _Y * _Z
+            YW = _Y * _W
+            XZ = _X * _Z
             
             x = np.arctan2( ((2. * XW) - (2. * YZ)), (-XX + YY - ZZ + WW) )
-            y = np.arcsin( 2. * test )
-            z = np.arctan2( ((2. * YW) - (2. * XZ)) , (XX - YY - ZZ + WW) )
+            y = np.arcsin( 2. * test ) * -2.
+            z = np.arctan2( ((2. * YW) - (2. * XZ)) , (XX - YY - ZZ + WW) ) * -2.
         return (x, y, z)
 
 
     def toAngles2( self ):
         
-        return mat34.mat2Angles( self.toRotMat2() )
+        return mat34.mat2Angles( self.toRotMat() )
 
 
     def toAngles3( self ):
         # https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Quaternion_to_Euler_Angles_Conversion
         x, y, z = 0., 0., 0.
-        
-        YY = self.Y * self.Y
-        sx = 2. * (self.W * self.X + self.Y * self.Z)
-        cx = 1. - 2. * (self.X * self.X + YY)
+        _X, _Y, _Z, _W = self.X, self.Y, self.Z, self.W
+
+        YY = _Y * _Y
+        sx = 2. * (_W * _X + _Y * _Z)
+        cx = 1. - 2. * (_X * _X + YY)
         x = np.arctan2( sx, cx )
 
-        sy =  2. * (self.W * self.Y - self.Z * self.X)
+        sy =  2. * (_W * _Y - _Z * _X)
         sy =  1. if sy > +1.0 else sy
         sy = -1. if sy < -1.0 else sy
         y = np.arcsin( sy )
 
-        sz = 2. * (self.W * self.Z + self.X * self.Y)
-        cz = 1. - 2. * (YY + self.Z * self.Z)
+        sz = 2. * (_W * _Z + _X * _Y)
+        cz = 1. - 2. * (YY + _Z * _Z)
         z = np.arctan2( sz, cz )
 
         return (x, y, z)
@@ -559,18 +563,19 @@ if( __name__ == "__main__" ):
     print q
     
     m1 = q.toRotMat()
-    m2 = q.toRotMat2()
+    m2 = q.toRotMatT()
 
     print m1
     print m2
 
     print np.allclose( m1.T, m2 )
     print true_true
-    d1 = np.degrees( mat34.mat2Angles( m1.T ) )
-    d2 = np.degrees( mat34.mat2Angles( m2 ) )
+    d1 = np.degrees( mat34.mat2Angles( m1 ) )
+    d2 = np.degrees( mat34.mat2Angles( m2.T ) )
     print d1
     print d2
     print true_true - d1
 
-        
-    
+    print np.degrees( q.toAngles() )
+    print np.degrees( q.toAngles2() )
+    print np.degrees( q.toAngles3() )
