@@ -446,11 +446,11 @@ class Quaternion( object ):
         return M
 
     
-    def toAngles( self ):
+    def toAngles2( self ):
         # http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm
         x, y, z = 0., 0., 0.
         # something's up with the mixing here!
-        _X, _Y, _Z, _W = self.Y, self.W, self.X, self.Z
+        _X, _Y, _Z, _W = self.X, self.Y, self.Z, self.W
 
         XX = _X * _X
         YY = _Y * _Y
@@ -482,12 +482,12 @@ class Quaternion( object ):
             XZ = _X * _Z
             
             x = np.arctan2( ((2. * XW) - (2. * YZ)), (-XX + YY - ZZ + WW) )
-            y = np.arcsin( 2. * test ) * -2.
-            z = np.arctan2( ((2. * YW) - (2. * XZ)) , (XX - YY - ZZ + WW) ) * -2.
+            y = np.arcsin( 2. * test ) #* -2.
+            z = np.arctan2( ((2. * YW) - (2. * XZ)) , (XX - YY - ZZ + WW) ) #* -2.
         return (x, y, z)
 
 
-    def toAngles2( self ):
+    def toAngles( self ):
         
         return mat34.mat2Angles( self.toRotMat() )
 
@@ -495,7 +495,7 @@ class Quaternion( object ):
     def toAngles3( self ):
         # https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Quaternion_to_Euler_Angles_Conversion
         x, y, z = 0., 0., 0.
-        _X, _Y, _Z, _W = self.X, self.Y, self.Z, self.W
+        _X, _Y, _Z, _W = self.W, self.X, self.Y, self.Z
 
         YY = _Y * _Y
         sx = 2. * (_W * _X + _Y * _Z)
@@ -513,6 +513,25 @@ class Quaternion( object ):
 
         return (x, y, z)
 
+    def toAngles4( self ):
+        # http://people.ece.cornell.edu/land/courses/ece4760/FinalProjects/f2013/kjg58_pmt43/website/website/index.html
+        x, y, z = 0., 0., 0.
+        _X, _Y, _Z, _W = self.W, self.Z, self.Y, self.X
+
+        YY = _Y * _Y
+        ZZ = _Z * _Z
+        WW = _W * _W
+        XY = _X * _Y
+        ZW = _Z * _W
+        YW = _Y * _W
+        XZ = _X * _Z
+        XW = _X * _W
+
+        x = np.arctan( (2. * (XY+ZW)) / (1. - (2.*(YY+ZZ)) ) )
+        y = np.arcsin(  2. * (XZ-YW) )
+        z = np.arctan( (2. * (XW + _Y + _Z)) / (1. - (2.*(ZZ+WW))) )
+        
+        return (x,y,z)
     
     def __str__( self ):
         return "Quaternion X:{} Y:{} Z:{} W:{}".format(
@@ -535,13 +554,13 @@ if( __name__ == "__main__" ):
     print( mat34.angle2Mat( angle ) )
     print q
     print q.toRotMat()
-    print np.degrees( q.toAngles3() )
+    print np.degrees( q.toAngles() )
 
     q.fromAngles( angle2, 0, 0. )
     print( mat34.angle2Mat( angle2 ) )
     print q
     print q.toRotMat()
-    print np.degrees( q.toAngles3() )
+    print np.degrees( q.toAngles() )
     
     A = mat34.angle2Mat( angle,  axis=(1.,0.,0.))
     B = mat34.angle2Mat( angle2, axis=(0.,1.,0.))
@@ -552,7 +571,7 @@ if( __name__ == "__main__" ):
     print q
     print q.toRotMat()
     print np.degrees(mat34.mat2Angles( q.toRotMat() ) )
-    print np.degrees( q.toAngles3() )
+    print np.degrees( q.toAngles() )
 
     print( "----------------------------" )
     # 2107343 test
@@ -576,6 +595,7 @@ if( __name__ == "__main__" ):
     print d2
     print true_true - d1
 
-    print np.degrees( q.toAngles() )
+    print np.degrees( q.toAngles()  )
     print np.degrees( q.toAngles2() )
     print np.degrees( q.toAngles3() )
+    print np.degrees( q.toAngles4() )
