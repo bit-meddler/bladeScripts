@@ -123,7 +123,20 @@ class ViconCamera( object ):
         x, y, z = np.matmul( self.P, np.array( p_ ) )
         return ( x/z, y/z )
 
+
+class CameraSystem( object ):
+
     
+    def __init__( self ):
+        self.reset()
+
+        
+    def reset( self ):
+        self.camera_order = None
+        self.cameras = {}
+        self.source_file = ""
+
+        
 class CalReader( object ):
 
     CASTS = {
@@ -156,9 +169,7 @@ class CalReader( object ):
 
     def reset( self ) :
         self.data = {}
-        self.cameras = {}
-        self.camera_order = []
-        self.source_file = ""
+        self.system = CameraSystem()
         
 
     def read( self, file_path=None ):
@@ -168,7 +179,7 @@ class CalReader( object ):
 
         mode = "XCP"
         
-        self.source_file = file_path
+        self.system.source_file = file_path
         
         if( file_path.lower().endswith( ".xcp" ) ):
             mode = "XCP"
@@ -200,9 +211,9 @@ class CalReader( object ):
                 
         for cam_id, cam_data in self.data.iteritems():
             camera = ViconCamera( cam_data )
-            self.cameras[ int( cam_id ) ] = camera
+            self.system.cameras[ int( cam_id ) ] = camera
 
-        self.camera_order = sorted( self.cameras.keys() )
+        self.system.camera_order = sorted( self.system.cameras.keys() )
         
 
 if( __name__ == "__main__" ):
@@ -226,8 +237,8 @@ if( __name__ == "__main__" ):
         cal_reader.reset()
         cal_reader.read( cal )
         
-        for cid in cal_reader.camera_order:
-            cam = cal_reader.cameras[ cid ]
+        for cid in cal_reader.system.camera_order:
+            cam = cal_reader.system.cameras[ cid ]
             print( "Camera '{}' is at T:{} R:{}".format( cid, cam.T, np.degrees( cam.Q.toAngles2() ) ) )
             if( cid in center_test ):
                 retorts += "Camera {} projected to {} (sensor size {})\n".format(
@@ -239,7 +250,7 @@ if( __name__ == "__main__" ):
     cal_reader.read( os.path.join( file_path, "170202_WictorK_Body_ROM_01.xcp" ) )
     known_cam = 2107343
     # examining this in blade, the rot should be [166.497, -84.23, -119.151]
-    cam = cal_reader.cameras[ known_cam ]
+    cam = cal_reader.system.cameras[ known_cam ]
     
     print np.degrees( cam.Q.toAngles()  )
     print np.degrees( cam.Q.toAngles2() )
