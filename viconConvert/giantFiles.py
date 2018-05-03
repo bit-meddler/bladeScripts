@@ -15,7 +15,7 @@ class NPCwrite( object ):
                      "Orientation3", "Orientation4", "Orientation5", "Orientation6",
                      "Orientation7", "Orientation8" )
     
-    EXPORT_KEYS = {
+    EXPORT_CASTS = {
         "CameraSerial" : lambda x: x.hw_id,
         "LensCenterX" : lambda x: x._pp[0],
         "LensCenterY" : lambda x: x._pp[1],
@@ -33,7 +33,7 @@ class NPCwrite( object ):
         "PositionZ" : lambda x: x.T[2]
     }
     
-    IN_INCHES = ("PositionX", "PositionY", "PositionZ")
+    IN_INCHES = ( "PositionX", "PositionY", "PositionZ" )
 
     
     @staticmethod
@@ -61,15 +61,18 @@ class NPCwrite( object ):
         lines = []
         for cam_id in self.system.camera_order:
             cam = self.system.cameras[ cam_id ]
+            
             # assemble data
             out = {}
-            for key, cast in self.EXPORT_KEYS.iteritems():
+            for key, cast in self.EXPORT_CASTS.iteritems():
                 out[ key ] = cast( cam )
             self._genOrients( cam.R, out )
+            
             # convert mm to inches
             if( self.inchConvert ):
                 for key in self.IN_INCHES:
                     out[ key ] = out[ key ] * cm.INCHCONVERT
+                    
             # add to txt
             for key in self.EXPORT_ORDER:
                 lines.append( "{},{}\n".format( key, out[ key ] ) )
