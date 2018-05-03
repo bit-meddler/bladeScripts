@@ -1,5 +1,6 @@
 """ system to export various data into giant native formats """
 import numpy as np
+import coreMaths as cm
 import os
 
 class TKLtool( object ):
@@ -29,8 +30,10 @@ class NPCwrite( object ):
         "ImagerPixelHeight" : lambda x: x.sensor_wh[1],
         "PositionX" : lambda x: x.T[0],
         "PositionY" : lambda x: x.T[1],
-        "PositionZ" : lambda x: x.T[2],
+        "PositionZ" : lambda x: x.T[2]
     }
+    
+    IN_INCHES = ("PositionX", "PositionY", "PositionZ")
 
     
     @staticmethod
@@ -48,6 +51,7 @@ class NPCwrite( object ):
     def reset( self ):
         self.system = None
         self.txt = ""
+        self.inchConvert = False
 
         
     def generate( self ):
@@ -62,6 +66,10 @@ class NPCwrite( object ):
             for key, cast in self.EXPORT_KEYS.iteritems():
                 out[ key ] = cast( cam )
             self._genOrients( cam.R, out )
+            # convert mm to inches
+            if( self.inchConvert ):
+                for key in self.IN_INCHES:
+                    out[ key ] = out[ key ] * cm.INCHCONVERT
             # add to txt
             for key in self.EXPORT_ORDER:
                 lines.append( "{},{}\n".format( key, out[ key ] ) )
@@ -92,6 +100,7 @@ if( __name__ == "__main__" ):
     cal_reader.read( os.path.join( file_path, file_name ) )
 
     cal_writer = NPCwrite( cal_reader.system )
+    cal_writer.inchConvert = True
     cal_writer.generate()
-    cal_writer.writeOut( os.path.join( file_path, "170202_WictorK_Body_ROM_01.txt" ) )
+    cal_writer.writeOut( os.path.join( file_path, file_name.replace( ".xcp", ".txt" ) ) )
     

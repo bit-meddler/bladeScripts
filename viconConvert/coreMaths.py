@@ -4,6 +4,8 @@ import numpy as np
 FLOAT_T = np.float32
 INT_T = np.int32
 
+INCHCONVERT = 0.039370078740158
+
 
 class mat33( object ):
     """ just a rotation matrix, and that it involves... """
