@@ -7,7 +7,7 @@ import os
 class CalTxReader( object ):
 
     CASTS = {
-        #"CameraSerial" : int,
+        "CameraSerial" : int,
         "ImagerPixelWidth" : int,
         "ImagerPixelHeight" : int
     }
@@ -17,32 +17,35 @@ class CalTxReader( object ):
         self.cam_mats = {}
         self.cam_order = []
 
-
+    @staticmethod
     def probablyFloat( key, val ):
-        if( key in self.CASTS ):
-            return self.CASTS[ key ]( val )
+        if( key in CalTxReader.CASTS ):
+            return CalTxReader.CASTS[ key ]( val )
         else:
             return float( val )
 
         
     def read( self, file_fq ):
         cur_cam = {}
-        fh.open( file_fq, "r" )
+        fh = open( file_fq, "r" )
         line = "boot"
         while( True ):
             line = fh.readline()
             if( not line ):
                 break
+            if( len( line ) < 2 ):
+                continue # skip block separations
             key, val = line.split(",")
             if( key in cur_cam ):
                 # new block!, always start at CameraSerial
                 assert( key == "CameraSerial" )
                 cur_cam = {}
-                cid = int( CameraSerial )
-                cam_order.append( cid )
+                cid = int( val )
+                self.cam_order.append( cid )
                 self.cam_data[ cid ] = cur_cam
-            cur_cam[ key ] = probablyFloat( key, val )
-
+            cur_cam[ key ] = self.probablyFloat( key, val )
+        fh.close()
+        self.compute()
             
     def compute( self ):
         for cid in self.cam_order:
@@ -57,26 +60,36 @@ class CalTxReader( object ):
             )
             
             # R
-            cam[ "R" ] = np.zeros( (9), dtype=cm.FLOAT_T )
+            M = np.zeros( (9), dtype=cm.FLOAT_T )
             for i in range( 9 ):
-                cam[ "R" ][i] = raw[ "Orientation{}".format( i ) ]
-            cam[ "R" ].reshape( (3,3) ) # To tanspose, or not transpose
-            
+                M[i] = raw[ "Orientation{}".format( i ) ]
+            cam[ "R" ] = M.reshape( (3,3) ) # To tanspose, or not transpose
+
             # RT
             cam[ "RT" ] = np.zeros( (3,4), dtype=cm.FLOAT_T )
             cam[ "RT" ][:,3] = -np.matmul( cam[ "R" ], cam[ "T" ] )
             cam[ "RT" ][:3,:3] = cam[ "R" ]
             
             # K
-            cam[ "T" ] = np.array( [
+            cam[ "K" ] = np.array( [
                 [ raw[ "HorizontalFocalLength" ],                           0., raw[ "LensCenterX" ] ],
                 [                             0., raw[ "VerticalFocalLength" ], raw[ "LensCenterY" ] ],
-                [                             0.,                           0.,                 1. ] ],
+                [                             0.,                           0.,                   1. ] ],
                 dtype=cm.FLOAT_T
             )
             
             # KRT
-            cam[ "P" ][:,3] = np.matmul( cam[ "K" ], cam[ "RT" ] )
+            cam[ "P" ] = np.zeros( (3,4), dtype=cm.FLOAT_T )
+            cam[ "P" ] = np.matmul( cam[ "K" ], cam[ "RT" ] )
             
 if( __name__ == "__main__" ):
-    pass
+    file_fq = r"C:\temp\opti\Cal.txt"
+    c_reader = CalTxReader()
+    c_reader.read( file_fq )
+    mats = c_reader.cam_mats
+    cam  = c_reader.cam_order[0]
+    m2a  = cm.mat34.mat2Angles
+    print "serial", c_reader.cam_data[ cam ][ "CameraSerial" ]
+    print "ColMaj", np.degrees( m2a( mats[ cam ][ "R" ] ) )
+    print "RowMaj", np.degrees( m2a( mats[ cam ][ "R" ].T ) )
+    #print mats[ cam ][ "P" ]
