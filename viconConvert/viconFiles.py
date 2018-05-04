@@ -9,23 +9,21 @@
 
 import numpy as np
 from xml.dom import minidom
+from genericMoCap import CameraSystem, GenericCamera
 import coreMaths as cm
 
-# In case we run out of precision
-FLOAT_T = np.float32
-INT_T   = np.int32
 
-
-class ViconCamera( object ):
+class ViconCamera( GenericCamera ):
 
     def __init__( self, input_dict=None ):
+        # super
+        super( ViconCamera, self ).__init__()
+        
         # camera data
         self.hw_id       = -1 # uniue id.  data is in id order in the x2d
-        self.type        = ""
         self.vicon_name  = ""
         self.px_aspect   = -1 # 
         self.sensor_type = ""
-        self.sensor_wh   = [0, 0] # px
         self.user_id     = -1
         
         # raw calibration data
@@ -37,13 +35,9 @@ class ViconCamera( object ):
         self._skew  = 0. # ??
         self._focal = 0. # f in sensor px?
         
-        # computed matrixs
-        self.K  = np.eye( 3, dtype=FLOAT_T )
-        self.R  = np.eye( 3, dtype=FLOAT_T )
+        # Vicon specific matrix
         self.Q  = cm.Quaternion()
-        self.T  = np.zeros( (3,),  dtype=FLOAT_T )
-        self.RT = np.zeros( (3,4), dtype=FLOAT_T )
-        self.P  = np.zeros( (3,4), dtype=FLOAT_T )
+
 
         if( input_dict is not None ):
             self.setFromDict( input_dict )
@@ -93,11 +87,12 @@ class ViconCamera( object ):
         self.K = np.array(
             [ [  f,     k, x_pp ],
               [ 0., (f/a), y_pp ],
-              [ 0.,    0.,   1. ] ] , dtype=FLOAT_T )
+              [ 0.,    0.,   1. ] ] , dtype=cm.FLOAT_T )
         
         # compute P = K.RT
         self.P = np.matmul( self.K, self.RT )
-
+        self._p_computed = True
+        
 
     def undistort( self, point ):
         # As Vicon doesn't use NDCs the undistort is computed per det - dumb!
@@ -123,18 +118,13 @@ class ViconCamera( object ):
         x, y, z = np.matmul( self.P, np.array( p_ ) )
         return ( x/z, y/z )
 
-
-class CameraSystem( object ):
-
     
-    def __init__( self ):
-        self.reset()
-
-        
-    def reset( self ):
-        self.camera_order = None
-        self.cameras = {}
-        self.source_file = ""
+    def __str__( self ):
+        tx, ty, tz = self.T
+        rx, ry, rz = np.degrees( cm.mat34.mat2Angles( self.R.T ) )
+        fov = self.getFoV()
+        return "Vicon Camera {}, at Tx:{}, Ty:{}, Tz:{}; Rx:{}, Ry:{}, Rz:{}; FoV:{}Deg".format(
+            self.hw_id, tx, ty, tz, rx, ry, rz, fov )
 
         
 class CalReader( object ):
@@ -146,8 +136,8 @@ class CalReader( object ):
         "SKEW"               : float,
         "FOCAL_LENGTH"       : float,
         # extrinsics
-        "ORIENTATION"        : lambda x: np.array( x.split(), dtype=FLOAT_T),
-        "POSITION"           : lambda x: np.array( x.split(), dtype=FLOAT_T),
+        "ORIENTATION"        : lambda x: np.array( x.split(), dtype=cm.FLOAT_T),
+        "POSITION"           : lambda x: np.array( x.split(), dtype=cm.FLOAT_T),
         # Meta Data
         "SENSOR_SIZE"        : lambda x: map( int, x.split() ),
         "PIXEL_ASPECT_RATIO" : float,
@@ -239,7 +229,7 @@ if( __name__ == "__main__" ):
         
         for cid in cal_reader.system.camera_order:
             cam = cal_reader.system.cameras[ cid ]
-            print( "Camera '{}' is at T:{} R:{}".format( cid, cam.T, np.degrees( cam.Q.toAngles2() ) ) )
+            print( cam )
             if( cid in center_test ):
                 retorts += "Camera {} projected to {} (sensor size {})\n".format(
                     cid,
@@ -257,3 +247,5 @@ if( __name__ == "__main__" ):
     print np.degrees( cam.Q.toAngles3() )
     
     print retorts
+
+    print cam
