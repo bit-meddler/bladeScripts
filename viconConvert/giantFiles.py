@@ -33,7 +33,7 @@ class NPCwrite( object ):
         "PositionZ" : lambda x: x.T[2]
     }
     
-    IN_INCHES = ( "PositionX", "PositionY", "PositionZ" )
+    NEEDS_CONV = ( "PositionX", "PositionY", "PositionZ" )
 
     
     @staticmethod
@@ -51,10 +51,11 @@ class NPCwrite( object ):
     def reset( self ):
         self.system = None
         self.txt = ""
-        self.inchConvert = False
+        self.unitConvert = False
+        self.conversion  = 1.
 
         
-    def generate( self ):
+    def generate( self, transposeR=False ):
         if( self.system is None ):
             print( "ERROR: No camera system to export!" )
             return
@@ -66,12 +67,16 @@ class NPCwrite( object ):
             out = {}
             for key, cast in self.EXPORT_CASTS.iteritems():
                 out[ key ] = cast( cam )
-            self._genOrients( cam.R, out )
+                
+            if( transposeR ):
+                self._genOrients( cam.R.T, out )
+            else:
+                self._genOrients( cam.R, out )
             
             # convert mm to inches
-            if( self.inchConvert ):
-                for key in self.IN_INCHES:
-                    out[ key ] = out[ key ] * cm.INCHCONVERT
+            if( self.unitConvert ):
+                for key in self.NEEDS_CONV:
+                    out[ key ] = out[ key ] * self.conversion
                     
             # add to txt
             for key in self.EXPORT_ORDER:
@@ -103,7 +108,8 @@ if( __name__ == "__main__" ):
     cal_reader.read( os.path.join( file_path, file_name ) )
 
     cal_writer = NPCwrite( cal_reader.system )
-    cal_writer.inchConvert = True
-    cal_writer.generate()
-    cal_writer.writeOut( os.path.join( file_path, file_name.replace( ".xcp", ".txt" ) ) )
+    cal_writer.unitConvert = True
+    cal_writer.conversion  = 1./1000.
+    cal_writer.generate(transposeR=True)
+    cal_writer.writeOut( os.path.join( file_path, file_name.replace( ".xcp", "_new.txt" ) ) )
     
