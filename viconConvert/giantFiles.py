@@ -95,7 +95,71 @@ class NPCwrite( object ):
         fh.write( self.txt )
         fh.close()
 
+
+class CSFwrite( object ):
+    #
+    def __init__( self ):
+        pass
+
+
+    def generate( self, transposeR=False ):
+        output_matrix = True
+        output_script = False
+
+        # setup output files
+        csf_lines = []
+        sh_lines  = []
+
+        # header
+        csf_lines.append( "Giant Studios Camera Set File\nv1.00\n" )
+
+        # Process caemras
+        for count, cam_id in enumerate( self.system.camera_order ):
+            cam = self.system.cameras[ cam_id ]
+            # Camera Heading
+            out_txt  = "CAMERA {{\n"
+            out_txt += "ID: {}\n".format( count+1 )
+
+            # Position
+            tx, ty, tz = cam.T * cm.INCHCONVERT
+            out_txt += "  POSITION: {} {} {}\n".format( tx, ty, tz )
+
+            # Orientation
+            if( output_matrix ):
+                if( transposeR ):
+                    M = cam.R.T
+                else:
+                    M = cam.R
+                out_txt += "  ROTATION_MATRIX {{\n    {} {} {}\n    {} {} {}\n    {} {} {}\n  }}\n".foMat(
+                            M[0,0], M[0,1], M[0,2],
+                            M[1,0], M[1,1], M[1,2],
+                            M[2,0], M[2,1], M[2,2] )
+            else:
+                Rx, Ry, Rz = cm.mat34.rot2Angles( cam.R )
+                out_txt += "  ROTATION: {} {} {} DEG\n".format( Rx, Ry, Rz )
+                out_txt += "  ROTATION_ORDER: XYZ\n"
+
+            # Aspect & FoV
+            w, h = cam.sensor_wh
+            a = cam._aspect
+
+            out_txt += "  ASPECT_RATIO: {}\n".format( a )
+
+            h_fov = cam.getfOv()
+            v_fov = h_fov # compensated for letterboxed
+
+            out_txt += "  FOV_X: {}\n  FOV_Y: {}\n".format( h_fov, v_fov )
+            out_txt += "}}\n"
+
+            # finalize
+            csf_lines.append( out_txt )
+
+            if output_script:
+                sh_lines.append( "mkdlt {} {} {} {} {} {} {} 1\n".format(
+                    pos[ 0 ], pos[ 1 ], pos[ 2 ],
+                    Rx, Ry, Rz, np.degrees( h_fov ) ) )
         
+
 if( __name__ == "__main__" ):
     # testing reading an xml
     from viconFiles import CalReader
