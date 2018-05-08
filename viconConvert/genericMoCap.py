@@ -24,7 +24,9 @@ class GenericCamera( object ):
         
         # cam hardware
         self.sensor_wh = [0, 0] # px
-        
+        self._focal  = 0. # RAW focal length in sensor px
+        self._aspect = 1.
+
         # intrinsics
         self.K  = np.eye( 3, dtype=cm.FLOAT_T )
         
@@ -42,6 +44,7 @@ class GenericCamera( object ):
         if( not self._p_computed ):
             return 0.
         # otherwise...
+        # np.degrees( 2. * np.arctan( (self.sensor_wh[0]/2.) / self._focal ) )?
         # OpenGL formula = atan( 1/x ) * 2, but this way off the given data
         x = self.P[1,1]
         fov_r = np.arctan( x )
