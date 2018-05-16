@@ -18,10 +18,29 @@ import ConfigParser
 
 class ShootingDay( object ):
     """ Object representing a shooting day """
-    """ Also a 'Take factory' once the rate & multi is configured """
-    pass
-    
-    
+    def __init__( self, rate, multiplier ):
+        self.rate = rate
+        self.multiplier = multiplier
+        self.source_dir = ""
+        self.encoutered_subjects = []
+        self.encoutered_calibrations = []
+        self.subject_mixes = Set()
+        self.takes = {}
+        self.remarks = ""
+        
+        
+    def newTake( self, name ):
+        take = Take( self.rate, self.multiplier )
+        take.name = name
+        self.takes[ name ] = take
+        return take
+        
+        
+    def updateWith( self, take_name ):
+        """ Examine takes calibration and subject list"""
+        pass
+        
+        
 class Take( tc.TcRange ):
     
     _DEFAULTS = {
@@ -48,9 +67,9 @@ def getSessionTakes( path ):
 
     cf = ConfigParser.SafeConfigParser( Take._DEFAULTS )
 
-    take_data = []
+    shoot = ShootingDay( 25, 4 )
     for t in takes:
-        take = Take( 25, 4 )# Do in a factory
+
         cf.read( t )
         name = cf.get( "Node Information", "NAME" )
         star = cf.get( "TRIAL_INFO", "STARTTIMECODE" )
@@ -61,9 +80,10 @@ def getSessionTakes( path ):
         cal  = cf.get( "TRIAL_INFO", "CAMERACALIBRATION" )
         subs = cf.get( "TRIAL_INFO", "SUBJECTS" )
         
+        take = shoot.newTake( name )
+        
         take.setFromStartDur( star, durr )
         
-        take.name      = name
         take._file_fq  = t
         take.file_name = os.path.basename( t )
         
@@ -74,8 +94,8 @@ def getSessionTakes( path ):
         
         take.subject_list = subs.split( "," )
 
-        take_data.append( take )
-    return take_data
+        shoot.updateWith( name )
+    return shoot
     
 # test
 path = r"C:\ViconData\Teaching\ShootingDays\180226_A1_GroupB_01\PM"
