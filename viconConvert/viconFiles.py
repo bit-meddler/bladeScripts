@@ -38,7 +38,6 @@ class ViconCamera( GenericCamera ):
         # Vicon specific matrix
         self.Q  = cm.Quaternion()
 
-
         if( input_dict is not None ):
             self.setFromDict( input_dict )
 
