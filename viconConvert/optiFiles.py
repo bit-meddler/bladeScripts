@@ -28,7 +28,7 @@ class OptiCamera( GenericCamera ):
         self.hw_id     = dict["CameraSerial"]
         self.sensor_wh = [ dict["ImagerPixelWidth"], dict["ImagerPixelHeight"] ]
         self._pp       = [ dict["LensCenterX"], dict["LensCenterY"] ]
-        self._radial   = [ dict["RadialFactor1"], dict["RadialFactor2"], dict["RadialFactor3"] ]
+        self._radial   = [ dict["KC1"], dict["KC2"], dict["KC3"] ]
         self._focal    = [ dict["HorizontalFocalLength"], dict["VerticalFocalLength" ] ]
         
         # T
