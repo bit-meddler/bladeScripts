@@ -17,6 +17,29 @@ import os
 import ConfigParser
 
 
+class Take( tc.TcRange ):
+    
+    _DEFAULTS = {
+        "STARTTIMECODE" : "00:00:00:00",
+    }
+    
+    def __init__( self, rate=25, multiplier=5 ):
+        super( Take, self ).__init__( rate, multiplier )        
+        # take metadata
+        self.file_name = ""
+        self._file_fq = ""
+        self.name = ""
+        self._creation_time = ""
+        self.subject_list = []
+        self.calibration_file = ""
+        self.cal_id = 0
+        self.cal_fq = ""
+        self.notes = ""
+        self.description = ""
+        self.session = ""
+        self.x2d_fq = ""
+
+        
 class ShootingDay( object ):
     """ Object representing a shooting day """
     
@@ -28,12 +51,15 @@ class ShootingDay( object ):
         self.encountered_subjects = set()
         self.encountered_calibrations = {}
         self.subject_mixes = set()
-        self.takes = {}
+        self.takes = []
+        self.data = {}
         self.sessions = []
         self._cur_session = ""
         self.remarks = ""
         self.skels = {}
         self._orphan_x2ds = []
+        self.cals = []
+        self.roms = []
         
         
     def newTake( self, name ):
@@ -50,14 +76,15 @@ class ShootingDay( object ):
             print( "'{}' in '{}' is a duplicate take in this session, and has been renamed '{}'".format(
                 name, self.session, take.name
             ) )
-        self.takes[ take.name ] = take
+        self.data[ take.name ] = take
+        self.takes.append( take.name )
         take.session = self._cur_session
         return take
 
 
     def updateWith( self, take ):
         """ Examine take's calibration and subject list """
-        assert( take in self.takes.values() )
+        assert( take in self.data.values() )
         # Scan the take for session info
         
         # calibration
@@ -98,30 +125,29 @@ class ShootingDay( object ):
             ret[ cal_id ] = youngest        
         return ret
     
-class Take( tc.TcRange ):
     
-    _DEFAULTS = {
-        "STARTTIMECODE" : "00:00:00:00",
-    }
-    
-    def __init__( self, rate=25, multiplier=5 ):
-        super( Take, self ).__init__( rate, multiplier )        
-        # take metadata
-        self.file_name = ""
-        self._file_fq = ""
-        self.name = ""
-        self._creation_time = ""
-        self.subject_list = []
-        self.calibration_file = ""
-        self.cal_id = 0
-        self.cal_fq = ""
-        self.notes = ""
-        self.description = ""
-        self.session = ""
-        self.x2d_fq = ""
+    ROM_CLUES = ( "rom", "snap" )
+    CAL_CLUES = ( "wand", "calibration" )
+    def separateTypes( self ):
+        # work through all takes, and look for ROMs, and x2ds of wand waves
         
-        
-        
+        # reset
+        self.cals = []
+        self.roms = []
+        for take_name, take in self.data.iteritems():
+            t_name = take_name.lower()
+            for clue in self.ROM_CLUES:
+                if( clue in t_name ):
+                    # Might be a ROM!
+                    self.roms.append( take_name )
+                    self.takes.delete( take_name )
+                    continue
+            for clue in self.CAL_CLUES:
+                if( clue in t_name ):
+                    self.cals.append( take_name )
+                    self.takes.delete( take_name )
+
+                    
 def getSessionData( day_path, session, shoot ):
     # setup
     cf = ConfigParser.SafeConfigParser( Take._DEFAULTS )
