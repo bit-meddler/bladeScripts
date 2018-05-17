@@ -32,30 +32,44 @@ class ShootingDay( object ):
         self.sessions = []
         self._cur_session = ""
         self.remarks = ""
+        self.skels = {}
+        self._orphan_x2ds = []
         
         
     def newTake( self, name ):
         take = Take( self.rate, self.multiplier )
         take.name = name
+        dup = False
         while( take.name in self.takes ):
-            take.name += "_"
+            if( dup ):
+                take.name += "_"
+            else:
+                take.name = self.session + "_" + take.name
+                dup = True
+        if( dup ):
+            print( "'{}' in '{}' is a duplicate take in this session, and has been renamed '{}'".format(
+                name, self.session, take.name
+            ) )
         self.takes[ take.name ] = take
         take.session = self._cur_session
         return take
 
 
     def updateWith( self, take ):
-        """ Examine takes calibration and subject list """
+        """ Examine take's calibration and subject list """
         assert( take in self.takes.values() )
         # Scan the take for session info
-        calibration_fq = os.path.join( self.source_dir, take.session, take.calibration_file )
+        
         # calibration
-        # TODO: fingerprinting file byu sz works in 98% case, should really read, for P mats, then hash them
-        f_stat = os.stat( calibration_fq )
-        cal_sz = f_stat.st_size
+        # TODO: fingerprinting file by size works in the 98% case,
+        #       but I should really read, form P mats, then hash them.
+        f_stat  = os.stat( take.cal_fq )
+        cal_sz  = f_stat.st_size
+        cal_dob = f_stat.st_mtime
         if( cal_sz not in self.encountered_calibrations ):
             self.encountered_calibrations[ cal_sz ] = []
-        self.encountered_calibrations[ cal_sz ].append( take.calibration_file )
+        self.encountered_calibrations[ cal_sz ].append( (take.cal_fq, cal_dob) )
+        take.cal_id = cal_sz
         
         # subject list
         subs = take.subject_list
@@ -72,7 +86,18 @@ class ShootingDay( object ):
         self._cur_session = session
 
         
-        
+    def getYoungCals( self ):
+        ret = {}
+        for cal_id, cal_list in self.encountered_calibrations.iteritems():
+            youngest = ""
+            val = 2**(31) - 1
+            for cal_fq, cal_dob in cal_list:
+                if( cal_dob < val ):
+                    youngest = cal_fq
+                    val = cal_dob
+            ret[ cal_id ] = youngest        
+        return ret
+    
 class Take( tc.TcRange ):
     
     _DEFAULTS = {
@@ -84,25 +109,28 @@ class Take( tc.TcRange ):
         # take metadata
         self.file_name = ""
         self._file_fq = ""
-        self.name = "NAME"
-        self._creation_time = "CREATIONDATEANDTIME"
+        self.name = ""
+        self._creation_time = ""
         self.subject_list = []
         self.calibration_file = ""
-        self.notes = "NOTES"
-        self.description = "DESCRIPTION"
+        self.cal_id = 0
+        self.cal_fq = ""
+        self.notes = ""
+        self.description = ""
         self.session = ""
+        self.x2d_fq = ""
         
         
         
-def getSessionTakes( day_path, session, shoot ):
+def getSessionData( day_path, session, shoot ):
+    # setup
+    cf = ConfigParser.SafeConfigParser( Take._DEFAULTS )
+    shoot.newSession( session )
+    
+    # Explore takes
     res = glob.glob( os.path.join( day_path, session, "*.enf" ) )
     takes = [ t for t in res if ".Take" in t ]
-
-    cf = ConfigParser.SafeConfigParser( Take._DEFAULTS )
-
-    shoot.newSession( session )
     for t in takes:
-
         cf.read( t )
         name = cf.get( "Node Information", "NAME" )
         star = cf.get( "TRIAL_INFO", "STARTTIMECODE" )
@@ -113,18 +141,37 @@ def getSessionTakes( day_path, session, shoot ):
         note = cf.get( "TRIAL_INFO", "NOTES" )
         desc = cf.get( "TRIAL_INFO", "DESCRIPTION" )
         
-        
         take = shoot.newTake( name )
         take._file_fq  = t
         take.file_name = os.path.basename( t )
         take.setFromStartDur( star, durr )
         take._creation_time = date
         take.calibration_file = cal
+        take.cal_fq = os.path.join( day_path, session, cal )
         take.subject_list = tuple( sorted( subs.split( "," ) ) )
         take.notes = note
         take.description = desc
         
         shoot.updateWith( take )
+    
+    # Explore X2Ds
+    x2ds = glob.glob( os.path.join( day_path, session, "*.x2d" ) )
+    for x2d_fq in x2ds:
+        name = os.path.basename( x2d_fq )[:-4]
+        if( name in shoot.takes ):
+            shoot.takes[ name ].x2d_fq = x2d_fq
+        else:
+            # Orphaned X2D!
+            take = shoot.newTake( name )
+            take.x2d_fq = x2d_fq
+            take.notes = "Orphaned X2D"
+            shoot._orphan_x2ds.append( take )
+            
+    # Explore VSKs
+    skels = glob.glob( os.path.join( day_path, session, "*.vsk" ) )
+    for skel in skels:
+        name = os.path.basename( skel )[:-4]
+        shoot.skels[ name ] = skel
         
 
 def findSessions( path ):
@@ -137,12 +184,14 @@ def findSessions( path ):
             ess.append( ses_name )
     return ess
         
-# test 1
+# test
 path = r"C:\ViconData\Teaching\ShootingDays\170323_A1_MosCap01"
+#path = r"C:\ViconData\Teaching_2016\Workshops\170202_A1_MarkerTests_01"
 day_sessions = findSessions( path )
 shoot = ShootingDay( 25, 4, path )
 for ses in day_sessions:
-    getSessionTakes( path, ses, shoot )
+    getSessionData( path, ses, shoot )
 
 print shoot.encountered_subjects
 print shoot.takes.keys()
+print shoot.getYoungCals()
