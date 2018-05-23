@@ -198,7 +198,7 @@ def getSessionData( day_path, session, shoot ):
     for skel in skels:
         name = os.path.basename( skel )[:-4]
         shoot.skels[ name ] = skel
-        
+
 
 def findSessions( path ):
     """ At a 'Capture Day' level, we're looking for dirs containing 'dir_name.Session???.enf' """
@@ -210,7 +210,7 @@ def findSessions( path ):
             ess.append( ses_name )
     return ess
 
-    
+
 def compactName( name, drop_vowels=True ):
     if( (len( name ) > 8) and drop_vowels ):
         # Keep first letter
@@ -218,25 +218,48 @@ def compactName( name, drop_vowels=True ):
     else:
         return name.translate( None, '_-' )
 
+
+# ----- order subject chain --- #
 HUMAN_CLUES = [ "hmc", "_cap", "softcap", "cara" ]
-PROP_CLUES  = [ "prop",
+PROP_CLUES  = [ "prop", "prp",
                # Stage equipment
-               "calibrator", "clapper", "slate", "vslate"
-               # virtual Cameras
-               "simulcam", "vcam", "ex3", "z1e",
+               "calibrator", "clapper", "slate", "vslate", "deneke",
+               # virtual/tracked Cameras
+               "simulcam", "vcam", "ex3", "z1e", "epic", "camera",
                # Colour codes
                "pnk", "pink", "red", "grn", "green", "orange", "yellow", "yel", "blue", "blu", 
                # Weapons Modern
-               "rifle", "pistol", "shotgun", "p99", "870", "m4", "ak47", "mp5", "92f", "glock", "tt33"
+               "rifle", "pistol", "shotgun", "sniper",
+               # Bond Weapons
+               "p99", "870", "m4", "ak47", "mp5", "92f", "glock", "tt33", "psg", "g36",
+               # BF1 Weapons
+               "luger", "webley", "enfield", "tank", "mauser", "c96", "k98", "smle",
                # Weapons Ancient
-               "sword", "swd", "kukuri", "axe", "sheild", "knife",
+               "sword", "swd", "kukuri", "axe", "sheild", "knife", "machette",
+               # Ryse
+               "roman", "celtic", "hammer", "gladius", "balista", "barbarian", "pilum", "spear",
                # Ape tools / randoms
-               "stick", "spoon", "mug" ]
-
-
+               "stick", "spoon", "mug",
+               # Arm extensions
+               "ext" ]
 def orderSubjects( subject_list ):
-    pass
-    
+    humans = []
+    unknowns = []
+    props = []
+    for sub in subject_list:
+        subject = sub.lower()
+        find_h = [ c for c in HUMAN_CLUES if c in subject ]
+        if( len( find_h ) > 0 ):
+            humans.append( subject )
+            continue
+        find_p = [ c for c in PROP_CLUES  if c in subject ]
+        if( len( find_p ) > 0 ):
+            props.append( subject )
+            continue
+        unknowns.append( subject )
+    order = sorted( humans ) + sorted( unknowns ) + sorted( props )
+    chain = "-".join( map( compactName, order ) )
+    return (chain, order)
     
 # test
 path = r"C:\ViconData\Teaching\ShootingDays\170323_A1_MosCap01"
