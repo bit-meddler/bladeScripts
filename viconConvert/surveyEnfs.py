@@ -209,7 +209,35 @@ def findSessions( path ):
             ses_name = os.path.basename( os.path.dirname( res[0] ) )
             ess.append( ses_name )
     return ess
-        
+
+    
+def compactName( name, drop_vowels=True ):
+    if( (len( name ) > 8) and drop_vowels ):
+        # Keep first letter
+        return name[:1] + name[1:].translate( None, '_-aeiouAEIOU' )
+    else:
+        return name.translate( None, '_-' )
+
+HUMAN_CLUES = [ "hmc", "_cap", "softcap", "cara" ]
+PROP_CLUES  = [ "prop",
+               # Stage equipment
+               "calibrator", "clapper", "slate", "vslate"
+               # virtual Cameras
+               "simulcam", "vcam", "ex3", "z1e",
+               # Colour codes
+               "pnk", "pink", "red", "grn", "green", "orange", "yellow", "yel", "blue", "blu", 
+               # Weapons Modern
+               "rifle", "pistol", "shotgun", "p99", "870", "m4", "ak47", "mp5", "92f", "glock", "tt33"
+               # Weapons Ancient
+               "sword", "swd", "kukuri", "axe", "sheild", "knife",
+               # Ape tools / randoms
+               "stick", "spoon", "mug" ]
+
+
+def orderSubjects( subject_list ):
+    pass
+    
+    
 # test
 path = r"C:\ViconData\Teaching\ShootingDays\170323_A1_MosCap01"
 #path = r"C:\ViconData\Teaching_2016\Workshops\170202_A1_MarkerTests_01"

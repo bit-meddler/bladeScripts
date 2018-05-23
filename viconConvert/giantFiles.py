@@ -159,7 +159,22 @@ class CSFwrite( object ):
                     pos[ 0 ], pos[ 1 ], pos[ 2 ],
                     Rx, Ry, Rz, np.degrees( h_fov ) ) )
         
+        
+def makePRJ( target_file, elements ):
+    # Make Giant project file
+    # Keys should be expected Project components, values the path
+    
+    header = "Bio Project File\nv3.00\n"
 
+    fh = open( target_file, 'wb' )
+    fh.write( header )
+        
+    for key, value in elements.iteritems():
+        key += ":"
+        fh.write( "{: <30}{}\n".format(key, value) )
+    fh.close()
+    
+    
 if( __name__ == "__main__" ):
     # testing reading an xml
     from viconFiles import CalReader
