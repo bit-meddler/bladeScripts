@@ -189,35 +189,40 @@ if( __name__ == "__main__" ):
     }
 
     cal_reader = CalXCPReader()
-
-    cal_list = glob.glob( os.path.join( file_path, "*.xcp" ) )
-    retorts = ""
-    for cal in cal_list:
-        if( "stand_right" not in cal ):
-            continue
-        print( "Testing:'{}'---------------------------------".format( os.path.basename( cal ) ) )
-        cal_reader.reset()
-        cal_reader.read( cal )
+    if False:
+        cal_list = glob.glob( os.path.join( file_path, "*.xcp" ) )
+        retorts = ""
+        for cal in cal_list:
+            print( "Testing:'{}'---------------------------------".format( os.path.basename( cal ) ) )
+            cal_reader.reset()
+            cal_reader.read( cal )
+            
+            for cid in cal_reader.system.camera_order:
+                cam = cal_reader.system.cameras[ cid ]
+                #print( cam )
+                if( cid in center_test ):
+                    retorts += "Camera {} projected to {} (sensor size {})\n".format(
+                        cid,
+                        cam.projectPoint( center_test[ cid ] ),
+                        cam.sensor_wh )
+    if False:
+        # Specific test
+        cal_reader.read( os.path.join( file_path, "170202_WictorK_Body_ROM_01.xcp" ) )
+        known_cam = 2107343
+        # examining this in blade, the rot should be [166.497, -84.23, -119.151]
+        cam = cal_reader.system.cameras[ known_cam ]
         
-        for cid in cal_reader.system.camera_order:
-            cam = cal_reader.system.cameras[ cid ]
-            print( cam )
-            if( cid in center_test ):
-                retorts += "Camera {} projected to {} (sensor size {})\n".format(
-                    cid,
-                    cam.projectPoint( center_test[ cid ] ),
-                    cam.sensor_wh )
+        print np.degrees( cam.Q.toAngles()  )
+        print np.degrees( cam.Q.toAngles2() )
+        print np.degrees( cam.Q.toAngles3() )
+        print retorts
+        print cam
 
-    # Specific test
-    cal_reader.read( os.path.join( file_path, "170202_WictorK_Body_ROM_01.xcp" ) )
-    known_cam = 2107343
-    # examining this in blade, the rot should be [166.497, -84.23, -119.151]
-    cam = cal_reader.system.cameras[ known_cam ]
-    
-    print np.degrees( cam.Q.toAngles()  )
-    print np.degrees( cam.Q.toAngles2() )
-    print np.degrees( cam.Q.toAngles3() )
-    
-    print retorts
-
-    print cam
+    file_path = r"C:\temp\converter"
+    cal_reader.read( os.path.join( file_path, "seed_aa_01.xcp" ) )
+    from optiFiles import CalTxWriter
+    ctr = CalTxWriter( cal_reader.system )
+    ctr.unitConvert = True
+    ctr.conversion  = 1./1000.
+    ctr.generate(transposeR=True)
+    ctr.write( os.path.join( file_path, "seed_aa_01.xcp" ) )

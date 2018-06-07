@@ -127,6 +127,7 @@ def readData( file_fq, collector ):
         )
     fh.close()
 
+
 def convert512( take ):
     # build conversion
     conversion = []

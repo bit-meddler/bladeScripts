@@ -1,13 +1,194 @@
 """ system to export various data into giant native formats """
 import numpy as np
 import coreMaths as cm
+from genericMoCap import CameraSystem, GenericCamera
 import os
 
-class TKLtool( object ):
-    """ Generic tool to read TKL style dumps into pythonic datastructures """
-    pass
+class TCLTool( object ):
+    """ Generic tool to read & write TCL style dumps into pythonic datastructures """
+    def __init__( self, data=None ):
+        if( data is not None ):
+            self._data = data # for writing
+        else:
+            self.reset()
+
+            
+    def reset( self ):
+        self._data = {}
+        self.source_file = ""
+        self._fh = None
 
 
+    def _parseBraces( self ):
+        # build a 'structure' of a braced block of data
+        collector = {}
+        val_list = []
+        done = False
+
+        line = self._fh.readline()
+        while( line and not done ):
+            if( ":" in line ):
+                self._parse_fwd( line, collector )
+            elif( "{" in line ):
+                # create sub structure
+                self._parse_fwd( line, collector )
+            elif( "}" in line ):
+                done = True
+                break
+            else:
+                val_list.append( line.strip().split() )
+            line = self._fh.readline()
+
+        if( len( val_list ) > 0 ):
+            return val_list
+        else:
+            return collector
+
+        
+    def _parse_fwd( self, line, data ):
+        element = ""
+        value   = None
+        if( ":" in line ):
+            # key : value assignment
+            i = line.find( ":" )
+            element = line[:i].strip()
+            value = line[i+1:].strip().strip()
+            data[ element ] = value
+            return
+        if( "{" in line ):
+            i = line.find( "{" )
+            element = line[:i].strip()
+            value = self._parseBraces()
+            if( element in data ):
+                store = data[ element ]
+                if type( store ) != list:
+                    data[ element ] = [ store ]
+                data[ element ].append( value )
+            else:
+                data[ element ] = value
+            return
+        if( line.strip() == "" ):
+            pass
+        else:
+            print( "Inconceivable!", line )
+            
+        
+    def read( self, file_path, assume_headings=True ):
+        self.reset()
+        self.source_file = file_path
+
+        self._fh = open( file_path, "r" )
+        if( assume_headings ):
+            self._data[ "GIANT_HEADER_TYPE" ] = self._fh.readline()
+            self._data[ "GIANT_HEADER_VERSION" ] = self._fh.readline()
+        line = self._fh.readline()
+        while line:
+            self._parse_fwd( line, self._data )
+            line = self._fh.readline()
+        self._fh.close()
+
+
+class GiantCamera( GenericCamera ):
+
+    def __init__( self, input_dict=None ):
+        # super
+        super( GiantCamera, self ).__init__()
+        
+        # camera data
+        self.hw_id = -1 # uniue id.  data is in id order in the x2d
+        
+        # raw calibration data
+        self._pos   = [0., 0., 0.] # tx, ty, tz
+        self._focal = [0., 0.] # f in sensor px (h,v)
+        
+        if( input_dict is not None ):
+            self.setFromDict( input_dict )
+
+    CASTS = {
+        "POSITION" : lambda x : map( float, x.split() ),
+        "ASPECT_RATIO" : lambda x : float( x ),
+        "ROTATION" : lambda x : map( float, x.split()[-1] ),
+    }
+    @staticmethod
+    def gCast( item, d ):
+        return GiantCamera.CASTS[ item ]( d[ item ] )
+
+    
+    def setFromDict( self, dict ):
+        self.hw_id     = dict["ID"]
+        self.px_aspect = self.gCast( "ASPECT_RATIO", dict )
+        self._pos      = self.gCast( "POSITION", dict )
+        self._rot      = None
+        if( "ROTATION_MATRIX" in dict ):
+            self._rot = np.array( dict[ "ROTATION_MATRIX" ], dtype=cm.FLOAT_T )
+        else:
+            self._rot = cm.mat33.formMatDirect(
+                        np.radians( self.gCast( "ROTATION", dict )),
+                        dict[ "ROTATION_ORDER" ]
+            )
+        # From a csf, there is no calibrated pp, or focal-length available. bodge in
+        # giant units...
+        # approx focal length
+        fov_x = np.radians( float( dict[ "FOV_X" ] ) )
+        f_x = 256. / np.tan( fov_x/2. )
+
+        fov_y = np.radians( float( dict[ "FOV_Y" ] ) )
+        f_y = 256. / np.tan( fov_y/2. )
+        self._focal = [ f_x, f_y ]
+
+        # we know sensor is locked to 512x512
+        self.sensor_wh = [512., 512.]
+        self._pp = [256., 256.]
+        
+        # T
+        self.T = np.array( self._pos, dtype=cm.FLOAT_T )
+        
+        # R
+        self.R = self._rot
+        
+        # Can't Compute P or K without resolution, pp
+        self.computeMatrix()
+
+        
+    def computeMatrix( self ):
+        super( GiantCamera, self ).computeMatrix()
+
+        # now compute Giant's perverted matrix
+        self.P_g = self.P / self.P[2,3]
+        self.P_g[0:2,3] /= 10.
+
+
+class CalDLTReader( object ):
+    def __init__( self ):
+        self._tclt = TCLTool()
+        self.cameras = []
+        
+    def read( self, source_file ):
+        self._tclt.read( source_file )
+        for  cam_d in self._tclt._data["CAMERA"]:
+            cam = np.ones( (12), dtype=cm.FLOAT_T )
+            cam[:11] = np.array( cam_d["DLT"], dtype=cm.FLOAT_T ).reshape( (11) )
+            self.cameras.append( cam.reshape( (3,4) ) )
+            
+    
+class CalCSFReader( object ): # or inherit TCLTool??
+    
+    def __init__( self ):
+        self._tclt = TCLTool()
+        self.system = CameraSystem()
+        self.system.hardware = "Giant"
+        self.system.camera_order = []
+        
+    def read( self, source_file ):
+        self._tclt.read( source_file )
+        
+        for i, cam_d in enumerate( self._tclt._data["CAMERA"] ):
+            cam = GiantCamera( cam_d )
+            cam_id = i +1
+            self.system.cameras[ cam_id ] = cam
+            self.system.camera_order.append( cam_id )
+
+        
 class CalCSFWriter( object ):
     # from a camera system, generate a CSF, and optioncaly a shell script to
     # call 'mkdlt' with the same data
@@ -59,7 +240,7 @@ class CalCSFWriter( object ):
 
             # Aspect & FoV
             w, h = cam.sensor_wh
-            a = cam._aspect
+            a = cam.px_aspect
 
             out_txt += "  ASPECT_RATIO: {}\n".format( a )
 
@@ -82,7 +263,6 @@ class CalCSFWriter( object ):
 
     def write( self, orig_file_path ):
         file_path, _ = os.path.splitext( orig_file_path )
-        print file_path
         if( self._output_dlt and self._DLT != "" ):
             fh = open( file_path + ".csf", 'wb' )
             fh.write( self._DLT )
@@ -123,3 +303,10 @@ if( __name__ == "__main__" ):
     ccsfw.generate()
     ccsfw.write( os.path.join( file_path, file_name ) )
     
+    ccfr = CalCSFReader()
+    file_name = "svv.csf"
+    ccfr.read( os.path.join( file_path, file_name ) )
+    
+    cdtr = CalDLTReader()
+    file_name = "calib_dlt.bin"
+    cdtr.read( os.path.join( file_path, file_name ) )

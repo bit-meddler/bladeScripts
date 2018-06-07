@@ -25,10 +25,11 @@ class GenericCamera( object ):
         # cam hardware
         self.sensor_wh = [0, 0] # px
         self._focal  = [0.,0.] # RAW focal length in sensor px
-        self._aspect = 1.
-        self._skew = 1.
+        self.px_aspect = 1.
+        self._skew = 0.
         
         # intrinsics
+        self._pp = [0.,0.]
         self.K  = np.eye( 3, dtype=cm.FLOAT_T )
         
         # extrinsics

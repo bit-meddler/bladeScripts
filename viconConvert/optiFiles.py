@@ -192,11 +192,11 @@ class CalTxWriter( object ):
         self.txt = "".join( lines )
 
 
-    def write( self, file_path ):
+    def write( self, orig_file_path ):
         if( self.txt == "" ):
             self.generate()
-
-        fh = open( file_path, "wb" )
+        file_path, _ = os.path.splitext( orig_file_path )
+        fh = open( file_path+".txt", "wb" )
         fh.write( self.txt )
         fh.close()
         
