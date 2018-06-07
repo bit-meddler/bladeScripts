@@ -39,6 +39,10 @@ class Take( tc.TcRange ):
         self.session = ""
         self.x2d_fq = ""
 
+    def __str__( self ):
+        durr_tc = self.end - self.start
+        return "Take:'{}' lasting {} and featuring:{}".format(
+            self.name, durr_tc, self.subject_list )
         
 class ShootingDay( object ):
     """ Object representing a shooting day """
@@ -185,7 +189,7 @@ def getSessionData( day_path, session, shoot ):
     for x2d_fq in x2ds:
         name = os.path.basename( x2d_fq )[:-4]
         if( name in shoot.takes ):
-            shoot.takes[ name ].x2d_fq = x2d_fq
+            shoot.data[ name ].x2d_fq = x2d_fq
         else:
             # Orphaned X2D!
             take = shoot.newTake( name )
@@ -270,5 +274,5 @@ for ses in day_sessions:
     getSessionData( path, ses, shoot )
 
 print shoot.encountered_subjects
-print shoot.takes.keys()
+print shoot.data.keys()
 print shoot.getYoungCals()
