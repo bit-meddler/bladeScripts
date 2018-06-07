@@ -15,7 +15,7 @@ import timecode as tc
 import glob
 import os
 import ConfigParser
-
+from viconFiles import CalXCPReader
 
 class Take( tc.TcRange ):
     
@@ -64,6 +64,7 @@ class ShootingDay( object ):
         self._orphan_x2ds = []
         self.cals = []
         self.roms = []
+        self.cxr = CalXCPReader()
         
         if( source_dir is not None ):
             self.setSession( source_dir )
@@ -100,15 +101,17 @@ class ShootingDay( object ):
         # Scan the take for session info
         
         # calibration
-        # TODO: fingerprinting file by size works in the 98% case,
-        #       but I should really read, form P mats, then hash them.
         f_stat  = os.stat( take.cal_fq )
-        cal_sz  = f_stat.st_size
         cal_dob = f_stat.st_mtime
-        if( cal_sz not in self.encountered_calibrations ):
-            self.encountered_calibrations[ cal_sz ] = []
-        self.encountered_calibrations[ cal_sz ].append( (take.cal_fq, cal_dob) )
-        take.cal_id = cal_sz
+        
+        # OK try a cal hash
+        self.cxr.read( take.cal_fq )
+        cal_hash = self.cxr.system.hash_()
+        
+        if( cal_hash not in self.encountered_calibrations ):
+            self.encountered_calibrations[ cal_hash ] = []
+        self.encountered_calibrations[ cal_hash ].append( (take.cal_fq, cal_dob) )
+        take.cal_id = cal_hash
         
         # subject list
         subs = take.subject_list
@@ -254,6 +257,7 @@ class Survey( object ):
         # cleanup bad stuff
         self.shoot.chains.remove( '' )
         self.shoot.encountered_subjects.remove( '' )
+        # Split out obvious calibration and ROM takes
         self.shoot.separateTypes()
         
         
@@ -310,8 +314,8 @@ class Survey( object ):
         print( "Calibrations:" )
         for cal_name in self.shoot.cals:
             print( "\tCalibration '{}' has id:{}".format( cal_name, "?" ) )
-        for cal_id, cal_dat in self.shoot.encountered_calibrations.iteritems():
-            cal_name =  cal_dat[0]
+        prefered_cals = self.shoot.getYoungCals()
+        for cal_id, cal_name in prefered_cals.iteritems():
             print( "\tCalibration '{}' has id {}".format( cal_name, cal_id ) )
         print( "ROMS:" )
         for rom in self.shoot.roms:

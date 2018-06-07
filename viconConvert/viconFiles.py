@@ -132,7 +132,8 @@ class CalXCPReader( object ):
         if( file_path is None ):
             print( "Error: no file supplied" )
             return -1
-
+            
+        self.reset()
         mode = "XCP"
         
         self.system.source_file = file_path

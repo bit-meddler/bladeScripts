@@ -12,8 +12,26 @@ class CameraSystem( object ):
         self.cameras = {}
         self.source_file = ""
         self.hardware = ""
+        self.P_mats = None
 
         
+    def marshel( self ):
+        # for now, we'll build an array of P mats, in camera_order order
+        collector = []
+        for cam_id in self.camera_order:
+            cam = self.data[ cam_id ]
+            if( not cam._p_computed ):
+                cam.computeMatrix()
+            collector.append( cam.P )
+        self.P_mats = np.array( collector )
+        self.P_mats.flags.writeable = False # secure hashing
+        
+        
+    def hash_( self ):
+        self.marshel()
+        return hash( self.P_mats.data )
+    
+    
 class GenericCamera( object ):
     
     def __init__( self ):
