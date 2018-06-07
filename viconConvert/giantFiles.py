@@ -4,108 +4,26 @@ import coreMaths as cm
 import os
 
 class TKLtool( object ):
+    """ Generic tool to read TKL style dumps into pythonic datastructures """
     pass
 
-class NPCwrite( object ):
 
-    EXPORT_ORDER = ( "CameraSerial", "LensCenterX", "LensCenterY", "HorizontalFocalLength",
-                     "VerticalFocalLength", "KC1", "KC2", "KC3", "Tangential0", "Tangential1",
-                     "ImagerPixelWidth", "ImagerPixelHeight", "PositionX", "PositionY",
-                     "PositionZ", "Orientation0", "Orientation1", "Orientation2",
-                     "Orientation3", "Orientation4", "Orientation5", "Orientation6",
-                     "Orientation7", "Orientation8" )
+class CalCSFWriter( object ):
+    # from a camera system, generate a CSF, and optioncaly a shell script to
+    # call 'mkdlt' with the same data
     
-    EXPORT_CASTS = {
-        "CameraSerial" : lambda x: x.hw_id,
-        "LensCenterX" : lambda x: x._pp[0],
-        "LensCenterY" : lambda x: x._pp[1],
-        "HorizontalFocalLength" : lambda x: x._focal,
-        "VerticalFocalLength" : lambda x: x._focal/x.px_aspect,
-        "KC1" : lambda x: x._radial[0],
-        "KC2" : lambda x: x._radial[1],
-        "KC3" : lambda x: 0.,
-        "Tangential0" : lambda x: 0.,
-        "Tangential1" : lambda x: 0.,
-        "ImagerPixelWidth" : lambda x: x.sensor_wh[0],
-        "ImagerPixelHeight" : lambda x: x.sensor_wh[1],
-        "PositionX" : lambda x: x.T[0],
-        "PositionY" : lambda x: x.T[1],
-        "PositionZ" : lambda x: x.T[2]
-    }
-    
-    NEEDS_CONV = ( "PositionX", "PositionY", "PositionZ" )
-
-    
-    @staticmethod
-    def _genOrients( mat, d ):
-        for i, v in enumerate( mat.ravel() ):
-            d[ "Orientation{}".format( i ) ] = v
-
-
-    def __init__( self, system=None ):
-        self.reset()
+    def __init__( self, system=None, script=False, dlt=True, matrix=True ):
         if( system is not None ):
             self.system = system
+        self._output_matrix = matrix
+        self._output_dlt = dlt
+        self._output_script = script
 
-
-    def reset( self ):
-        self.system = None
-        self.txt = ""
-        self.unitConvert = False
-        self.conversion  = 1.
-
+        self._DLT = ""
+        self._SH  = ""
         
-    def generate( self, transposeR=False ):
-        if( self.system is None ):
-            print( "ERROR: No camera system to export!" )
-            return
-        lines = []
-        for cam_id in self.system.camera_order:
-            cam = self.system.cameras[ cam_id ]
-            
-            # assemble data
-            out = {}
-            for key, cast in self.EXPORT_CASTS.iteritems():
-                out[ key ] = cast( cam )
-                
-            if( transposeR ):
-                self._genOrients( cam.R.T, out )
-            else:
-                self._genOrients( cam.R, out )
-            
-            # convert mm to inches
-            if( self.unitConvert ):
-                for key in self.NEEDS_CONV:
-                    out[ key ] = out[ key ] * self.conversion
-                    
-            # add to txt
-            for key in self.EXPORT_ORDER:
-                lines.append( "{},{}\n".format( key, out[ key ] ) )
-
-            lines.append( "\n" )
-        # finalize
-        self.txt = "".join( lines )
-
-
-    def writeOut( self, file_path ):
-        if( self.txt == "" ):
-            self.generate()
-
-        fh = open( file_path, "wb" )
-        fh.write( self.txt )
-        fh.close()
-
-
-class CSFwrite( object ):
-    #
-    def __init__( self ):
-        pass
-
 
     def generate( self, transposeR=False ):
-        output_matrix = True
-        output_script = False
-
         # setup output files
         csf_lines = []
         sh_lines  = []
@@ -117,27 +35,27 @@ class CSFwrite( object ):
         for count, cam_id in enumerate( self.system.camera_order ):
             cam = self.system.cameras[ cam_id ]
             # Camera Heading
-            out_txt  = "CAMERA {{\n"
-            out_txt += "ID: {}\n".format( count+1 )
+            out_txt  = "CAMERA {\n"
+            out_txt += "  ID: {}\n".format( count+1 )
 
             # Position
             tx, ty, tz = cam.T * cm.INCHCONVERT
             out_txt += "  POSITION: {} {} {}\n".format( tx, ty, tz )
 
             # Orientation
-            if( output_matrix ):
+            if( self._output_matrix ):
                 if( transposeR ):
                     M = cam.R.T
                 else:
                     M = cam.R
-                out_txt += "  ROTATION_MATRIX {{\n    {} {} {}\n    {} {} {}\n    {} {} {}\n  }}\n".foMat(
+                out_txt += "  ROTATION_MATRIX {{\n    {} {} {}\n    {} {} {}\n    {} {} {}\n  }}\n".format(
                             M[0,0], M[0,1], M[0,2],
                             M[1,0], M[1,1], M[1,2],
                             M[2,0], M[2,1], M[2,2] )
-            else:
-                Rx, Ry, Rz = cm.mat34.rot2Angles( cam.R )
-                out_txt += "  ROTATION: {} {} {} DEG\n".format( Rx, Ry, Rz )
-                out_txt += "  ROTATION_ORDER: XYZ\n"
+                
+            Rx, Ry, Rz = np.degrees( cm.mat34.mat2Angles( cam.R ) )
+            out_txt += "  ROTATION: {} {} {} DEG\n".format( Rx, Ry, Rz )
+            out_txt += "  ROTATION_ORDER: XYZ\n"
 
             # Aspect & FoV
             w, h = cam.sensor_wh
@@ -145,21 +63,37 @@ class CSFwrite( object ):
 
             out_txt += "  ASPECT_RATIO: {}\n".format( a )
 
-            h_fov = cam.getfOv()
+            h_fov = cam.getFoV()
             v_fov = h_fov # compensated for letterboxed
 
             out_txt += "  FOV_X: {}\n  FOV_Y: {}\n".format( h_fov, v_fov )
-            out_txt += "}}\n"
+            out_txt += "}\n"
 
             # finalize
             csf_lines.append( out_txt )
 
-            if output_script:
-                sh_lines.append( "mkdlt {} {} {} {} {} {} {} 1\n".format(
-                    pos[ 0 ], pos[ 1 ], pos[ 2 ],
-                    Rx, Ry, Rz, np.degrees( h_fov ) ) )
+            sh_lines.append( "mkdlt {} {} {} {} {} {} {} 1\n".format(
+                tx, ty, tz, Rx, Ry, Rz,  h_fov ) )
         
-        
+        # update with text
+        self._DLT = "".join( csf_lines )
+        self._SH  = "".join( sh_lines  )
+
+
+    def write( self, orig_file_path ):
+        file_path, _ = os.path.splitext( orig_file_path )
+        print file_path
+        if( self._output_dlt and self._DLT != "" ):
+            fh = open( file_path + ".csf", 'wb' )
+            fh.write( self._DLT )
+            fh.close()
+        if( self._output_script and self._SH != "" ):
+            fh = open( file_path + ".sh", 'wb' )
+            fh.write( "#!/usr/bin/env bash\n" )
+            fh.write( self._SH )
+            fh.close()
+
+            
 def makePRJ( target_file, elements ):
     # Make Giant project file
     # Keys should be expected Project components, values the path
@@ -176,19 +110,16 @@ def makePRJ( target_file, elements ):
     
     
 if( __name__ == "__main__" ):
-    # testing reading an xml
-    from viconFiles import CalReader
-    import os
+    # testing Giant stuff...
+    from optiFiles import CalTxReader
 
-    file_path = r"C:\temp\xcp_examples"
-    file_name = "170202_WictorK_Body_ROM_01.xcp"
+    file_path = r"C:\temp\g_data"
+    file_name = "Cal.txt"
     
-    cal_reader = CalReader()
-    cal_reader.read( os.path.join( file_path, file_name ) )
-
-    cal_writer = NPCwrite( cal_reader.system )
-    cal_writer.unitConvert = True
-    cal_writer.conversion  = 1./1000.
-    cal_writer.generate(transposeR=True)
-    cal_writer.writeOut( os.path.join( file_path, file_name.replace( ".xcp", "_new.txt" ) ) )
+    ctxr = CalTxReader()
+    ctxr.read( os.path.join( file_path, file_name ) )
+    
+    ccsfw = CalCSFWriter( system=ctxr.system )
+    ccsfw.generate()
+    ccsfw.write( os.path.join( file_path, file_name ) )
     

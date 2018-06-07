@@ -8,7 +8,7 @@ INCHCONVERT = 0.039370078740158
 
 
 class mat33( object ):
-    """ just a rotation matrix, and that it involves... """
+    """ just a rotation matrix, and all that it involves... """
     # -- Auto Generated Rotation matrixes for call combinations of DoFs and orders -- #
     
     def _rotMatXYZ( rx, ry, rz ):

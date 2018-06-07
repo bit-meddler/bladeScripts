@@ -53,45 +53,20 @@ class ViconCamera( GenericCamera ):
         self._pp         = dict["PRINCIPAL_POINT"]
         self._radial     = dict["VICON_RADIAL"]
         self._skew       = dict["SKEW"]
-        self._focal      = dict["FOCAL_LENGTH"]
+        self._focal      = [dict["FOCAL_LENGTH"], dict["FOCAL_LENGTH"]/self.px_aspect]
         self._pos        = dict["POSITION"]
         self._rotQ       = dict["ORIENTATION"]
         self._err        = dict["IMAGE_ERROR"]
 
-        self.computeMatrix()
-
-
-    def computeMatrix( self ):
-        # see also: http://run.usc.edu/cs420-s15/lec05-viewing/05-viewing-6up.pdf
-        # compose RT
+        # setup some calibration settings
         self.T = self._pos
-
+        
         x, y, z, w = self._rotQ
         self.Q.setQ( x, y, z, w )
         self.R = self.Q.toRotMatT()
         
-        # from Vicon's "Cara Reference" pdf (/Fileformats/XCP)
-        # Assuming (!) XCPs are the same between products
-        # P = [ R | -RT ]
-        self.RT[ :3, :3 ] = self.R
-        self.RT[ :, 3 ]   = -np.matmul( self.R, self.T )
-        
-        # compose K
-        # fiddle with PP, focal length, aspect ratio and skew (which in all encountered files is zero0
-        a           = self.px_aspect
-        x_pp, y_pp  = self._pp
-        f           = self._focal
-        k           = self._skew
-        
-        self.K = np.array(
-            [ [  f,     k, x_pp ],
-              [ 0., (f/a), y_pp ],
-              [ 0.,    0.,   1. ] ] , dtype=cm.FLOAT_T )
-        
-        # compute P = K.RT
-        self.P = np.matmul( self.K, self.RT )
-        self._p_computed = True
-        
+        self.computeMatrix()
+
 
     def undistort( self, point ):
         # As Vicon doesn't use NDCs the undistort is computed per det - dumb!
@@ -109,24 +84,16 @@ class ViconCamera( GenericCamera ):
         ud = [ s * dp[0] + x_pp, (s * dp[1] + y_pp)/a ]
         print ud
 
-        
-    def projectPoint( self, point3D ):
-        p_ = point3D
-        if( len( point3D ) == 3 ):
-            p_.append( 1. )
-        x, y, z = np.matmul( self.P, np.array( p_ ) )
-        return ( x/z, y/z )
-
     
     def __str__( self ):
         tx, ty, tz = self.T
         rx, ry, rz = np.degrees( cm.mat34.mat2Angles( self.R.T ) )
         fov = self.getFoV()
-        return "Vicon Camera {}, at Tx:{}, Ty:{}, Tz:{}; Rx:{}, Ry:{}, Rz:{}; FoV:{}Deg".format(
+        return "Vicon Camera {}, at Tx:{}, Ty:{}, Tz:{}; Rx:{}, Ry:{}, Rz:{}; FoV:{} Deg".format(
             self.hw_id, tx, ty, tz, rx, ry, rz, fov )
 
         
-class CalReader( object ):
+class CalXCPReader( object ):
 
     CASTS = {
         # Intrinsics
@@ -182,20 +149,20 @@ class CalReader( object ):
             
             for camera in cameras:
                 # create dict
-                cid = camera.attributes[ CalReader.CAMERA_ID_KEY ].value.encode( "ascii" )
+                cid = camera.attributes[ CalXCPReader.CAMERA_ID_KEY ].value.encode( "ascii" )
                 self.data[ cid ] = {}
                 # load camera data
-                for entry in CalReader.CAMERA_ATTERS_HARDWARE:
+                for entry in CalXCPReader.CAMERA_ATTERS_HARDWARE:
                     self.data[ cid ][ entry ] = camera.attributes[ entry ].value.encode( "ascii" )
 
                 # load calibration data
                 kf_list = camera.getElementsByTagName( "KeyFrame" )
                 if( len( kf_list ) > 0 ):
-                    for entry in CalReader.CAMERA_ATTERS_CALIBRATION:
+                    for entry in CalXCPReader.CAMERA_ATTERS_CALIBRATION:
                         self.data[ cid ][ entry ] = kf_list[0].attributes[ entry ].value.encode( "ascii" )
                         
                 # cast
-                for atter, cast in self.CASTS.iteritems():
+                for atter, cast in CalXCPReader.CASTS.iteritems():
                     self.data[ cid ][ atter ] = cast( self.data[ cid ][ atter ] )
                 
         for cam_id, cam_data in self.data.iteritems():
@@ -203,8 +170,12 @@ class CalReader( object ):
             self.system.cameras[ int( cam_id ) ] = camera
 
         self.system.camera_order = sorted( self.system.cameras.keys() )
-        
 
+        
+def genHSL( system ):
+    pass
+
+    
 if( __name__ == "__main__" ):
     # testing reading an xml
     import os
@@ -217,11 +188,13 @@ if( __name__ == "__main__" ):
                     2106443 : [  -65.095,    80.5978,  25.967 ]
     }
 
-    cal_reader = CalReader()
+    cal_reader = CalXCPReader()
 
     cal_list = glob.glob( os.path.join( file_path, "*.xcp" ) )
     retorts = ""
     for cal in cal_list:
+        if( "stand_right" not in cal ):
+            continue
         print( "Testing:'{}'---------------------------------".format( os.path.basename( cal ) ) )
         cal_reader.reset()
         cal_reader.read( cal )
