@@ -31,6 +31,7 @@ class Take( tc.TcRange ):
         self.name = ""
         self._creation_time = ""
         self.subject_list = []
+        self.chain = ""
         self.calibration_file = ""
         self.cal_id = 0
         self.cal_fq = ""
@@ -47,14 +48,13 @@ class Take( tc.TcRange ):
 class ShootingDay( object ):
     """ Object representing a shooting day """
     
-    def __init__( self, rate, multiplier, source_dir ):
-        assert( source_dir is not None )
+    def __init__( self, rate, multiplier, source_dir=None ):
         self.rate = rate
         self.multiplier = multiplier
-        self.source_dir = source_dir
         self.encountered_subjects = set()
         self.encountered_calibrations = {}
         self.subject_mixes = set()
+        self.chains = set()
         self.takes = []
         self.data = {}
         self.sessions = []
@@ -64,6 +64,14 @@ class ShootingDay( object ):
         self._orphan_x2ds = []
         self.cals = []
         self.roms = []
+        
+        if( source_dir is not None ):
+            self.setSession( source_dir )
+        
+        
+    def setSession( self, source_dir ):
+        self.name = os.path.basename( source_dir )
+        self.source_dir = source_dir
         
         
     def newTake( self, name ):
@@ -144,135 +152,176 @@ class ShootingDay( object ):
                 if( clue in t_name ):
                     # Might be a ROM!
                     self.roms.append( take_name )
-                    self.takes.delete( take_name )
+                    self.takes.remove( take_name )
                     continue
             for clue in self.CAL_CLUES:
                 if( clue in t_name ):
                     self.cals.append( take_name )
-                    self.takes.delete( take_name )
+                    self.takes.remove( take_name )
 
-                    
-def getSessionData( day_path, session, shoot ):
-    # setup
-    cf = ConfigParser.SafeConfigParser( Take._DEFAULTS )
-    shoot.newSession( session )
-    
-    # Explore takes
-    res = glob.glob( os.path.join( day_path, session, "*.enf" ) )
-    takes = [ t for t in res if ".Take" in t ]
-    for t in takes:
-        cf.read( t )
-        name = cf.get( "Node Information", "NAME" )
-        star = cf.get( "TRIAL_INFO", "STARTTIMECODE" )
-        durr = cf.get( "TRIAL_INFO", "DURATIONFIELDS" )
-        date = cf.get( "TRIAL_INFO", "CREATIONDATEANDTIME" )
-        cal  = cf.get( "TRIAL_INFO", "CAMERACALIBRATION" )
-        subs = cf.get( "TRIAL_INFO", "SUBJECTS" )
-        note = cf.get( "TRIAL_INFO", "NOTES" )
-        desc = cf.get( "TRIAL_INFO", "DESCRIPTION" )
+
+class Survey( object ):
+    def __init__( self, fps, multiplier ):
+        self.shoot = ShootingDay( fps, multiplier )
+        self.cf = ConfigParser.SafeConfigParser( Take._DEFAULTS )
+
         
-        take = shoot.newTake( name )
-        take._file_fq  = t
-        take.file_name = os.path.basename( t )
-        take.setFromStartDur( star, durr )
-        take._creation_time = date
-        take.calibration_file = cal
-        take.cal_fq = os.path.join( day_path, session, cal )
-        take.subject_list = tuple( sorted( subs.split( "," ) ) )
-        take.notes = note
-        take.description = desc
+    def getSessionData( self, day_path, session ):
+        # setup
+        self.shoot.newSession( session )
         
-        shoot.updateWith( take )
-    
-    # Explore X2Ds
-    x2ds = glob.glob( os.path.join( day_path, session, "*.x2d" ) )
-    for x2d_fq in x2ds:
-        name = os.path.basename( x2d_fq )[:-4]
-        if( name in shoot.takes ):
-            shoot.data[ name ].x2d_fq = x2d_fq
-        else:
-            # Orphaned X2D!
-            take = shoot.newTake( name )
-            take.x2d_fq = x2d_fq
-            take.notes = "Orphaned X2D"
-            shoot._orphan_x2ds.append( take )
+        # Explore takes
+        res = glob.glob( os.path.join( day_path, session, "*.enf" ) )
+        takes = [ t for t in res if ".Take" in t ]
+        for t in takes:
+            self.cf.read( t )
+            name = self.cf.get( "Node Information", "NAME" )
+            star = self.cf.get( "TRIAL_INFO", "STARTTIMECODE" )
+            durr = self.cf.get( "TRIAL_INFO", "DURATIONFIELDS" )
+            date = self.cf.get( "TRIAL_INFO", "CREATIONDATEANDTIME" )
+            cal  = self.cf.get( "TRIAL_INFO", "CAMERACALIBRATION" )
+            subs = self.cf.get( "TRIAL_INFO", "SUBJECTS" )
+            note = self.cf.get( "TRIAL_INFO", "NOTES" )
+            desc = self.cf.get( "TRIAL_INFO", "DESCRIPTION" )
             
-    # Explore VSKs
-    skels = glob.glob( os.path.join( day_path, session, "*.vsk" ) )
-    for skel in skels:
-        name = os.path.basename( skel )[:-4]
-        shoot.skels[ name ] = skel
+            take = self.shoot.newTake( name )
+            take._file_fq  = t
+            take.file_name = os.path.basename( t )
+            take.setFromStartDur( star, durr )
+            take._creation_time = date
+            take.calibration_file = cal
+            take.cal_fq = os.path.join( day_path, session, cal )
+            take.subject_list = tuple( sorted( subs.split( "," ) ) )
+            take.notes = note
+            take.description = desc
+            
+            self.shoot.updateWith( take )
+        
+        # Explore X2Ds
+        x2ds = glob.glob( os.path.join( day_path, session, "*.x2d" ) )
+        for x2d_fq in x2ds:
+            name = os.path.basename( x2d_fq )[:-4]
+            if( name in self.shoot.takes ):
+                self.shoot.data[ name ].x2d_fq = x2d_fq
+            else:
+                # Orphaned X2D!
+                take = self.shoot.newTake( name )
+                take.x2d_fq = x2d_fq
+                take.notes = "Orphaned X2D"
+                self.shoot._orphan_x2ds.append( take )
+                
+        # Explore VSKs
+        skels = glob.glob( os.path.join( day_path, session, "*.vsk" ) )
+        for skel in skels:
+            name = os.path.basename( skel )[:-4]
+            self.shoot.skels[ name ] = skel
+
+            
+    @staticmethod
+    def findSessions( path ):
+        """ At a 'Capture Day' level, we're looking for dirs containing 'dir_name.Session???.enf' """
+        ess = [] # Eclipse Subsessions
+        for d in os.listdir( path ):
+            res = glob.glob( os.path.join( path, d, "*Session*.enf" ) )
+            if( len( res ) > 0 ):
+                ses_name = os.path.basename( os.path.dirname( res[0] ) )
+                ess.append( ses_name )
+        return ess
+
+        
+    @staticmethod
+    def compactName( name, drop_vowels=True ):
+        if( (len( name ) > 8) and drop_vowels ):
+            # Keep first letter
+            return name[:1] + name[1:].translate( None, '_-aeiouAEIOU' )
+        else:
+            return name.translate( None, '_-' )
+
+            
+    def searchSession( self, session_path ):
+        # collect session data
+        self.shoot.setSession( session_path )
+        day_sessions = self.findSessions( session_path )
+        for ses in day_sessions:
+            self.getSessionData( path, ses )
+            
+        # make more Giant friendly
+        for take in self.shoot.data.values():
+            chain_name, chain_order = self.orderSubjects( take.subject_list )
+            take.chain = chain_name
+            self.shoot.chains.add( take.chain )
+
+        # cleanup bad stuff
+        self.shoot.chains.remove( '' )
+        self.shoot.encountered_subjects.remove( '' )
+        self.shoot.separateTypes()
+        
+        
+    # ----- order subject chain --- #
+    HUMAN_CLUES = [ "hmc", "_cap", "softcap", "cara" ]
+    PROP_CLUES  = [ "prop", "prp",
+                   # Stage equipment
+                   "calibrator", "clapper", "slate", "vslate", "deneke",
+                   # virtual/tracked Cameras
+                   "simulcam", "vcam", "ex3", "z1e", "epic", "camera",
+                   # Colour codes
+                   "pnk", "pink", "red", "grn", "green", "orange", "yellow", "yel", "blue", "blu", 
+                   # Weapons Modern
+                   "rifle", "pistol", "shotgun", "sniper",
+                   # Bond Weapons
+                   "p99", "870", "m4", "ak47", "mp5", "92f", "glock", "tt33", "psg", "g36",
+                   # BF1 Weapons
+                   "luger", "webley", "enfield", "tank", "mauser", "c96", "k98", "smle",
+                   # Weapons Ancient
+                   "sword", "swd", "kukuri", "axe", "sheild", "knife", "machette",
+                   # Ryse
+                   "roman", "celtic", "hammer", "gladius", "balista", "barbarian", "pilum", "spear",
+                   # Ape tools / randoms
+                   "stick", "spoon", "mug",
+                   # Arm extensions
+                   "ext" ]
+    @staticmethod
+    def orderSubjects( subject_list ):
+        humans = []
+        unknowns = []
+        props = []
+        for sub in subject_list:
+            subject = sub.lower()
+            find_h = [ c for c in Survey.HUMAN_CLUES if c in subject ]
+            if( len( find_h ) > 0 ):
+                humans.append( subject )
+                continue
+            find_p = [ c for c in Survey.PROP_CLUES  if c in subject ]
+            if( len( find_p ) > 0 ):
+                props.append( subject )
+                continue
+            unknowns.append( subject )
+        order = sorted( humans ) + sorted( unknowns ) + sorted( props )
+        chain = "-".join( map( Survey.compactName, order ) )
+        return (chain, order)
 
 
-def findSessions( path ):
-    """ At a 'Capture Day' level, we're looking for dirs containing 'dir_name.Session???.enf' """
-    ess = [] # Eclipse Subsessions
-    for d in os.listdir( path ):
-        res = glob.glob( os.path.join( path, d, "*Session*.enf" ) )
-        if( len( res ) > 0 ):
-            ses_name = os.path.basename( os.path.dirname( res[0] ) )
-            ess.append( ses_name )
-    return ess
-
-
-def compactName( name, drop_vowels=True ):
-    if( (len( name ) > 8) and drop_vowels ):
-        # Keep first letter
-        return name[:1] + name[1:].translate( None, '_-aeiouAEIOU' )
-    else:
-        return name.translate( None, '_-' )
-
-
-# ----- order subject chain --- #
-HUMAN_CLUES = [ "hmc", "_cap", "softcap", "cara" ]
-PROP_CLUES  = [ "prop", "prp",
-               # Stage equipment
-               "calibrator", "clapper", "slate", "vslate", "deneke",
-               # virtual/tracked Cameras
-               "simulcam", "vcam", "ex3", "z1e", "epic", "camera",
-               # Colour codes
-               "pnk", "pink", "red", "grn", "green", "orange", "yellow", "yel", "blue", "blu", 
-               # Weapons Modern
-               "rifle", "pistol", "shotgun", "sniper",
-               # Bond Weapons
-               "p99", "870", "m4", "ak47", "mp5", "92f", "glock", "tt33", "psg", "g36",
-               # BF1 Weapons
-               "luger", "webley", "enfield", "tank", "mauser", "c96", "k98", "smle",
-               # Weapons Ancient
-               "sword", "swd", "kukuri", "axe", "sheild", "knife", "machette",
-               # Ryse
-               "roman", "celtic", "hammer", "gladius", "balista", "barbarian", "pilum", "spear",
-               # Ape tools / randoms
-               "stick", "spoon", "mug",
-               # Arm extensions
-               "ext" ]
-def orderSubjects( subject_list ):
-    humans = []
-    unknowns = []
-    props = []
-    for sub in subject_list:
-        subject = sub.lower()
-        find_h = [ c for c in HUMAN_CLUES if c in subject ]
-        if( len( find_h ) > 0 ):
-            humans.append( subject )
-            continue
-        find_p = [ c for c in PROP_CLUES  if c in subject ]
-        if( len( find_p ) > 0 ):
-            props.append( subject )
-            continue
-        unknowns.append( subject )
-    order = sorted( humans ) + sorted( unknowns ) + sorted( props )
-    chain = "-".join( map( compactName, order ) )
-    return (chain, order)
-    
+    def printDigest( self ):
+        print( "Surveying '{}'".format( self.shoot.name ) )
+        print( "Takes:" )
+        for take_name in self.shoot.takes:
+            take = self.shoot.data[ take_name ]
+            print( "\t'{}' uses '{}' and '{}'".format( take_name, take.cal_id, take.chain ) )
+        print( "Calibrations:" )
+        for cal_name in self.shoot.cals:
+            print( "\tCalibration '{}' has id:{}".format( cal_name, "?" ) )
+        for cal_id, cal_dat in self.shoot.encountered_calibrations.iteritems():
+            cal_name =  cal_dat[0]
+            print( "\tCalibration '{}' has id {}".format( cal_name, cal_id ) )
+        print( "ROMS:" )
+        for rom in self.shoot.roms:
+            print( "\tROM '{}' is available".format( rom ) )
+            
 # test
 path = r"C:\ViconData\Teaching\ShootingDays\170323_A1_MosCap01"
 #path = r"C:\ViconData\Teaching_2016\Workshops\170202_A1_MarkerTests_01"
-day_sessions = findSessions( path )
-shoot = ShootingDay( 25, 4, path )
-for ses in day_sessions:
-    getSessionData( path, ses, shoot )
 
-print shoot.encountered_subjects
-print shoot.data.keys()
-print shoot.getYoungCals()
+surveyer = Survey( 25, 4 )
+surveyer.searchSession( path )
+
+surveyer.printDigest()
