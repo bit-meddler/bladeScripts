@@ -230,7 +230,24 @@ if( __name__ == "__main__" ):
         ctr.write( os.path.join( file_path, "seed_aa_01.xcp" ) )
 
     # test projection
-    points = [ [1,2,3], [4,5,6] ]
-    labels = [1,2]
+    # (based on seed_aa_01)
+    points = np.array( [ [     5.286757,  18.361515,  1014.452332],
+                         [  1013.000793, -25.722366,   965.746704],
+                         [     1.870791,  11.275772,   -17.067347],
+                         [  1004.278748, -35.922905,   -10.960561],
+                         [ -1004.598511,  58.142288,     2.132071],
+                         [ -1000.245667,  67.539810,   998.853882],
+                         [ -1009.501038,  46.745975, -1000.682495],
+                         [     2.896470,   1.241169, -1007.151733],
+                         [  1013.111938, -44.654057, -1014.126465]  ], dtype=cm.FLOAT_T )
+    labels = np.array( [ 1, 2, 3, 4, 5, 6, 7, 8, 9], dtype=cm.INT_T )
+    
     cal_reader.system.marshel()
     proj, ids = cal_reader.system.projectPoints( points, labels )
+    cam_id = 2107334
+    idx = cal_reader.system.camera_order.index( cam_id )
+    cam = cal_reader.system.cameras[ cam_id ]
+    print cam
+    print cam.projectPoint3D( points[0] )
+    print idx
+    print proj[idx]

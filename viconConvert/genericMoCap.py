@@ -66,7 +66,7 @@ class CameraSystem( object ):
             projections[ idx, :, : ]  = np.matmul( points, P[:,:3] )
             projections[ idx, :, : ] += P[:,3]
         # rescale to u,v,1
-        projections[ :, :, :2 ] /= projections[ :, :, 2 ]
+        projections[ :, :, :2 ] /= projections[ :, :, 2 ].reshape(self.num_cameras, num_points, -1)
 
         # police projections outside of sensor ???
         allowed = []
