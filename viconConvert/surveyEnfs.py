@@ -39,11 +39,14 @@ class Take( tc.TcRange ):
         self.description = ""
         self.session = ""
         self.x2d_fq = ""
+        # giant conversion stuff
+        self.prefered_cal_fq = ""
 
     def __str__( self ):
         durr_tc = self.end - self.start
         return "Take:'{}' lasting {} and featuring:{}".format(
             self.name, durr_tc, self.subject_list )
+        
         
 class ShootingDay( object ):
     """ Object representing a shooting day """
@@ -103,6 +106,7 @@ class ShootingDay( object ):
         # calibration
         f_stat  = os.stat( take.cal_fq )
         cal_dob = f_stat.st_mtime
+        cal_sz  = f_stat.st_size
         
         # OK try a cal hash
         self.cxr.read( take.cal_fq )
@@ -110,7 +114,7 @@ class ShootingDay( object ):
         
         if( cal_hash not in self.encountered_calibrations ):
             self.encountered_calibrations[ cal_hash ] = []
-        self.encountered_calibrations[ cal_hash ].append( (take.cal_fq, cal_dob) )
+        self.encountered_calibrations[ cal_hash ].append( (take.cal_fq, cal_dob, cal_sz) )
         take.cal_id = cal_hash
         
         # subject list
@@ -133,7 +137,7 @@ class ShootingDay( object ):
         for cal_id, cal_list in self.encountered_calibrations.iteritems():
             youngest = ""
             val = 2**(31) - 1
-            for cal_fq, cal_dob in cal_list:
+            for cal_fq, cal_dob, cal_sz in cal_list:
                 if( cal_dob < val ):
                     youngest = cal_fq
                     val = cal_dob
@@ -257,10 +261,19 @@ class Survey( object ):
         # cleanup bad stuff
         self.shoot.chains.remove( '' )
         self.shoot.encountered_subjects.remove( '' )
+        self.shoot.subject_mixes.remove( ('',) )
+        # scan encountered subjects and look for subs who are in a mix, but not alone!
         # Split out obvious calibration and ROM takes
         self.shoot.separateTypes()
         
-        
+        # attach suitable calibrations to takes
+        prefered_cals = self.shoot.getYoungCals()
+        for take_name in self.shoot.takes:
+            take = self.shoot.data[ take_name ]
+            take.prefered_cal_fq = prefered_cals[ take.cal_id ]
+
+        # Try to match subjects to ROMs in session, locate orphaned Subjects
+            
     # ----- order subject chain --- #
     HUMAN_CLUES = [ "hmc", "_cap", "softcap", "cara" ]
     PROP_CLUES  = [ "prop", "prp",
@@ -307,23 +320,38 @@ class Survey( object ):
 
     def printDigest( self ):
         print( "Surveying '{}'".format( self.shoot.name ) )
+        
         print( "Takes:" )
         for take_name in self.shoot.takes:
             take = self.shoot.data[ take_name ]
-            print( "\t'{}' uses '{}' and '{}'".format( take_name, take.cal_id, take.chain ) )
-        print( "Calibrations:" )
+            print( "\t'{}' features '{}' and uses '{}'".format( take_name, take.chain,
+                    os.path.basename( take.prefered_cal_fq ) )
+            )
+            
+            
+        print( "\nCalibrations:" )
         for cal_name in self.shoot.cals:
-            print( "\tCalibration '{}' has id:{}".format( cal_name, "?" ) )
+            print( "\tWandwave '{}' exists in session".format( cal_name ) )
         prefered_cals = self.shoot.getYoungCals()
         for cal_id, cal_name in prefered_cals.iteritems():
-            print( "\tCalibration '{}' has id {}".format( cal_name, cal_id ) )
-        print( "ROMS:" )
+            print( "\tCalibration '{}' is prefered".format( os.path.basename( cal_name ) ) )
+            
+        print( "\nROMS:" )
         for rom in self.shoot.roms:
             print( "\tROM '{}' is available".format( rom ) )
             
+        print( "\nSubjects:" )
+        subject_jumble = self.shoot.subject_mixes | set( (x,) for x in self.shoot.encountered_subjects )
+        subs = sorted( list( subject_jumble ), key=lambda x : len( x ) )
+        for sub in subs:
+            if( len( sub ) > 1 ):
+                print( "\tA chain of '{}' is required".format( " and ".join( sub ) ) )
+            else:
+                print( "\tA scaling for '{}' needs to be generated".format( sub ) )
+            
 # test
-path = r"C:\ViconData\Teaching\ShootingDays\170323_A1_MosCap01"
-#path = r"C:\ViconData\Teaching_2016\Workshops\170202_A1_MarkerTests_01"
+#path = r"C:\ViconData\Teaching\ShootingDays\170323_A1_MosCap01"
+path = r"C:\ViconData\Teaching\ShootingDays\180226_A1_GroupA_01"
 
 surveyer = Survey( 25, 4 )
 surveyer.searchSession( path )
