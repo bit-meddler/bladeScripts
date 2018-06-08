@@ -1,0 +1,25 @@
+// loop through selected markers on this frame, and create a dump of their XYZ coord and an ID number
+string $sel[] = `getModules -selected` ;
+int $count = getCount( $sel ) ;
+
+int $i ;
+string $points = "[ " ;
+string $labels = "[ " ;
+
+for( $i=0; $i<$count; $i+=1 ) {
+	string $mod = $sel[ $i ] ;
+	$labels += `strRight $mod 1` ;
+	float $posX = `getProperty $mod "TranslationX"` ;
+	float $posY = `getProperty $mod "TranslationY"` ;
+	float $posZ = `getProperty $mod "TranslationZ"` ;
+	$points += "[ " + string($posX) + ", " + string($posY) + ", " + string($posZ) ;
+	if( $i+1 < $count ) {
+		$points += "],\n" ;
+		$labels += ", " ;
+	} else {
+		$points += "] ]\n" ;
+		$labels += "]" ;	
+	}
+}
+print $points ;
+print $labels ;
