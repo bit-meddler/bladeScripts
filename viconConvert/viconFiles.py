@@ -240,6 +240,17 @@ if( __name__ == "__main__" ):
                          [ -1009.501038,  46.745975, -1000.682495],
                          [     2.896470,   1.241169, -1007.151733],
                          [  1013.111938, -44.654057, -1014.126465]  ], dtype=cm.FLOAT_T )
+    expected = np.array( [ [ 365.854, 292.408 ],
+                           [ 635.57,  303.396 ],
+                           [ 120.514, 306.931 ],
+                           [ 175.1,   463.656 ],
+                           [ 386.659, 468.861 ],
+                           [ 613.101, 473.093 ],
+                           [ 217.752, 583.497 ],
+                           [ 401.832, 590.093 ],
+                           [ 595.483, 595.522 ] ], dtype=cm.FLOAT_T ) # not in label order!!!!!!
+    imposible = [ 2076.589355, 85.52, 18.94 ]
+    behind = [ -443.74, 2956.64, 3895.10 ]
     labels = np.array( [ 1, 2, 3, 4, 5, 6, 7, 8, 9], dtype=cm.INT_T )
     
     cal_reader.system.marshel()
@@ -247,7 +258,9 @@ if( __name__ == "__main__" ):
     cam_id = 2107334
     idx = cal_reader.system.camera_order.index( cam_id )
     cam = cal_reader.system.cameras[ cam_id ]
+    basicP = cam.projectPoint3D( points[0] )
     print cam
-    print cam.projectPoint3D( points[0] )
-    print idx
+    print basicP
     print proj[idx]
+    print cam.projectPoint3D( imposible )
+    print cam.projectPoint3D( behind )

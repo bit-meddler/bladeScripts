@@ -63,6 +63,7 @@ class CameraSystem( object ):
 
         # project each camera
         for idx, P in enumerate( self.P_mats ):
+            # bug here - must be the multiplication order
             projections[ idx, :, : ]  = np.matmul( points, P[:,:3] )
             projections[ idx, :, : ] += P[:,3]
         # rescale to u,v,1
@@ -113,7 +114,7 @@ class GenericCamera( object ):
         a           = self.px_aspect
         x_pp, y_pp  = self._pp
         f_x, f_y    = self._focal
-        k           = self._skew
+        k           = 1. #self._skew
         
         self.K = np.array(
             [ [ f_x,   k, x_pp ],
@@ -140,7 +141,9 @@ class GenericCamera( object ):
 
     def projectPoint3D( self, point ):
         # !Hopefully! this is consistant between any correctly formed P matrix
-        M  = np.matmul( self.P[:,:3] , point )
+        M  = np.matmul( self.P[:,:3], point )
         M += self.P[:,3]
+        print M
         M[:2] /= M[2]
+        print M
         return ( M[0], M[1] )
