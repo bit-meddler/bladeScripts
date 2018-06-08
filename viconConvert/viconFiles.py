@@ -204,7 +204,7 @@ if( __name__ == "__main__" ):
                 if( cid in center_test ):
                     retorts += "Camera {} projected to {} (sensor size {})\n".format(
                         cid,
-                        cam.projectPoint( center_test[ cid ] ),
+                        cam.projectPoint3D( center_test[ cid ] ),
                         cam.sensor_wh )
     if False:
         # Specific test
@@ -221,9 +221,16 @@ if( __name__ == "__main__" ):
 
     file_path = r"C:\temp\converter"
     cal_reader.read( os.path.join( file_path, "seed_aa_01.xcp" ) )
-    from optiFiles import CalTxWriter
-    ctr = CalTxWriter( cal_reader.system )
-    ctr.unitConvert = True
-    ctr.conversion  = 1./1000.
-    ctr.generate(transposeR=True)
-    ctr.write( os.path.join( file_path, "seed_aa_01.xcp" ) )
+    if False:
+        from optiFiles import CalTxWriter
+        ctr = CalTxWriter( cal_reader.system )
+        ctr.unitConvert = True
+        ctr.conversion  = 1./1000.
+        ctr.generate(transposeR=True)
+        ctr.write( os.path.join( file_path, "seed_aa_01.xcp" ) )
+
+    # test projection
+    points = [ [1,2,3], [4,5,6] ]
+    labels = [1,2]
+    cal_reader.system.marshel()
+    proj, ids = cal_reader.system.projectPoints( points, labels )

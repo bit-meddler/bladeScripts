@@ -12,25 +12,67 @@ class CameraSystem( object ):
         self.cameras = {}
         self.source_file = ""
         self.hardware = ""
+        # marsheled data for computation
+        self.num_cameras = 0
         self.P_mats = None
+        self.C_dims = None
 
         
     def marshel( self ):
         # for now, we'll build an array of P mats, in camera_order order
-        collector = []
-        for cam_id in self.camera_order:
-            cam = self.data[ cam_id ]
+        self.num_cameras = len( self.camera_order )
+        self.P_mats = np.zeros( (self.num_cameras, 3, 4), dtype=cm.FLOAT_T )
+        self.C_dims = np.zeros( (self.num_cameras, 2),    dtype=cm.INT_T )
+        
+        for idx, cam_id in enumerate( self.camera_order ):
+            cam = self.cameras[ cam_id ]
             if( not cam._p_computed ):
                 cam.computeMatrix()
-            collector.append( cam.P )
-        self.P_mats = np.array( collector )
+            self.P_mats[ idx, :, : ] = cam.P
+            self.C_dims[ idx, : ]    = cam.sensor_wh
         self.P_mats.flags.writeable = False # secure hashing
         
         
     def hash_( self ):
         self.marshel()
         return hash( self.P_mats.data )
-    
+
+
+    def projectPoints( self, points, labels ):
+        """ points is a list of x,y,z points, they will be projected into all cameras
+            labels is a list of ID numbers for the points
+
+            returns
+            projections - array of camera projections
+            ids - labels of projections in each camera, 0 or -1 if no label or out of camera
+        """
+        # bit of sanity checking
+        projections = None
+        ids = None
+        if( self.P_mats is None ):
+            self.marshel()
+        if( self.num_cameras < 1 ):
+            return projections, ids
+
+        num_points = len( points )
+        if( num_points < 1 ):
+            return projections, ids
+
+        # collect projections
+        projections = np.zeros( (self.num_cameras, num_points, 3), dtype=cm.FLOAT_T )
+
+        # project each camera
+        for idx, P in enumerate( self.P_mats ):
+            projections[ idx, :, : ]  = np.matmul( points, P[:,:3] )
+            projections[ idx, :, : ] += P[:,3]
+        # rescale to u,v,1
+        projections[ :, :, :2 ] /= projections[ :, :, 2 ]
+
+        # police projections outside of sensor ???
+        allowed = []
+        #
+        return projections, ids
+
     
 class GenericCamera( object ):
     
@@ -96,10 +138,9 @@ class GenericCamera( object ):
         return np.degrees( fov_r )
 
 
-    def projectPoint( self, point3D ):
+    def projectPoint3D( self, point ):
         # !Hopefully! this is consistant between any correctly formed P matrix
-        p_ = point3D
-        if( len( point3D ) == 3 ):
-            p_.append( 1. )
-        x, y, z = np.matmul( self.P, np.array( p_ ) )
-        return ( x/z, y/z )
+        M  = np.matmul( self.P[:,:3] , point )
+        M += self.P[:,3]
+        M[:2] /= M[2]
+        return ( M[0], M[1] )
