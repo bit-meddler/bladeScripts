@@ -70,9 +70,9 @@ class CameraSystem( object ):
         projections[ :, :, :2 ] /= projections[ :, :, 2 ].reshape(self.num_cameras, num_points, -1)
 
         # police projections outside of sensor ???
-        allowed = []
-        #
-        return projections, ids
+        # make idx array of acceptabe projections, keep projections and their label
+        allowed = None        #
+        return projections[:,:,:2], ids
 
     
 class GenericCamera( object ):
@@ -114,7 +114,7 @@ class GenericCamera( object ):
         a           = self.px_aspect
         x_pp, y_pp  = self._pp
         f_x, f_y    = self._focal
-        k           = 1. #self._skew
+        k           = 0. #self._skew
         
         self.K = np.array(
             [ [ f_x,   k, x_pp ],

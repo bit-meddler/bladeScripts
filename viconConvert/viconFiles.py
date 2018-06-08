@@ -255,12 +255,6 @@ if( __name__ == "__main__" ):
     
     cal_reader.system.marshel()
     proj, ids = cal_reader.system.projectPoints( points, labels )
-    cam_id = 2107334
-    idx = cal_reader.system.camera_order.index( cam_id )
-    cam = cal_reader.system.cameras[ cam_id ]
-    basicP = cam.projectPoint3D( points[0] )
-    print cam
-    print basicP
-    print proj[idx]
-    print cam.projectPoint3D( imposible )
-    print cam.projectPoint3D( behind )
+    for i, dets in enumerate( proj ):
+        print cal_reader.system.camera_order[ i ]
+        print dets
