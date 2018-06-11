@@ -14,6 +14,7 @@ class ViconTake( object ):
         self.frame_data  = []
         self.giant_data  = []
         self.source_name = ""
+        self.target_name = ""
 
         
 class ViconCamMeta( object ):
@@ -160,7 +161,7 @@ def outputGiant( take ):
     num_cams   = len( take.cam_ids )
     num_frames = len( take.giant_data )
 
-    fh = open( take.source_name + ".raw", "wb" )
+    fh = open( take.target_fq + ".raw", "wb" )
     fh.write( "{}\n{}\n".format( num_cams, num_frames ) )
     out_txt = ""
     for fi, (f_roids, f_splits) in enumerate( take.giant_data ):
@@ -180,23 +181,72 @@ PROCS = { "a_time" : readTC,
           "a_data" : readData
 }
 PROC_ORDER = ("a_time","a_meta","a_data")
-
-
-if( __name__ == "__main__" ):
-    tasks_path = r"C:\ViconData\Teaching_2016\Workshops\180502_A1_CalTest01\data"
-    task_name = "examples_quad_positive_01"
-
+def loadTake( take_name, take_path, out_path=None, out_name=None ):
     take = ViconTake()
-    task_pn = os.path.join( tasks_path, task_name )
-    take.source_name = task_pn
+    take.source_fq = os.path.join( tasks_path, task_name )
+    tgt_path = out_path if out_path is None else take_path
+    tgt_name = out_name if out_name is None else take_name
+    take.target_fq = os.path.join( tgt_path, tgt_name )
     for ext in PROC_ORDER:
         proc = PROCS[ ext ]
         proc(  task_pn + "." + ext, take )
 
-    print( "Read" )
+
+def _test1():
+    # quick test
+    tasks_path = r"C:\ViconData\Teaching_2016\Workshops\180502_A1_CalTest01\data"
+    task_name = "examples_quad_positive_01"
+
+    print( "Loading..." )
+    take = loadTake( task_name, tasks_path )
+    print( "Converting..." )
     convert512( take )
-    print( "Converted" )
+    print( "Saving..." )
     print take.frame_data[0]
     print take.giant_data[0]
     outputGiant( take )
-    print( "Done?" )
+    print( "Done" )
+
+    
+if( __name__ == "__main__" ):
+    import argparse
+    parser = argparse.ArgumentParser(
+                 description="Second stage in Vicon to Giant conversion process.\n"
+                             "requires the x2d to have been converted into the three chunks:\n"
+                             "\ta_time\n\ta_meta\n\ta_data\nby using the 'genConvert' script.",
+                 epiloge="",
+                 formatter_class=argparse.RawTextHelpFormatter
+    )
+    parser.add_argument( "taskpath",
+                         help="Path to the conversion task"
+    )
+    parser.add_argument( "taskname",
+                         help="Name of the conversion task"
+    )
+    parser.add_argument( "-o", "--output",
+                         dest="target_path",
+                         help="Path to where the '.raw' file should be placed"
+    )
+    parser.add_argument( "-r", "--rename",
+                         dest="target_path",
+                         help="New name for the task. '.raw' is auto appended"
+    )
+    args = parser.parse_args()
+    tgt_p = None
+    tgt_n = None
+    if( args.target_path ):
+        tgt_p = target_path
+    if( args.target_name ):
+        tgt_n = target_name
+    print( args.taskname, args.taskpath, tgt_p, tgt_n )
+    #debug
+    if False:
+        print( "Loading '{}'".format( args.taskname ) )
+        take = loadTake( args.taskname, args.taskpath, tgt_p, tgt_n )
+        print( "Converting..." )
+        convert512( take )
+        print( "Saving to '{}'".format( take.target_fq ) )
+        print take.frame_data[0]
+        print take.giant_data[0]
+        outputGiant( take )
+        print( "Done" )
