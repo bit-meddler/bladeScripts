@@ -27,7 +27,7 @@ CONVERTER = r"C:\temp\X2DToAscii.exe"
 
 def genJobList( source_fq, target_path=None, target_append=None ):
     src_path, src_name, src_ext = fragmentFilePath( source_fq )
-    print src_path
+
     tgt_path = target_path
     if( target_path is None ):
         tgt_path = src_path
@@ -59,7 +59,7 @@ def genBatFile( out_file_fq, task_list, target_path=None, target_append=None ):
     outputBatFile ( out_file_fq, conv_jobs )
 
         
-def outputBatFile ( out_fq, jobs ):
+def outputBatFile( out_fq, jobs ):
     # write to batch
     fh = open( out_fq, "wb" )
     fh.write( "ECHO OFF\n" )
@@ -68,6 +68,30 @@ def outputBatFile ( out_fq, jobs ):
     fh.close()
 
 
+def _apiExample():
+    session_roms = r"C:\ViconData\Client\Project\day\ROM"
+    rom_list = ["ben_rom.x2d","dave_rom.x2d"]
+    session_takes = r"C:\ViconData\Client\Project\day\PM"
+    take_list = [ "take_0001.x2d", "take_0002.x2d", "take_0004.x2d",
+                  "take_0008.x2d", "take_0016.x2d", "take_0032.x2d", ]
+    giant_base = "C:\giant\client\project\day"
+    tasks = []
+    # do ROMs
+    for rom in rom_list:
+        rom_fq = os.path.join( session_roms, rom )
+        _, name, _ = fragmentFilePath( rom_fq )
+        giant_tgt = os.path.join( giant_base, "capture", "talent", name )
+        tasks += genJobList( rom_fq, giant_tgt )
+    # do takes
+    for take in take_list:
+        take_fq = os.path.join( session_takes, take )
+        _, name, _ = fragmentFilePath( take_fq )
+        giant_tgt = os.path.join( giant_base, "capture", name )
+        tasks += genJobList( take_fq, giant_tgt )
+        
+    outputBatFile( "demo.bat", tasks )
+
+        
 def _test1():
     x = genJobList( r"C:\temp\xyz\take0001.x2d", r"C:\giant\day\volume\take\take" )
     for l in x:
@@ -80,6 +104,8 @@ def _test1():
 
         
 if( __name__ == "__main__" ):
+    _apiExample()
+    exit(0)
     import argparse
     parser = argparse.ArgumentParser(
                  description="First stage in Vicon to Giant conversion process.\n"
