@@ -214,7 +214,6 @@ if( __name__ == "__main__" ):
                  description="Second stage in Vicon to Giant conversion process.\n"
                              "requires the x2d to have been converted into the three chunks:\n"
                              "\ta_time\n\ta_meta\n\ta_data\nby using the 'genConvert' script.",
-                 epiloge="",
                  formatter_class=argparse.RawTextHelpFormatter
     )
     parser.add_argument( "taskpath",
@@ -228,16 +227,16 @@ if( __name__ == "__main__" ):
                          help="Path to where the '.raw' file should be placed"
     )
     parser.add_argument( "-r", "--rename",
-                         dest="target_path",
+                         dest="target_name",
                          help="New name for the task. '.raw' is auto appended"
     )
     args = parser.parse_args()
     tgt_p = None
     tgt_n = None
     if( args.target_path ):
-        tgt_p = target_path
+        tgt_p = args.target_path
     if( args.target_name ):
-        tgt_n = target_name
+        tgt_n = args.target_name
     print( args.taskname, args.taskpath, tgt_p, tgt_n )
     #debug
     if False:
