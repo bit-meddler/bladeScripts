@@ -3,33 +3,66 @@ import os
 import numpy as np
 import coreMaths as cm
 from optiFiles import CalTxReader
-from giantFiles import CalDLTReader
+from giantFiles import CalDLTReader, CalDLTWriter
+from viconFiles import CalXCPReader
 
-path_g = r"C:\temp\g_files"
-cal_g  = "calib_dlt.bin" # I'll need a pair of cals for this!
-cal_o  = "Cal.txt"
 
-opti  = CalTxReader()
-giant = CalDLTReader()
+def _test1():
+    path_g = r"C:\temp\g_files"
+    cal_g  = "calib_dlt.bin" # I'll need a pair of cals for this!
+    cal_o  = "Cal.txt"
 
-opti.read( os.path.join( path_g, cal_o ) )
-giant.read( os.path.join( path_g, cal_g ) )
+    opti  = CalTxReader()
+    giant = CalDLTReader()
 
-opti.system.marshel()
+    opti.read( os.path.join( path_g, cal_o ) )
+    giant.read( os.path.join( path_g, cal_g ) )
 
-O_mats = opti.system.P_mats
-G_mats = giant.cameras
+    opti.system.marshel()
 
-# try with one to start with
-O_ = np.diagflat( O_mats[0] )
-G_ = np.diagflat( G_mats[0] )
+    O_mats = opti.system.P_mats
+    G_mats = giant.cameras
 
-x_ = np.linalg.solve( O_, G_ )
+    # try with one to start with
+    O_ = np.diagflat( O_mats[0] )
+    G_ = np.diagflat( G_mats[0] )
 
-x = np.diagonal( x_ ).reshape( (3,4) )
+    x_ = np.linalg.solve( O_, G_ )
 
-Gcon = np.matmul( O_mats[0], x )
+    x = np.diagonal( x_ ).reshape( (3,4) )
 
-print( Gcon, G_mats[0] )
+    Gcon = np.matmul( O_mats[0], x )
 
-pritn( Gcon - G_mats[0] )
+    print( Gcon, G_mats[0] )
+    print( Gcon - G_mats[0] )
+
+    
+def convert( source_fq, target_fq ):
+    vicon = CalXCPReader()
+    vicon.read( source_fq )
+    vicon.marshel()
+    
+    outMats = []
+    conversion = np.ones( (3,4), dtype=cm.FLOAT_T )
+    for i, mat in enumerate( vicon.P_mats ):
+        outMats.append( np.matmul( mat, conversion ) )
+    
+    giant = CalDLTWriter( outMats )
+    giant.write( target_fq )
+    
+    
+if( __name__ == "__main__" ):
+    import argparse
+    parser = argparse.ArgumentParser(
+                 description="The hardest part of this whole project. Direct conversion "
+                             "of a vicon calibration to a giant DLT file.",
+                 formatter_class=argparse.RawTextHelpFormatter
+    )
+    parser.add_argument( "taskpath",
+                         help="Path to the Vicon XCP"
+    )
+    parser.add_argument( "targetpath",
+                         help="Path to where the dlt should be placed"
+    )
+    args = parser.parse_args()
+    convert( args.taskpath, args.targetpath )

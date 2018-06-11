@@ -86,8 +86,78 @@ class TCLTool( object ):
             self._parse_fwd( line, self._data )
             line = self._fh.readline()
         self._fh.close()
+        
+        
+    @staticmethod
+    def _tabKeyVal( key, val, indent, pad="  " ):
+        buff = ""
+        vtype = type( value )
+        if( vtype in [ list, dict ] ):
+            if( vtype == list ):
+                if( type( value[0] ) == dict ):
+                    # named list
+                    for item in value:
+                        buff += key
+                        buff += " {\n"
+                        buff += TCLTool._tabPrinter( item, indent+1, pad )
+                        buff += "{}}}\n".format( pad*indent )
+                else:
+                    buff += indent*pad
+                    buff += key
+                    buff += " [\n"
+                    for item in value:
+                        buff += TCLTool._tabPrinter( item, indent+1, pad )
+                        buff += ",\n"
+                    buff = buff[:-2]
+                    buff += "\n{}]\n".format( pad*indent )
+            else: # dict
+                buff += key
+                buff += " {\n"
+                for vkey in sorted( value.keys() ):
+                    buff += TCLTool._tabKeyVal( vkey, value[ vkey ], indent+1, pad )
+                #buff += "\n"
+                buff += pad*indent + "}\n"
+        else:
+            buff = pad*indent
+            buff += key + ": {}\n".format( value )
+        return buff
+        
+        
+    @staticmethod
+    def _tabPrinter( data, indent=0, pad="  " ):
+        buff = ""
+        vtype = type( data )
+        if( vtype == list ):
+            buff += indent*pad
+            for item in data:
+                buff += TCLTool._tabPrinter( item, indent, pad )
+        elif( vtype == dict ):
+            for key in sorted( data.keys() ):
+                buff += TCLTool._tabKeyVal( key, data[ key ], indent, pad )
+        else:
+            buff += "{}{}\n".format( indent*pad, data )
+        return buff
+        
+        
+    def formatTCL( self, input_dict=None ):
+        if( input_dict is None ):
+            return self._tabPrinter( self._data )
+        else:
+            return self._tabPrinter( input_dict )
 
-
+            
+    def write( self, file_fq ):
+        fh = open( file_fq, "wb" )
+        if( "GIANT_HEADER_TYPE" in self._data ):
+            fh.write( "{}\n".format( self._data[ "GIANT_HEADER_TYPE" ] ) )
+            del( self._data[ "GIANT_HEADER_TYPE" ] )
+        if( "GIANT_HEADER_VERSION" in self._data ):
+            fh.write( "{}\n".format( self._data[ "GIANT_HEADER_VERSION" ] ) )
+            del( self._data[ "GIANT_HEADER_VERSION" ] )
+        fh.write( self.formatTCL() )
+        fh.close()
+        
+        
 class GiantCamera( GenericCamera ):
 
     def __init__( self, input_dict=None ):
@@ -174,7 +244,25 @@ class CalDLTReader( object ):
             self.cameras.append( cam )
          self.cameras = np.array( self.cameras, dtype=cm.FLOAT_T )  
             
-    
+            
+class CalDLTWriter( object ):
+
+    def __init__( self, mats ):
+        self.mats = mats
+        
+        
+    def write( self, out_fq ):
+        d = {
+            "CAMERA" : [],
+            "GIANT_HEADER_TYPE"  : "Bio Camera Calibration File",
+            "GIANT_HEADER_VERSION" : "v1.00"
+        }
+        for m in self.mats:
+            d["CAMERA"].append({"DLT":[ v for v in m ]})
+        tt = TCLTool( d )
+        tt.write( out_fq )
+        
+        
 class CalCSFReader( object ): # or inherit TCLTool??
     
     def __init__( self ):
