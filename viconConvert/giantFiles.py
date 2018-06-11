@@ -168,7 +168,11 @@ class CalDLTReader( object ):
         for  cam_d in self._tclt._data["CAMERA"]:
             cam = np.ones( (12), dtype=cm.FLOAT_T )
             cam[:11] = np.array( cam_d["DLT"], dtype=cm.FLOAT_T ).reshape( (11) )
-            self.cameras.append( cam.reshape( (3,4) ) )
+            # I seem to recall Vaugn saying one col needs to be 10x
+            cam = cam.reshape( (3,4) )
+            cam[0:2,3] *= 10.
+            self.cameras.append( cam )
+         self.cameras = np.array( self.cameras, dtype=cm.FLOAT_T )  
             
     
 class CalCSFReader( object ): # or inherit TCLTool??
