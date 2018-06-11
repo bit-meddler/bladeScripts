@@ -16,6 +16,9 @@ import glob
 import os
 import ConfigParser
 from viconFiles import CalXCPReader
+from genConvert import genJobList, outputBatFile
+import giantFiles as gf
+
 
 class Take( tc.TcRange ):
     
@@ -41,6 +44,8 @@ class Take( tc.TcRange ):
         self.x2d_fq = ""
         # giant conversion stuff
         self.prefered_cal_fq = ""
+        self.prefered_cal_id = -1
+        
 
     def __str__( self ):
         durr_tc = self.end - self.start
@@ -70,10 +75,10 @@ class ShootingDay( object ):
         self.cxr = CalXCPReader()
         
         if( source_dir is not None ):
-            self.setSession( source_dir )
+            self.setRoot( source_dir )
         
         
-    def setSession( self, source_dir ):
+    def setRoot( self, source_dir ):
         self.name = os.path.basename( source_dir )
         self.source_dir = source_dir
         
@@ -247,7 +252,7 @@ class Survey( object ):
             
     def searchSession( self, session_path ):
         # collect session data
-        self.shoot.setSession( session_path )
+        self.shoot.setRoot( session_path )
         day_sessions = self.findSessions( session_path )
         for ses in day_sessions:
             self.getSessionData( path, ses )
@@ -271,6 +276,7 @@ class Survey( object ):
         for take_name in self.shoot.takes:
             take = self.shoot.data[ take_name ]
             take.prefered_cal_fq = prefered_cals[ take.cal_id ]
+            take.prefered_cal_id = os.path.basename( prefered_cals[ take.cal_id ] )
 
         # Try to match subjects to ROMs in session, locate orphaned Subjects
             
@@ -348,7 +354,118 @@ class Survey( object ):
                 print( "\tA chain of '{}' is required".format( " and ".join( sub ) ) )
             else:
                 print( "\tA scaling for '{}' needs to be generated".format( sub ) )
+
+                
+    def doConversion( self, giant_base_path ):
+        print( "Building Conversion from '{}' into '{}'".format( self.shoot.name, giant_base_path ) )
+        
+        batch_jobs = []
+        
+        # stub in giant day & standard folders
+        DEFAULT_STRUCT = [ "capture", "calib", "probspec", "volume", "subject", "scaling" ]
+        for folder in DEFAULT_STRUCT:
+            os.makedirs( os.path.join( giant_base_path, folder ) )
             
+        # stub in calibrations
+        prefered_cals = self.shoot.getYoungCals()
+        section = os.path.join( giant_base_path, "calib" )
+        for cal_fq in prefered_cals.values():
+            cal_name = os.path.basename( cal_fq )
+            os.makedirs( os.path.join( section, cal_name ) )
+            tgt_fq = "{0}/{1}/{1}.csf".format( section, cal_name )
+            print( tgt_fq )
+            # if thee is a direct method possible
+            batch_jobs.append( ['python calConvert.py "{}" "{}"\n'.format( cal_fq, tgt_fq )] )
+        
+        # convert wand-waves
+        section = os.path.join( giant_base_path, "volume" )
+        for wand_name in self.shoot.cals:
+            take = self.shoot.data[ wand_name ]
+            take_name = take.name
+            os.makedirs( os.path.join( section, take_name ) )
+            tgt_fq = "{0}/{1}/{1}".format( section, cal_name )
+            batch_jobs.append( genJobList( take._file_fq, tgt_fq )
+            prj_dat = { "RAW_DATA" : "$GIANT_DATA_DIR/volume/{0}/{0}.raw".format( cal_name ) }
+            gf.makePrj( "{0}/{1}".format( section, cal_name ), prj_dat )
+            
+        # convert ROMs
+        section = os.path.join( giant_base_path, "capture", "talent" )
+        g_path = "capture/talent"
+        for rom in self.shoot.roms:
+            take = self.shoot.data[ rom ]
+            take_name = take.name
+            os.makedirs( os.path.join( section, take_name ) )
+            tgt_fq = "{0}/{1}/{1}".format( section, take_name )
+            batch_jobs.append( genJobList( take._file_fq, tgt_fq )
+            cal_name = os.path.basename( prefered_cals[ take.prefered_cal_id ] )
+            prj_dat = {
+                "RAW_DATA" : "$GIANT_DATA_DIR/{0}/{1}/{1}.raw".format( g_path, take_name ),
+                "CALIBRATION" : "$GIANT_DATA_DIR/{0}/{1}/{1}.cal".format( "calib", cal_name ),
+                "SEARCH_PARAMS" :"$GIANT_DATA_DIR/probspec/body.sch"
+            }
+            gf.makePrj( "{0}/{1}".format( section, take_name ), prj_dat )
+            
+   
+        # scalings & chains
+        # These are scaled:
+        # $bio/subject/name/[bdf|ppf]
+        # $bio/scaling/name.scl
+        # these are default:
+        # $bio/probspec/X/[lmt|pdf]
+        # Don't recall where the mdl is sourced from.
+        # for a chain, a new 'compound' of bdf, ppf, scl, lmt, pdf are needed
+        subject_jumble = self.shoot.subject_mixes | set( (x,) for x in self.shoot.encountered_subjects )
+        subs = sorted( list( subject_jumble ), key=lambda x : len( x ) )
+        for sub in subs:
+            if( len( sub ) > 1 ):
+                print( "\tA chain of '{}' is required".format( " and ".join( sub ) ) )
+                # giant has a script to do this????
+            else:
+                print( "\tA scaling for '{}' needs to be generated".format( sub ) )
+        
+        
+        # Finally, the takes!
+        section = os.path.join( giant_base_path, "capture" )
+        for take_name in self.shoot.takes:
+            take = self.shoot.data[ take_name ]
+            take_name = take.name
+            os.makedirs( os.path.join( section, take_name ) )
+            tgt_fq = "{0}/{1}/{1}".format( section, take_name )
+            batch_jobs.append( genJobList( take._file_fq, tgt_fq )
+            cal_name = os.path.basename( prefered_cals[ take.prefered_cal_id ] )
+            prj_dat = {
+                "RAW_DATA" : "$GIANT_DATA_DIR/{0}/{1}/{1}.raw".format( g_path, take_name ),
+                "CALIBRATION" : "$GIANT_DATA_DIR/{0}/{1}/{1}.cal".format( "calib", cal_name ),
+                "SEARCH_PARAMS" :"$GIANT_DATA_DIR/probspec/body.sch",
+            }
+            # obviously!!! update to suit personal preference
+            pspec = "male_2.0"
+            pdf = "$GIANT_DATA_DIR/probspec/characters/{0}.pdf".format( pspec )
+            lmt = "$GIANT_DATA_DIR/probspec/characters/{0}/{0}.lmt".format( pspec )
+            mdl = "$GIANT_DATA_DIR/model/{0}.mdl".format( pspec )
+            
+            scl = "$GIANT_DATA_DIR/scaling/{0}.scl".format( take.chain_name )
+            bdf = "$GIANT_DATA_DIR/subject/{0}/{0}.scl".format( take.chain_name )
+            ppf = "$GIANT_DATA_DIR/subject/{0}/{0}.ppf".format( take.chain_name )
+            
+            if( len( take.subject_list ) > 1 ):
+                # combined case
+                pdf = "$GIANT_DATA_DIR/probspec/characters/combined/{0}/{0}.pdf".format( take.chain_name )
+                lmt = "$GIANT_DATA_DIR/probspec/characters/combined/{0}/{0}.lmt".format( take.chain_name )
+                mdl = "$GIANT_DATA_DIR/model/combined/{0}/{0}.mdl".format( take.chain_name )
+                
+            prj_dat[ "PROBLEM_DEF" ] = pdf
+            prj_dat[ "LIMITS" ]      = lmt
+            prj_dat[ "GFX_MODEL" ]   = mdl
+            prj_dat[ "GFX_SCALING" ] = scl
+            prj_dat[ "BODY_DEF" ]    = bdf
+            prj_dat[ "PATTERN" ]     = ppf
+
+            gf.makePrj( "{0}/{1}".format( section, take_name ), prj_dat )
+        
+        # output the batch file
+        outputBatFile( os.path.join( self.shoot.source_dir, "convert.bat" ), batch_jobs)
+  
 # test
 #path = r"C:\ViconData\Teaching\ShootingDays\170323_A1_MosCap01"
 path = r"C:\ViconData\Teaching\ShootingDays\180226_A1_GroupA_01"

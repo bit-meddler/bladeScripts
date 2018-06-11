@@ -48,15 +48,15 @@ def genJobList( source_fq, target_path=None, target_append=None ):
         cleanup.append( '"DEL "{}.{}"\n'.format( tgt_fq, ext ) )
     res += jobs + conversion + cleanup 
     res.append( "\n" )
-    return res
+    return "".join( res )
 
 
 def genBatFile( out_file_fq, task_list, target_path=None, target_append=None ):
     # generate jobs
     conv_jobs = []
     for task in task_list:
-        conv_jobs += genJobList( task, target_path, target_append )
-    outputBatFile ( out_file_fq, conv_jobs )
+        conv_jobs.append( genJobList( task, target_path, target_append ) )
+    outputBatFile( out_file_fq, conv_jobs )
 
         
 def outputBatFile( out_fq, jobs ):
@@ -81,17 +81,29 @@ def _apiExample():
         rom_fq = os.path.join( session_roms, rom )
         _, name, _ = fragmentFilePath( rom_fq )
         giant_tgt = os.path.join( giant_base, "capture", "talent", name )
-        tasks += genJobList( rom_fq, giant_tgt )
+        tasks.append( genJobList( rom_fq, giant_tgt ) )
     # do takes
     for take in take_list:
         take_fq = os.path.join( session_takes, take )
         _, name, _ = fragmentFilePath( take_fq )
         giant_tgt = os.path.join( giant_base, "capture", name )
-        tasks += genJobList( take_fq, giant_tgt )
+        tasks.append( genJobList( take_fq, giant_tgt ) )
         
     outputBatFile( "demo.bat", tasks )
 
-        
+    
+def _scatter( out_path, out_name, tasks, ways ):
+    num_t = len( tasks )
+    blocks = num_t / ways
+    last = 0
+    basename = os.path.join( out_path, out_name + "{}.bat" )
+    for i in range( 1, ways ):
+        end = blocks * i
+        outputBatFile( basename.format(i), tasks[last:end] )
+        last = end
+    outputBatFile( basename.format(ways), tasks[last:] )
+    
+    
 def _test1():
     x = genJobList( r"C:\temp\xyz\take0001.x2d", r"C:\giant\day\volume\take\take" )
     for l in x:
