@@ -9,13 +9,7 @@
 """
 import os
 import glob
-
-
-def fragmentFilePath( file_path ) :
-    path_name, ext = os.path.splitext( file_path )
-    path_part = os.path.dirname( path_name )
-    name_part = os.path.basename( path_name )
-    return path_part, name_part, ext
+from utils import fragmentFilePath
 
 
 CONVERSIONS = { "a_meta" : "C",
@@ -25,7 +19,7 @@ CONVERSIONS = { "a_meta" : "C",
 
 CONVERTER = r"C:\temp\X2DToAscii.exe"
 
-def genJobList( source_fq, target_path=None, target_append=None ):
+def genJobList( source_fq, target_path=None, target_append=None, simulate=False ):
     src_path, src_name, src_ext = fragmentFilePath( source_fq )
 
     tgt_path = target_path
@@ -35,18 +29,24 @@ def genJobList( source_fq, target_path=None, target_append=None ):
     tgt_name = src_name
     if( target_append is not None ):
         tgt_name += "_" + target_append
-
+        
+    #print tgt_path
     tgt_fq = os.path.join( tgt_path, tgt_name )
+    #print tgt_fq
     
-    res = ["ECHO:Converting '{}'\n".format( src_name )]
-    jobs = []
-    conversion = ['python convertViconAscii.py "{}" "{}"\n'.format( tgt_path, tgt_name )]
-    cleanup = []
-    for ext, param in CONVERSIONS.iteritems():
-        jobs.append( '"{}" "{}" -t {} > "{}.{}"\n'.format( CONVERTER,
-            source_fq, param, tgt_fq, ext ) )
-        cleanup.append( '"DEL "{}.{}"\n'.format( tgt_fq, ext ) )
-    res += jobs + conversion + cleanup 
+    res = []
+    if( not simulate ):
+        res.append( "ECHO:Converting '{}'\n".format( src_name ) )
+        jobs = []
+        conversion = ['python convertViconAscii.py "{}" "{}"\n'.format( tgt_path, tgt_name )]
+        cleanup = []
+        for ext, param in CONVERSIONS.iteritems():
+            jobs.append( '"{}" "{}" -t {} > "{}.{}"\n'.format( CONVERTER,
+                source_fq, param, tgt_fq, ext ) )
+            cleanup.append( 'DEL "{}.{}"\n'.format( tgt_fq, ext ) )
+        res += jobs + conversion + cleanup
+    else:
+        res.append( 'TYPE NUL > "{}.raw"\n'.format( tgt_fq ) )
     res.append( "\n" )
     return "".join( res )
 

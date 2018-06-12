@@ -3,6 +3,8 @@ import numpy as np
 import coreMaths as cm
 from genericMoCap import CameraSystem, GenericCamera
 import os
+from utils import openMkdir
+
 
 class TCLTool( object ):
     """ Generic tool to read & write TCL style dumps into pythonic datastructures """
@@ -147,7 +149,7 @@ class TCLTool( object ):
 
             
     def write( self, file_fq ):
-        fh = open( file_fq, "wb" )
+        fh = openMkdir( file_fq, "wb" )
         if( "GIANT_HEADER_TYPE" in self._data ):
             fh.write( "{}\n".format( self._data[ "GIANT_HEADER_TYPE" ] ) )
             del( self._data[ "GIANT_HEADER_TYPE" ] )
@@ -229,9 +231,11 @@ class GiantCamera( GenericCamera ):
 
 
 class CalDLTReader( object ):
+    
     def __init__( self ):
         self._tclt = TCLTool()
         self.cameras = []
+
         
     def read( self, source_file ):
         self._tclt.read( source_file )
@@ -242,7 +246,7 @@ class CalDLTReader( object ):
             cam = cam.reshape( (3,4) )
             cam[0:2,3] *= 10.
             self.cameras.append( cam )
-         self.cameras = np.array( self.cameras, dtype=cm.FLOAT_T )  
+        self.cameras = np.array( self.cameras, dtype=cm.FLOAT_T )  
             
             
 class CalDLTWriter( object ):
@@ -356,11 +360,11 @@ class CalCSFWriter( object ):
     def write( self, orig_file_path ):
         file_path, _ = os.path.splitext( orig_file_path )
         if( self._output_dlt and self._DLT != "" ):
-            fh = open( file_path + ".csf", 'wb' )
+            fh = openMkdir( file_path + ".csf", 'wb' )
             fh.write( self._DLT )
             fh.close()
         if( self._output_script and self._SH != "" ):
-            fh = open( file_path + ".sh", 'wb' )
+            fh = openMkdir( file_path + ".sh", 'wb' )
             fh.write( "#!/usr/bin/env bash\n" )
             fh.write( self._SH )
             fh.close()
@@ -372,7 +376,7 @@ def makePRJ( target_file, elements ):
     
     header = "Bio Project File\nv3.00\n"
 
-    fh = open( target_file, 'wb' )
+    fh = openMkdir( target_file, 'wb' )
     fh.write( header )
         
     for key, value in elements.iteritems():
