@@ -1,6 +1,6 @@
 import numpy as np
 
-# project standard types
+#   standard types
 FLOAT_T = np.float32
 INT_T = np.int32
 
@@ -9,7 +9,7 @@ INCHCONVERT = 0.039370078740158
 
 class mat33( object ):
     """ just a rotation matrix, and all that it involves... """
-    # -- Auto Generated Rotation matrixes for call combinations of DoFs and orders -- #
+    # -- Auto Generated Rotation matrixes for all combinations of DoFs and orders -- #
     
     def _rotMatXYZ( rx, ry, rz ):
         # compose and simplify rotation matrix in order of XYZ
@@ -311,6 +311,7 @@ class mat34( object ):
     def multiply( A, B ):
         return mat34._multi( A.mat, B.mat )
                 
+                
     @staticmethod
     def _multi( A, B ):
         """ Helper, expects ndarray """
@@ -318,7 +319,13 @@ class mat34( object ):
         assert( A.shape == (3,4) )
         
         ret = np.zeros( (3,4), dtype=FLOAT_T )
-        ret
+        ret[:3,:3] = np.matmul( A[:3,:3], B[:3,:3] )
+        ret[:,3] = np.matmul( A[:3,:3], B[:,3] )
+        ret[:3] += A[:,3]
+        
+        return ret
+        
+        
     def __str__( self ):
         tx, ty, tz = self.mat[:,3]
         rx, ry, rz = self.toAngles()
@@ -414,6 +421,7 @@ class Quaternion( object ):
 
         return M
 
+        
     def toRotMat( self ):
         # http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
         M = np.zeros( (3,3), dtype=FLOAT_T )
@@ -490,7 +498,6 @@ class Quaternion( object ):
 
 
     def toAngles( self ):
-        
         return mat34.mat2Angles( self.toRotMat() )
 
 
@@ -515,6 +522,7 @@ class Quaternion( object ):
 
         return (x, y, z)
 
+        
     def toAngles4( self ):
         # http://people.ece.cornell.edu/land/courses/ece4760/FinalProjects/f2013/kjg58_pmt43/website/website/index.html
         x, y, z = 0., 0., 0.
@@ -534,6 +542,7 @@ class Quaternion( object ):
         z = np.arctan( (2. * (XW + _Y + _Z)) / (1. - (2.*(ZZ+WW))) )
         
         return (x,y,z)
+    
     
     def __str__( self ):
         return "Quaternion X:{} Y:{} Z:{} W:{}".format(
