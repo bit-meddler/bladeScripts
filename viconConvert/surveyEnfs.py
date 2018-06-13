@@ -31,7 +31,7 @@ class Take( tc.TcRange ):
         super( Take, self ).__init__( rate, multiplier )        
         # take metadata
         self.file_name = ""
-        self._file_fq = ""
+        self.enf_fq = ""
         self.name = ""
         self._creation_time = ""
         self.subject_list = []
@@ -69,9 +69,9 @@ class ShootingDay( object ):
         self.sessions = []
         self._cur_session = ""
         self.remarks = ""
-        self.skels = {}
+        self.skels = {} # structured data ( name, skel_fq, session, vsk_dob, vsk_sz )
         self._orphan_x2ds = []
-        self.cals = []
+        self.cals = [] # structured data
         self.roms = []
         self.cxr = CalXCPReader()
         
@@ -92,7 +92,7 @@ class ShootingDay( object ):
             if( dup ):
                 take.name += "_"
             else:
-                take.name = self.session + "_" + take.name
+                take.name = self._cur_session + "_" + take.name
                 dup = True
         if( dup ):
             print( "'{}' in '{}' is a duplicate take in this session, and has been renamed '{}'".format(
@@ -159,13 +159,19 @@ class ShootingDay( object ):
         # reset
         self.cals = []
         self.roms = []
-        for take_name, take in self.data.iteritems():
+        for take_name in self.data.keys():
             t_name = take_name.lower()
             for clue in self.ROM_CLUES:
                 if( clue in t_name ):
                     # Might be a ROM!
                     self.roms.append( take_name )
                     self.takes.remove( take_name )
+                    # remove empty sub list if present, so sub can be attached later
+                    rom = self.data[ take_name ]
+                    if( '' in rom.subject_list ):
+                        new_sl = list( rom.subject_list )
+                        new_sl.remove( '' )
+                        rom.subject_list = tuple( new_sl )
                     continue
             for clue in self.CAL_CLUES:
                 if( clue in t_name ):
@@ -198,7 +204,8 @@ class Survey( object ):
             desc = self.cf.get( "TRIAL_INFO", "DESCRIPTION" )
             
             take = self.shoot.newTake( name )
-            take._file_fq  = t
+
+            take.enf_fq  = t
             take.file_name = os.path.basename( t )
             take.setFromStartDur( star, durr )
             take._creation_time = date
@@ -226,8 +233,15 @@ class Survey( object ):
         # Explore VSKs
         skels = glob.glob( os.path.join( day_path, session, "*.vsk" ) )
         for skel in skels:
+            # collision here with skels in 'rom' session vs am/pm sessions
             name = os.path.basename( skel )[:-4]
-            self.shoot.skels[ name ] = skel
+            canonical_name = self.shoot._cur_session + "_" + name
+            # TODO: Fingerprint the VSK with a hash, for now lets use size (again)
+            f_stat  = os.stat( skel )
+            vsk_dob = f_stat.st_mtime
+            vsk_sz  = f_stat.st_size
+            self.shoot.skels[ canonical_name ] = ( name, skel, self.shoot._cur_session, vsk_dob, vsk_sz )
+        # Now make unique??
 
             
     @staticmethod
@@ -280,6 +294,15 @@ class Survey( object ):
             _, take.prefered_cal_name, _ = fragmentFilePath( take.prefered_cal_fq )
 
         # Try to match subjects to ROMs in session, locate orphaned Subjects
+        for skel_dat in self.shoot.skels.values():
+            name, skel_fq, session, vsk_dob, vsk_sz = skel_dat
+            # humm O^2 - as there will not be 000s of ROM's I'm OK with it.
+            for rom_name in self.shoot.roms:
+                if( name in rom_name ):
+                    rom_take = self.shoot.data[ rom_name ]
+                    if( len( rom_take.subject_list ) < 1 ):
+                        rom_take.subject_list = [name]
+
             
     # ----- order subject chain --- #
     HUMAN_CLUES = [ "hmc", "_cap", "softcap", "cara" ]
@@ -345,7 +368,11 @@ class Survey( object ):
             
         print( "\nROMS:" )
         for rom in self.shoot.roms:
-            print( "\tROM '{}' is available".format( rom ) )
+            rom_take = self.shoot.data[ rom ]
+            sub = "nothing"
+            if( len( rom_take.subject_list ) > 0 ):
+                sub = rom_take.subject_list
+            print( "\tROM '{}' is available, and calibrates {}".format( rom, sub ) )
             
         print( "\nSubjects:" )
         subject_jumble = self.shoot.subject_mixes | set( (x,) for x in self.shoot.encountered_subjects )
@@ -358,6 +385,9 @@ class Survey( object ):
 
                 
     def doConversion( self, giant_base_path, simulate=False ):
+        """ Hacky but seems to deliver as expected.  Needs a considerable refactor to enable
+            pluggable giant folder structure (eg. stock Giant Vs Customer1, Customer2, etc)
+        """
         print( "Building Conversion from '{}' into '{}'".format( self.shoot.name, giant_base_path ) )
         
         batch_jobs = []
@@ -419,13 +449,17 @@ class Survey( object ):
         # Don't recall where the mdl is sourced from.
         # for a chain, a new 'compound' of bdf, ppf, scl, lmt, pdf are needed
         # for now, just stub out the required folders
+        # what happened to dof files??
         
-        # obviously!!! update to suit personal preference
+        # obviously!!! update to suit company preference / shooting requirements
         PSPEC = "male_2.0"
         
         subject_jumble = self.shoot.subject_mixes | set( (x,) for x in self.shoot.encountered_subjects )
         subs = sorted( list( subject_jumble ), key=lambda x : len( x ) )
         for sub in subs:
+            # The retorts below could be emited into ''pipeline'' and become tasks assigned to artists
+            # keep in mind the dependancy.  Need *all* scallings before we can chain, but chains could be
+            # batched.
             if( len( sub ) > 1 ):
                 print( "\tA chain of '{}' is required".format( " and ".join( sub ) ) )
                 # giant has a script to do this????
@@ -497,6 +531,8 @@ giant = r"C:\temp\giantstrut\day01"
 surveyer = Survey( 25, 4 )
 surveyer.searchSession( path )
 
-#surveyer.printDigest()
+surveyer.printDigest()
 
-surveyer.doConversion( giant, simulate=True )
+#surveyer.doConversion( giant, simulate=True )
+import json
+json.dumps( surveyer.shoot.__dict__ )
