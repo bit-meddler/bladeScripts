@@ -1,0 +1,64 @@
+int $dlg;
+int $parentForm;
+int $rect[4];
+
+int $dlg = `createWindow ""`;
+setWindowSize "" -width 212 -height 144;
+// Get a handle to the main user windows main layout form. All controls
+// will be descendants of this and will be placed/sized relative to it.
+$parentForm = `getTopLevelForm $dlg`;
+$rect[0] = 16;
+$rect[1] = 24;
+$rect[2] = 116;
+$rect[3] = 43;
+int $radiobutton = `createRadioButton $dlg -text "Radiobutton" -form $parentForm -pos $rect`;
+$rect[0] = 8;
+$rect[1] = 8;
+$rect[2] = 112;
+$rect[3] = 96;
+int $groupbox = `createGroupBox $dlg -text "Interpolation Type" -form $parentForm -pos $rect`;
+$rect[0] = 16;
+$rect[1] = 40;
+$rect[2] = 96;
+$rect[3] = 56;
+int $radiobutton = `createRadioButton $dlg -text "Concave" -form $parentForm -pos $rect`;
+$rect[0] = 16;
+$rect[1] = 56;
+$rect[2] = 104;
+$rect[3] = 72;
+int $radiobutton = `createRadioButton $dlg -text "Convex" -form $parentForm -pos $rect`;
+$rect[0] = 16;
+$rect[1] = 72;
+$rect[2] = 104;
+$rect[3] = 96;
+int $radiobutton = `createRadioButton $dlg -text "Smoothed" -form $parentForm -pos $rect`;
+$rect[0] = 120;
+$rect[1] = 8;
+$rect[2] = 200;
+$rect[3] = 96;
+int $groupbox = `createGroupBox $dlg -text "Order" -form $parentForm -pos $rect`;
+$rect[0] = 128;
+$rect[1] = 24;
+$rect[2] = 176;
+$rect[3] = 40;
+int $radiobutton = `createRadioButton $dlg -text "First" -form $parentForm -pos $rect`;
+$rect[0] = 128;
+$rect[1] = 40;
+$rect[2] = 184;
+$rect[3] = 56;
+int $radiobutton = `createRadioButton $dlg -text "Second" -form $parentForm -pos $rect`;
+$rect[0] = 8;
+$rect[1] = 104;
+$rect[2] = 200;
+$rect[3] = 136;
+int $button = `createPushButton $dlg -text "Fill Range(s)" -form $parentForm -pos $rect`;
+
+
+
+
+
+
+
+
+
+

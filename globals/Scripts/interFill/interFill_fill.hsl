@@ -1,0 +1,49 @@
+/* interFill_fill.hsl
+ *      Actually do the fill.
+ *
+ */
+// Get Mode
+string $MODE  = `GetGlobalStringVar "__MODE__"`  ;
+string $ORDER = `GetGlobalStringVar "__ORDER__"` ;
+
+// for each marker
+string $marker ;
+int $count, $i, $j, $k, $startF, $endF, $steps, $time ;
+vector $source, $target, $delta, $update ;
+
+string $markers[] = `getModules -selected -type marker` ;
+$count = `getCount $markers` ;
+
+// ranges to hold
+int $ranges[] = `getSelectedTimeRanges` ;
+int $numRanges = `getCount $ranges` ;
+
+// for each range
+for( $k=0; $k<$numRanges; $k+=2 ) {
+	// get start & end of this range
+	$startF = $ranges[$k  ] ;
+	$endF   = $ranges[$k+1] ;
+    
+    // for each marker
+    for( $j=0; $j<$count; $j+=1 ) {
+        // get source & target pos vectors
+        $marker = $markers[ $j ] ;
+        
+        setTime( $startF ) ;
+        $source = `getVectorProperty $marker "Translation"` ;
+        
+        setTime( $endF ) ;
+        $target = `getVectorProperty $marker "Translation"` ;
+        
+        // needed for interpolation
+        $delta = $target - $source ;
+        $steps = $endF - $startF
+        
+        for( $i=0; $i<$steps; $i+=1 ) {
+            // compute update
+            $update = `interFill_interpolate -A $source -B $target -POS $i -STEPS $steps` ;
+            $time = $startF + $i ;
+            setKey "Translation" $update -onMod $marker -t $time ;
+        }
+    }
+}

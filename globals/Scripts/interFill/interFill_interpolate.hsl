@@ -1,0 +1,61 @@
+/* interFill_interpolate.hsl
+ *      Actually do the fill.
+ *
+ */
+// inputs
+vector	$A ;
+input   $A 0.0 ;
+
+vector	$B ;
+input   $B 0.0 ;
+
+int	    $STEPS ;
+input   $STEPS 1 ;
+
+int     $POS ;
+input   $POS 1 ;
+
+
+// Get Mode
+string $MODE  = `GetGlobalStringVar "__MODE__"`  ;
+string $ORDER = `GetGlobalStringVar "__ORDER__"` ;
+
+vector $update ;
+
+float $alpha, $pos, $steps ;
+$steps =  float( $STEPS ) ;
+$pos = float( $POS ) ;
+
+if( $MODE == "LINEAR" ){
+    $alpha = $pos / $steps ;
+    $update = ($A * $alpha) + ($B * (1.0 - $alpha)) ;
+} elif( $MODE == "CONCAVE" ){
+    $alpha = $pos / $steps ;
+    if( $ORDER == "FIRST" ) {
+        $alpha = $alpha * $alpha ;
+    } else {
+        // 2nd order
+        $alpha = $alpha * $alpha * $alpha ;
+    }
+    $update = ($A * $alpha) + ($B * (1.0 - $alpha)) ;
+} elif( $MODE == "CONVEX" ){
+    $alpha = $pos / $steps ;
+    if( $ORDER == "FIRST" ) {
+        $alpha = 1.0 - ( (1.0 - $alpha) * (1.0 - $alpha) ) ;
+    } else {
+        // 2nd order
+        $alpha = 1.0 - ( (1.0 - $alpha) * (1.0 - $alpha) * (1.0 - $alpha) ) ;
+    }
+    $update = ($A * $alpha) + ($B * (1.0 - $alpha)) ;
+} elif( $MODE == "SMOOTH" ){
+    $alpha = $pos / $steps ;
+    if( $ORDER == "FIRST" ) {
+        $alpha = $alpha * $alpha * (3 - (2 * $alpha) ) ;
+    } else {
+        // 2nd order
+        $alpha = $alpha * $alpha * $alpha * (($alpha * (($alpha * 6) - 15)) + 10)
+    }
+    $update = ($A * $alpha) + ($B * (1.0 - $alpha)) ;
+}
+
+return $update

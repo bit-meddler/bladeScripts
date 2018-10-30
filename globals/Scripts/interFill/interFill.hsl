@@ -1,0 +1,88 @@
+/* interFill.hsl
+ *      UI to expose linnear interpolation options.
+ *
+ */
+
+// Globals
+setGlobalVar "__MODE__"  "LINNEAR" ;
+setGlobalVar "__ORDER__" "FIRST"   ;
+
+// UI //
+string 	$kAppName 	= "Interpolated Fills v0.0.1" ;
+
+if ( `windowExists $kAppName` == true ) {
+	destroyWindow $kAppName ;
+}
+
+int $dlg = `createWindow $kAppName` ;
+setWindowSize $kAppName  -width 212 -height 144 ;
+
+// ### Generated ###
+int $parentForm = `getTopLevelForm $dlg` ;
+int $rect[4] ;
+int $anon ;
+
+$rect[0] = 8;
+$rect[1] = 8;
+$rect[2] = 112;
+$rect[3] = 96;
+$anon = `createGroupBox $dlg -text "Interpolation Type" -form $parentForm -pos $rect`;
+
+$rect[0] = 120;
+$rect[1] = 8;
+$rect[2] = 200;
+$rect[3] = 96;
+$anon = `createGroupBox $dlg -text "Order" -form $parentForm -pos $rect`;
+
+
+// Mode RB Group
+$rect[0] = 16;
+$rect[1] = 24;
+$rect[2] = 116;
+$rect[3] = 43;
+$anon = `createRadioButton $dlg -text "Linear" -form $parentForm -pos $rect -first`;
+setRadioButtonHandler $anon -click "setGlobalVar \"__MODE__\"  \"LINEAR\";" ;
+
+$rect[0] = 16;
+$rect[1] = 40;
+$rect[2] = 96;
+$rect[3] = 56;
+$anon = `createRadioButton $dlg -text "Concave" -form $parentForm -pos $rect`;
+setRadioButtonHandler $anon -click "setGlobalVar \"__MODE__\"  \"CONCAVE\";" ;
+
+$rect[0] = 16;
+$rect[1] = 56;
+$rect[2] = 104;
+$rect[3] = 72;
+$anon = `createRadioButton $dlg -text "Convex" -form $parentForm -pos $rect`;
+setRadioButtonHandler $anon -click "setGlobalVar \"__MODE__\"  \"CONVEX\";" ;
+
+$rect[0] = 16;
+$rect[1] = 72;
+$rect[2] = 104;
+$rect[3] = 96;
+$anon = `createRadioButton $dlg -text "Smoothed" -form $parentForm -pos $rect`;
+setRadioButtonHandler $anon -click "setGlobalVar \"__MODE__\"  \"SMOOTH\";" ;
+
+// Order RB
+$rect[0] = 128;
+$rect[1] = 24;
+$rect[2] = 176;
+$rect[3] = 40;
+$anon = `createRadioButton $dlg -text "First" -form $parentForm -pos $rect -first`;
+setRadioButtonHandler $anon -click "setGlobalVar \"__ORDER__\"  \"FIRST\";" ;
+
+$rect[0] = 128;
+$rect[1] = 40;
+$rect[2] = 184;
+$rect[3] = 56;
+$anon = `createRadioButton $dlg -text "Second" -form $parentForm -pos $rect`;
+setRadioButtonHandler $anon -click "setGlobalVar \"__ORDER__\"  \"SECOND\";" ;
+
+// Button
+$rect[0] = 8;
+$rect[1] = 104;
+$rect[2] = 200;
+$rect[3] = 136;
+$anon = `createPushButton $dlg -text "Fill Range(s)" -form $parentForm -pos $rect`;
+
