@@ -42,6 +42,7 @@ $rect[2] = 116;
 $rect[3] = 43;
 $anon = `createRadioButton $dlg -text "Linear" -form $parentForm -pos $rect -first`;
 setRadioButtonHandler $anon -click "setGlobalVar \"__MODE__\"  \"LINEAR\";" ;
+setRadioButtonCheck $anon true ;
 
 $rect[0] = 16;
 $rect[1] = 40;
@@ -71,6 +72,7 @@ $rect[2] = 176;
 $rect[3] = 40;
 $anon = `createRadioButton $dlg -text "First" -form $parentForm -pos $rect -first`;
 setRadioButtonHandler $anon -click "setGlobalVar \"__ORDER__\"  \"FIRST\";" ;
+setRadioButtonCheck $anon true ;
 
 $rect[0] = 128;
 $rect[1] = 40;
@@ -85,4 +87,4 @@ $rect[1] = 104;
 $rect[2] = 200;
 $rect[3] = 136;
 $anon = `createPushButton $dlg -text "Fill Range(s)" -form $parentForm -pos $rect`;
-
+setPushButtonHandler $anon -click "interFill_fill;" ;

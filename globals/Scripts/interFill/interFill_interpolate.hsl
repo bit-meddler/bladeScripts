@@ -4,21 +4,21 @@
  */
 // inputs
 vector	$A ;
-input   $A 0.0 ;
+input   	$A <<0.0, 0.0, 0.0>> ;
 
 vector	$B ;
-input   $B 0.0 ;
+input  	$B <<1.0, 1.0, 1.0>> ;
 
-int	    $STEPS ;
-input   $STEPS 1 ;
+int	   $STEPS ;
+input   	$STEPS 10 ;
 
-int     $POS ;
-input   $POS 1 ;
+int     	$POS ;
+input   	$POS 1 ;
 
 
 // Get Mode
-string $MODE  = `GetGlobalStringVar "__MODE__"`  ;
-string $ORDER = `GetGlobalStringVar "__ORDER__"` ;
+string $MODE  = `getGlobalStringVar "__MODE__"`  ;
+string $ORDER = `getGlobalStringVar "__ORDER__"` ;
 
 vector $update ;
 
@@ -29,7 +29,7 @@ $pos = float( $POS ) ;
 if( $MODE == "LINEAR" ){
     $alpha = $pos / $steps ;
     $update = ($A * $alpha) + ($B * (1.0 - $alpha)) ;
-} elif( $MODE == "CONCAVE" ){
+} else if( $MODE == "CONCAVE" ){
     $alpha = $pos / $steps ;
     if( $ORDER == "FIRST" ) {
         $alpha = $alpha * $alpha ;
@@ -38,7 +38,7 @@ if( $MODE == "LINEAR" ){
         $alpha = $alpha * $alpha * $alpha ;
     }
     $update = ($A * $alpha) + ($B * (1.0 - $alpha)) ;
-} elif( $MODE == "CONVEX" ){
+} else if( $MODE == "CONVEX" ){
     $alpha = $pos / $steps ;
     if( $ORDER == "FIRST" ) {
         $alpha = 1.0 - ( (1.0 - $alpha) * (1.0 - $alpha) ) ;
@@ -47,15 +47,15 @@ if( $MODE == "LINEAR" ){
         $alpha = 1.0 - ( (1.0 - $alpha) * (1.0 - $alpha) * (1.0 - $alpha) ) ;
     }
     $update = ($A * $alpha) + ($B * (1.0 - $alpha)) ;
-} elif( $MODE == "SMOOTH" ){
+} else if( $MODE == "SMOOTH" ){
     $alpha = $pos / $steps ;
     if( $ORDER == "FIRST" ) {
         $alpha = $alpha * $alpha * (3 - (2 * $alpha) ) ;
     } else {
         // 2nd order
-        $alpha = $alpha * $alpha * $alpha * (($alpha * (($alpha * 6) - 15)) + 10)
+        $alpha = $alpha * $alpha * $alpha * (($alpha * (($alpha * 6) - 15)) + 10) ;
     }
     $update = ($A * $alpha) + ($B * (1.0 - $alpha)) ;
 }
 
-return $update
+return $update ;
