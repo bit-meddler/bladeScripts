@@ -28,7 +28,7 @@ class readX2D( object ):
         "CAM_COUNT"   : ("<I", 4),
         "FRAME_COUNT" : ("<I", 4),
         "ELEMENTS_5"  : ("<I", 4),
-        "ELEMENTS_6"  : ("<II", 8),
+        "ELEMENTS_6"  : ("<BBBBBBBB", 8),
         "E5_B1_DATA"  : ("<BBIII", 14),
         "E5_B2_DATA"  : ("<BBHH", 10),
         "E5_B3_DATA"  : ("<BBHH", 10),
@@ -49,7 +49,7 @@ class readX2D( object ):
         (187, 223) : ( "TAG",   "E5_B3_DATA" ),
         (238, 223) : ( "TAG",   "E5_B4_DATA" ),
         (204, 223) : ( "TAG",   "E5_B5_DATA" ),
-        ( 16,   0) : ( "CAST",  "16-0_NUM" ),
+        ( 16,   0) : ( "CAST",  "16-0_NUM" ), # Changes per file, bigger number with bigger file
         (208,   0) : ( "CAST",  "208-0_NUM" ),
         (223, 253) : ( "ELEM",  "ELEMENTS_6" ),
         (150,   3) : ( "TAG",   "E6_B1_DATA" ),
@@ -120,7 +120,7 @@ class readX2D( object ):
                 print t_id, cast_id, val
             elif( mode == "ELEM" ):
                 num = self.readCast( cast_id )
-                print mode, t_id, num
+                print mode, t_id, data_sz, num
             elif( mode == "BLOCK" ):
                 print mode, t_id, data_sz
                 old_os = self.offset
@@ -143,3 +143,5 @@ fh.close()
 reader = readX2D( x2d_fq )
 reader.open()
 reader.parse()
+
+# 0x014c changes between files
