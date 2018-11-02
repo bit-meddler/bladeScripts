@@ -28,7 +28,7 @@ class readX2D( object ):
         "CAM_COUNT"   : ("<I", 4),
         "FRAME_COUNT" : ("<I", 4),
         "ELEMENTS_5"  : ("<I", 4),
-        "ELEMENTS_6"  : ("<BBBBBBBB", 8),
+        "ELEMENTS_6"  : ("<BBQH", 8),
         "E5_B1_DATA"  : ("<BBIII", 14),
         "E5_B2_DATA"  : ("<BBHH", 10),
         "E5_B3_DATA"  : ("<BBHH", 10),
@@ -37,6 +37,8 @@ class readX2D( object ):
         "16-0_NUM"    : ("<Q", 8),
         "208-0_NUM"   : ("<Q", 8),
         "E6_B1_DATA"  : ("<BBHH", 10),
+        "DFFD_B1_DATA" : ("<BBHH", 10),
+        
     }
     
     TAG_PAIRS = {
@@ -51,8 +53,9 @@ class readX2D( object ):
         (204, 223) : ( "TAG",   "E5_B5_DATA" ),
         ( 16,   0) : ( "CAST",  "16-0_NUM" ), # Changes per file, bigger number with bigger file
         (208,   0) : ( "CAST",  "208-0_NUM" ),
-        (223, 253) : ( "ELEM",  "ELEMENTS_6" ),
+        (223, 253) : ( "BLOCK", "ELEMENTS_6" ),
         (150,   3) : ( "TAG",   "E6_B1_DATA" ),
+        (171, 207) : ( "TAG",   "DFFD_B1_DATA" ),
     }
     
     def __init__( self, file_fq=None ):
@@ -110,7 +113,7 @@ class readX2D( object ):
                 print( "tag Id not found '{}'".format( t_id ) )
                 print self.offset
                 print data_sz
-                print self.d2h( None, size=16 )
+                print self.d2h( None, start=(self.offset - 6), size=32 )
                 break
                 
             mode, cast_id = self.TAG_PAIRS[ t_id ]
@@ -120,13 +123,21 @@ class readX2D( object ):
                 print t_id, cast_id, val
             elif( mode == "ELEM" ):
                 num = self.readCast( cast_id )
-                print mode, t_id, data_sz, num
+                print mode, t_id, data_sz, num[ -1 ] # to enable skipping
             elif( mode == "BLOCK" ):
+                #data_sz = data_sz[ -1 ]
                 print mode, t_id, data_sz
                 old_os = self.offset
                 tag_1, ref_1, count = self.readTag()
                 t_1_id = (tag_1, ref_1)
-                print t_1_id
+                print ">", t_1_id, count
+                if t_1_id == t_id :
+                    # special skip event
+                    _, _, size = self.readTag()
+                    print "223/253 >", size
+                    tag_1, ref_1, count = self.readTag()
+                    t_1_id = (tag_1, ref_1)
+                    
                 if not t_1_id in self.TAG_PAIRS:
                     print( "Inner Tag id not found '{}'".format( t_1_id ) )
                     print self.d2h( None, size=16 )
@@ -135,7 +146,7 @@ class readX2D( object ):
                 for i in range( count ):
                     res = self.readCast( cast_1 )
                     print res
-                print self.offset, old_os + data_sz
+                print "size >", self.offset, old_os + data_sz
                 
 fh = open( "path.secret", "r" )              
 x2d_fq = fh.readline()
