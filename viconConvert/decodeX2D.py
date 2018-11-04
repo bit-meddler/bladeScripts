@@ -165,3 +165,13 @@ reader.parse()
 #       (187, 223) "<HH" [size of data block] [num elements] <block> ?
 #       (238, 223) "<HH" [size of data block] [num elements] <block> Track ID?
 #       (204, 223) "<HH" [size of data block] [num elements] <block> ?
+
+# decoding centroid data
+# X      | Y      | R         |score
+#5F 72 60 0A 17 75 5E A3 00 6F A4 -> 385.787 468.36  1.27631 0.642319
+#4E C4 6C 4C 79 7C F8 C1 00 5A BA -> 435.067 497.895 1.51538 0.727936
+#06 98 86 C9 9B 8B DF AR 00 B6 C4 -> 538.375 558.434 1.36618 0.768402
+#
+#BD E3 92 97 AD 7B D8 E5 00 24 A7 00 C0 1D EF 6E D3 0D 50 00 84 A8 -> 587.558 494.712 1.79565 0.652893; 119.0 845.733 0.625397 0.658264
+#CC E3 92 70 AD 7B 1D E6 00 60 A7 00 C0 1D 76 62 D3 3E 5A 00 5E EC -> 587.577 494.697 1.79874 0.651978; 119.0 845.882 0.95578 0.615524
+
