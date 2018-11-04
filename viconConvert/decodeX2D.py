@@ -156,3 +156,12 @@ reader.open()
 reader.parse()
 
 # 0x014c changes between files
+
+# Self description and camera metadata is still a bit of a mystery, but frame data is becoming clear:
+# (256, 256) "<HH" [size of frame block] [frame number] <Block>
+#   (204, 204) "<HH" [size of cam block] [camera numbetr] <block>
+#       (170, 223) "<HH" [size of data block] [num elements] <block> Centroid position
+#       (208, 223) "<HH" [size of data block] [num elements] <block> ?
+#       (187, 223) "<HH" [size of data block] [num elements] <block> ?
+#       (238, 223) "<HH" [size of data block] [num elements] <block> Track ID?
+#       (204, 223) "<HH" [size of data block] [num elements] <block> ?
