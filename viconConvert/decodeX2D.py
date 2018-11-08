@@ -57,6 +57,7 @@ class readX2D( object ):
         (150,   3) : ( "TAG",   "E6_B1_DATA" ),
         (171, 207) : ( "TAG",   "DFFD_B1_DATA" ),
     }
+    KEEP = ( "CAM_COUNT", "FRAME_COUNT" )
     
     def __init__( self, file_fq=None ):
         self.file_fq = file_fq
@@ -82,6 +83,11 @@ class readX2D( object ):
         self.offset += 6
         return t, r, d # tag, reff, data
         
+    def readTagBlock( self ):
+        tag, ref, size, count = struct.unpack_from( "<BBHH", self.dat, self.offset )
+        self.offset += 10
+        return tag, ref, size, count
+        
     def readCast( self, cast_id ):
         if( not cast_id in self.CASTS ):
             print( "unknown cast ID '{}'".format( cast_id ) )
@@ -104,9 +110,10 @@ class readX2D( object ):
         return " ".join( [ "%02X" % ord( x ) for x in bytes ] ) 
         
     def parse( self ):
+        meta_data = {}
         magic = self.readCast( "MAGIC_NUM" )
-        done = False
-        while not done:
+        header_parsed = False
+        while not header_parsed:
             tag, ref, data_sz = self.readTag()
             t_id = (tag, ref)
             if t_id not in self.TAG_PAIRS:
@@ -121,6 +128,8 @@ class readX2D( object ):
             if( mode == "CAST" ):
                 val = self.readCast( cast_id )
                 print t_id, cast_id, val
+                if( cast_id in SELF.KEEP ):
+                    meta_data[ cast_id ] = val
             elif( mode == "ELEM" ):
                 num = self.readCast( cast_id )
                 print mode, t_id, data_sz, num[ -1 ] # to enable skipping
@@ -147,6 +156,17 @@ class readX2D( object ):
                     res = self.readCast( cast_1 )
                     print res
                 print "size >", self.offset, old_os + data_sz
+            # working through header...
+        num_cams    = meta_data[ "CAM_COUNT"   ]
+        num_frames  = meta_data[ "FRAME_COUNT" ]
+        frame_data  = []
+        data_parsed = False
+        while not data_parsed:
+            
+            for i in xrange( num_frames ):
+                # process each frame
+                tag, ref, size, frame_no = readTagBlock()
+                t_id = (tag, ref)
                 
 fh = open( "path.secret", "r" )              
 x2d_fq = fh.readline()
