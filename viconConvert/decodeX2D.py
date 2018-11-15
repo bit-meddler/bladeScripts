@@ -70,15 +70,18 @@ class readX2D( object ):
             x  = x2 * 256 * 256
             x += x1 * 256
             x += x0
-            
             y  = y2 * 256 * 256
             y += y1 * 256
             y += y0
-            
             # to float
             x /= 16384. # 64*256
             y /= 16384.
             # x & y -> /16384.0 (256*64)
+            
+            r  = r2 * 256 * 256
+            r += r1 * 256
+            r += r0
+            
             ret.append( [x, y, r, sc] )
         return ret
         
