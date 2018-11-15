@@ -59,20 +59,26 @@ class readX2D( object ):
     }
     KEEP = ( "CAM_COUNT", "FRAME_COUNT" )
     DECODER_KEYS = {
-        (170M 223) : self.__decodeCentroids,
+        (170, 223) : self.__decodeCentroids,
     }
     def __decodeCentroids( self, num ):
         ret = []
-        for i in xrange( num ):
-            x_f, x, y_f, y, r_f, r, sc = struct.unpack_from( "<BHBHBHB", self.dat, self.offset )
-            self.offset += 10
+        for i in xrange( num ):#                               ___---___H
+            x0, x1, x2, y0, y1, y2, r0, r1, r2, sc = struct.unpack_from( "<BBBBBBBBBH", self.dat, self.offset )
+            self.offset += 11
             # not completly sure about this!
-            x *= 256
-            x += x_f
-            y *= 256
-            y += y_f
-            r *= 256
-            r += r_f
+            x  = x2 * 256 * 256
+            x += x1 * 256
+            x += x0
+            
+            y  = y2 * 256 * 256
+            y += y1 * 256
+            y += y0
+            
+            # to float
+            x /= 16384. # 64*256
+            y /= 16384.
+            # x & y -> /16384.0 (256*64)
             ret.append( [x, y, r, sc] )
         return ret
         
