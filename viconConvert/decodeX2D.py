@@ -58,7 +58,24 @@ class readX2D( object ):
         (171, 207) : ( "TAG",   "DFFD_B1_DATA" ),
     }
     KEEP = ( "CAM_COUNT", "FRAME_COUNT" )
-    
+    DECODER_KEYS = {
+        (170M 223) : self.__decodeCentroids,
+    }
+    def __decodeCentroids( self, num ):
+        ret = []
+        for i in xrange( num ):
+            x_f, x, y_f, y, r_f, r, sc = struct.unpack_from( "<BHBHBHB", self.dat, self.offset )
+            self.offset += 10
+            # not completly sure about this!
+            x *= 256
+            x += x_f
+            y *= 256
+            y += y_f
+            r *= 256
+            r += r_f
+            ret.append( [x, y, r, sc] )
+        return ret
+        
     def __init__( self, file_fq=None ):
         self.file_fq = file_fq
         self.fh = None
@@ -86,7 +103,7 @@ class readX2D( object ):
     def readTagBlock( self ):
         tag, ref, size, count = struct.unpack_from( "<BBHH", self.dat, self.offset )
         self.offset += 10
-        return tag, ref, size, count
+        return (tag, ref), size, count
         
     def readCast( self, cast_id ):
         if( not cast_id in self.CASTS ):
@@ -112,6 +129,7 @@ class readX2D( object ):
     def parse( self ):
         meta_data = {}
         magic = self.readCast( "MAGIC_NUM" )
+        # Header (Inc camera ID/Sensor sz)
         header_parsed = False
         while not header_parsed:
             tag, ref, data_sz = self.readTag()
@@ -157,17 +175,49 @@ class readX2D( object ):
                     print res
                 print "size >", self.offset, old_os + data_sz
             # working through header...
+            
+        # Frame data
         num_cams    = meta_data[ "CAM_COUNT"   ]
         num_frames  = meta_data[ "FRAME_COUNT" ]
-        frame_data  = []
-        data_parsed = False
-        while not data_parsed:
+        frame_data  = [ [] for i in xrange( num_frames ) ]
+        
+        for i in xrange( num_frames ):
+            # process each frame
+            tag_tup, frame_size, frame_no = readTagBlock()
+            frame_end_pos = self.offset + frame_size
             
-            for i in xrange( num_frames ):
-                # process each frame
-                tag, ref, size, frame_no = readTagBlock()
-                t_id = (tag, ref)
-                
+            if( tag_tup != (256, 256) ):
+                print "not a frame block"
+                break
+            if( frame_no != i ):
+                print "Frame out of sequence"
+            
+            # TODO: Double scan to enable VBO-like indexing
+            frame_data[i] = [ [] for j in xrange( num_cams ) ]
+            
+            for j in xrange( num_cams ):
+                tag_tup cam_size, cam_no = readTagBlock()
+                cam_end_pos = self.offset + cam_size
+                if( tag_tup != (204, 204) ):
+                    print "not a camera block"
+                    break
+                if( cam_no > num_cams ):
+                    print "Unexpected Camera"
+                    
+                for k in xrange( 5 ): # 5 camera data types!
+                    tag_tup d_size, num_elems = readTagBlock()
+                    if( tag_tup in self.DECODER_KEYS ):
+                        # decode data block
+                        roids = self.DECODER_KEYS[ tag_tup ]()
+                        frame_data[i][j] = roids
+                    else:
+                        # skip this block for now...
+                        self.offset += d_size
+                        
+        # seeking index
+        pass
+
+        
 fh = open( "path.secret", "r" )              
 x2d_fq = fh.readline()
 fh.close()
