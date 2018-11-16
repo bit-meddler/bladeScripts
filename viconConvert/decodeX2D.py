@@ -227,7 +227,7 @@ class readX2D( object ):
         pass
 
         
-fh = open( "path.secret", "r" )              
+fh = open( "path.secret", "r" )
 x2d_fq = fh.readline()
 fh.close()
 reader = readX2D( x2d_fq )
@@ -236,6 +236,10 @@ reader.parse()
 
 # 0x014c changes between files
 
+# Camera Data block:
+# "<I" num cams
+#   camera block...
+#       W, H, hw_id, unknown, odd_string,  : "<IIfQ", "<I" (len of string + 4)... "<IIHII" noidea, funny string.
 # Self description and camera metadata is still a bit of a mystery, but frame data is becoming clear:
 # (256, 256) "<HH" [size of frame block] [frame number] <Block>
 #   (204, 204) "<HH" [size of cam block] [camera numbetr] <block>
