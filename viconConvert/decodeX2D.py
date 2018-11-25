@@ -60,7 +60,7 @@ class readX2D( object ):
         (170, 207) : ( "BLOCK", "CAMS_BLOCK" ),
     }
     KEEP = ( "CAM_COUNT", "FRAME_COUNT" )
-    DECODER_KEYS = ( (170, 223), (187, 223), )
+    DECODER_KEYS = ( (170, 223), (187, 223), (238, 223), )
 
 
     def __decodeCentroids( self, num ):
@@ -75,15 +75,18 @@ class readX2D( object ):
             y  = y2 * 256 * 256
             y += y1 * 256
             y += y0
-            # to float
-            x /= 16384. # 64*256
-            y /= 16384.
-            # x & y -> /16384.0 (256*64)
             
             r  = r2 * 256 * 256
             r += r1 * 256
             r += r0
             
+            # to float
+            x /= 16384. # 64*256
+            y /= 16384.
+            # x & y -> /16384.0 (256*64)
+            sc /= 65536.
+            r  /= 32768.
+
             ret.append( [x, y, r, sc] )
         return ret
 
@@ -96,7 +99,13 @@ class readX2D( object ):
                 x, y, bts  = self.readCust( "<HHH" )
                 dat = self.readCust( "<{}b".format(bts) )
                 ret.append( (x, y, dat) )
+        padding = self.readCust( "<I" )[0]
+        if( padding != 0 ):
+            print "unexpected padding in greyscale data"
         return ret
+
+    def __decodeTrack( self, num ):
+        return self.readCust( "<{}b".format( num ) )
 
     def __init__( self, file_fq=None ):
         self.file_fq = file_fq
@@ -291,17 +300,23 @@ class readX2D( object ):
                         # decode data block
                         if( num_elems == 0 ):
                             continue
-                        if( tag_tup == (170, 223) ):
+
+                        if(   tag_tup == (170, 223) ):
                             frame_data[i][j] = self.__decodeCentroids( num_elems )
                         elif( tag_tup == (187, 223) ):
                             grey_data[ (i,j) ] = self.__decodeGreyscale( num_elems )
+                        elif( tag_tup == (238, 223) ):
+                            track = self.__decodeTrack( num_elems)
+                        #print self.d2h( None, size=16 )
                     else:
                         # skip this block for now...
                         if( num_elems>0 ): print tag_tup
                         self.offset += d_size
-                        
+        for i, cams in enumerate( frame_data[2] ):
+            print i
+            for roid in cams:
+                print roid
         # seeking index
-        pass
 
         
 fh = open( "path.secret", "r" )
