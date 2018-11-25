@@ -28,7 +28,7 @@ class readX2D( object ):
         "CAM_COUNT"   : ("<I", 4),
         "FRAME_COUNT" : ("<I", 4),
         "ELEMENTS_5"  : ("<I", 4),
-        "ELEMENTS_6"  : ("<BBQH", 8),
+        "DFFD_BLOCK"  : ("<BB", 2),
         "E5_B1_DATA"  : ("<BBIII", 14),
         "E5_B2_DATA"  : ("<BBHH", 10),
         "E5_B3_DATA"  : ("<BBHH", 10),
@@ -38,6 +38,7 @@ class readX2D( object ):
         "208-0_NUM"   : ("<Q", 8),
         "E6_B1_DATA"  : ("<BBHH", 10),
         "DFFD_B1_DATA" : ("<BBHH", 10),
+        "CAMS_BLOCK"  : ("<BBII", 10),
         
     }
     
@@ -53,17 +54,18 @@ class readX2D( object ):
         (204, 223) : ( "TAG",   "E5_B5_DATA" ),
         ( 16,   0) : ( "CAST",  "16-0_NUM" ), # Changes per file, bigger number with bigger file
         (208,   0) : ( "CAST",  "208-0_NUM" ),
-        (223, 253) : ( "BLOCK", "ELEMENTS_6" ),
+        (223, 253) : ( "BLOCK", "DFFD_BLOCK" ),
         (150,   3) : ( "TAG",   "E6_B1_DATA" ),
         (171, 207) : ( "TAG",   "DFFD_B1_DATA" ),
+        (170, 207) : ( "BLOCK", "CAMS_BLOCK" ),
     }
     KEEP = ( "CAM_COUNT", "FRAME_COUNT" )
     DECODER_KEYS = {
-        (170, 223) : self.__decodeCentroids,
+#        (170, 223) : readX2D.__decodeCentroids,
     }
     def __decodeCentroids( self, num ):
         ret = []
-        for i in xrange( num ):#                               ___---___H
+        for i in xrange( num ):#                                           ___---___H
             x0, x1, x2, y0, y1, y2, r0, r1, r2, sc = struct.unpack_from( "<BBBBBBBBBH", self.dat, self.offset )
             self.offset += 11
             # not completly sure about this!
@@ -90,6 +92,8 @@ class readX2D( object ):
         self.fh = None
         self.offset = -1
         self.discovies = {}
+        # Hacky...
+        self.DECODER_KEYS[ (170, 223) ] = self.__decodeCentroids
         
     def open( self, file_fq=None ):
         if( self.file_fq is None ):
@@ -108,7 +112,13 @@ class readX2D( object ):
         t,r,d = struct.unpack_from( "<BBI", self.dat, self.offset )
         self.offset += 6
         return t, r, d # tag, reff, data
-        
+
+    def readCust( self, struct_str ):
+        expected_sz = struct.calcsize( struct_str )
+        ret = struct.unpack_from( struct_str, self.dat, self.offset )
+        self.offset += expected_sz
+        return ret
+
     def readTagBlock( self ):
         tag, ref, size, count = struct.unpack_from( "<BBHH", self.dat, self.offset )
         self.offset += 10
@@ -134,11 +144,21 @@ class readX2D( object ):
                 size = 16
             bytes = self.dat[ start:start+size ]
         return " ".join( [ "%02X" % ord( x ) for x in bytes ] ) 
-        
+
+    def madString( self ):
+        str_len = struct.unpack_from( "<I", self.dat, self.offset )[0]
+        self.offset += 4
+        str_len -= 4
+        struct_str = "{}s".format( str_len )
+        expected_sz = struct.calcsize( struct_str )
+        ret = struct.unpack_from( struct_str, self.dat, self.offset )[0]
+        self.offset += expected_sz
+        return ret
+
     def parse( self ):
         meta_data = {}
         magic = self.readCast( "MAGIC_NUM" )
-        # Header (Inc camera ID/Sensor sz)
+
         header_parsed = False
         while not header_parsed:
             tag, ref, data_sz = self.readTag()
@@ -155,25 +175,27 @@ class readX2D( object ):
             if( mode == "CAST" ):
                 val = self.readCast( cast_id )
                 print t_id, cast_id, val
-                if( cast_id in SELF.KEEP ):
-                    meta_data[ cast_id ] = val
+                if( cast_id in self.KEEP ):
+                    meta_data[ cast_id ] = val[0]
             elif( mode == "ELEM" ):
                 num = self.readCast( cast_id )
                 print mode, t_id, data_sz, num[ -1 ] # to enable skipping
             elif( mode == "BLOCK" ):
                 #data_sz = data_sz[ -1 ]
-                print mode, t_id, data_sz
+                print mode, t_id, data_sz, cast_id
                 old_os = self.offset
+
+                if cast_id == "DFFD_BLOCK" :
+                    # special skip event, maybe lead into cam meta?
+                    fmt = "<BB" + "B"*data_sz
+                    res = self.readCust( fmt )
+                    print "DFFD:", res[2:]
+                    header_parsed = True
+                    break
+
                 tag_1, ref_1, count = self.readTag()
                 t_1_id = (tag_1, ref_1)
-                print ">", t_1_id, count
-                if t_1_id == t_id :
-                    # special skip event
-                    _, _, size = self.readTag()
-                    print "223/253 >", size
-                    tag_1, ref_1, count = self.readTag()
-                    t_1_id = (tag_1, ref_1)
-                    
+                print "Sub-blocks >", t_1_id, count
                 if not t_1_id in self.TAG_PAIRS:
                     print( "Inner Tag id not found '{}'".format( t_1_id ) )
                     print self.d2h( None, size=16 )
@@ -182,9 +204,49 @@ class readX2D( object ):
                 for i in range( count ):
                     res = self.readCast( cast_1 )
                     print res
-                print "size >", self.offset, old_os + data_sz
+                print "Block size test:", self.offset, old_os + data_sz
             # working through header...
-            
+
+        # Camera Metadata
+        meta_blk_sz = self.readCust( "<I" )[0]
+
+        # Unknown
+        tag_1, ref_1, count = self.readTag()
+        t_1_id = (tag_1, ref_1)
+        mode_1, cast_1 = self.TAG_PAIRS[ t_1_id ]
+        for i in range( count ):
+            res = self.readCast( cast_1 )
+            print res
+        
+        # Framerate?
+        rate = self.readCust( "<d" )[0]
+        print rate
+
+        # Camera Metadata
+        next_blk_sz = self.readCust( "<I" )[0]
+
+        # Unknown
+        tag_1, ref_1, count = self.readTag()
+        t_1_id = (tag_1, ref_1)
+        mode_1, cast_1 = self.TAG_PAIRS[ t_1_id ]
+        for i in range( count ):
+            res = self.readCast( cast_1 )
+            print res
+
+        # Cams   
+        also_num_cams = self.readCust( "<I" )[0]  
+        cam_data  = [ [] for i in xrange( also_num_cams ) ]
+        for i in xrange( also_num_cams ):
+            w,h,cid,cid2,num1 = self.readCust( "<IIIId" )
+            name1 = self.madString()
+            _,_,num2, num3, num4 = self.readCust( "<BBIId" )
+            name2 = self.madString()
+            cam_data[i] = [w,h,cid,name1,name2,num1,num2,num3,num4]
+
+        for i, dat in enumerate( cam_data ):
+            print i, dat
+
+
         # Frame data
         num_cams    = meta_data[ "CAM_COUNT"   ]
         num_frames  = meta_data[ "FRAME_COUNT" ]
@@ -192,10 +254,10 @@ class readX2D( object ):
         
         for i in xrange( num_frames ):
             # process each frame
-            tag_tup, frame_size, frame_no = readTagBlock()
+            tag_tup, frame_size, frame_no = self.readTagBlock()
             frame_end_pos = self.offset + frame_size
             
-            if( tag_tup != (256, 256) ):
+            if( tag_tup != (255, 255) ):
                 print "not a frame block"
                 break
             if( frame_no != i ):
@@ -205,7 +267,7 @@ class readX2D( object ):
             frame_data[i] = [ [] for j in xrange( num_cams ) ]
             
             for j in xrange( num_cams ):
-                tag_tup cam_size, cam_no = readTagBlock()
+                tag_tup, cam_size, cam_no = self.readTagBlock()
                 cam_end_pos = self.offset + cam_size
                 if( tag_tup != (204, 204) ):
                     print "not a camera block"
@@ -214,11 +276,12 @@ class readX2D( object ):
                     print "Unexpected Camera"
                     
                 for k in xrange( 5 ): # 5 camera data types!
-                    tag_tup d_size, num_elems = readTagBlock()
+                    tag_tup, d_size, num_elems = self.readTagBlock()
                     if( tag_tup in self.DECODER_KEYS ):
                         # decode data block
-                        roids = self.DECODER_KEYS[ tag_tup ]()
+                        roids = self.DECODER_KEYS[ tag_tup ]( num_elems )
                         frame_data[i][j] = roids
+                        print roids
                     else:
                         # skip this block for now...
                         self.offset += d_size
@@ -230,12 +293,12 @@ class readX2D( object ):
 fh = open( "path.secret", "r" )
 x2d_fq = fh.readline()
 fh.close()
-reader = readX2D( x2d_fq )
+reader = readX2D( x2d_fq[:-1] ) #avoid \n
 reader.open()
 reader.parse()
 
 # 0x014c changes between files
-
+# 5E 40 H = Cam Metadata block (inc 4 bytes describing size)
 # Camera Data block:
 # "<I" num cams
 #   camera block...
@@ -243,11 +306,11 @@ reader.parse()
 # Self description and camera metadata is still a bit of a mystery, but frame data is becoming clear:
 # (256, 256) "<HH" [size of frame block] [frame number] <Block>
 #   (204, 204) "<HH" [size of cam block] [camera numbetr] <block>
-#       (170, 223) "<HH" [size of data block] [num elements] <block> Centroid position
-#       (208, 223) "<HH" [size of data block] [num elements] <block> ?
-#       (187, 223) "<HH" [size of data block] [num elements] <block> ?
-#       (238, 223) "<HH" [size of data block] [num elements] <block> Track ID?
-#       (204, 223) "<HH" [size of data block] [num elements] <block> ?
+#   AA    (170, 223) "<HH" [size of data block] [num elements] <block> Centroid position
+#   d0    (208, 223) "<HH" [size of data block] [num elements] <block> ?
+#   bb    (187, 223) "<HH" [size of data block] [num elements] <block> ?
+#   ee    (238, 223) "<HH" [size of data block] [num elements] <block> Track ID?
+#   cc    (204, 223) "<HH" [size of data block] [num elements] <block> ?
 
 # decoding centroid data
 # X      | Y      | R         |score
