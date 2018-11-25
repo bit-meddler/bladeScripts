@@ -60,9 +60,9 @@ class readX2D( object ):
         (170, 207) : ( "BLOCK", "CAMS_BLOCK" ),
     }
     KEEP = ( "CAM_COUNT", "FRAME_COUNT" )
-    DECODER_KEYS = {
-#        (170, 223) : readX2D.__decodeCentroids,
-    }
+    DECODER_KEYS = ( (170, 223), (187, 223), )
+
+
     def __decodeCentroids( self, num ):
         ret = []
         for i in xrange( num ):#                                           ___---___H
@@ -86,14 +86,23 @@ class readX2D( object ):
             
             ret.append( [x, y, r, sc] )
         return ret
-        
+
+    def __decodeGreyscale( self, num ):
+        ret = []
+        for i in xrange( num ):
+            block_sz = self.readCust( "<I" )[0]
+            elems = self.readCust( "<H" )[0]
+            for j in xrange( elems ):
+                x, y, bts  = self.readCust( "<HHH" )
+                dat = self.readCust( "<{}b".format(bts) )
+                ret.append( (x, y, dat) )
+        return ret
+
     def __init__( self, file_fq=None ):
         self.file_fq = file_fq
         self.fh = None
         self.offset = -1
         self.discovies = {}
-        # Hacky...
-        self.DECODER_KEYS[ (170, 223) ] = self.__decodeCentroids
         
     def open( self, file_fq=None ):
         if( self.file_fq is None ):
@@ -120,7 +129,7 @@ class readX2D( object ):
         return ret
 
     def readTagBlock( self ):
-        tag, ref, size, count = struct.unpack_from( "<BBHH", self.dat, self.offset )
+        tag, ref, size, count = struct.unpack_from( "<BBII", self.dat, self.offset )
         self.offset += 10
         return (tag, ref), size, count
         
@@ -265,12 +274,13 @@ class readX2D( object ):
             
             # TODO: Double scan to enable VBO-like indexing
             frame_data[i] = [ [] for j in xrange( num_cams ) ]
-            
+            grey_data = {}
+
             for j in xrange( num_cams ):
                 tag_tup, cam_size, cam_no = self.readTagBlock()
                 cam_end_pos = self.offset + cam_size
                 if( tag_tup != (204, 204) ):
-                    print "not a camera block"
+                    print "not a camera block", tag_tup
                     break
                 if( cam_no > num_cams ):
                     print "Unexpected Camera"
@@ -279,11 +289,15 @@ class readX2D( object ):
                     tag_tup, d_size, num_elems = self.readTagBlock()
                     if( tag_tup in self.DECODER_KEYS ):
                         # decode data block
-                        roids = self.DECODER_KEYS[ tag_tup ]( num_elems )
-                        frame_data[i][j] = roids
-                        print roids
+                        if( num_elems == 0 ):
+                            continue
+                        if( tag_tup == (170, 223) ):
+                            frame_data[i][j] = self.__decodeCentroids( num_elems )
+                        elif( tag_tup == (187, 223) ):
+                            grey_data[ (i,j) ] = self.__decodeGreyscale( num_elems )
                     else:
                         # skip this block for now...
+                        if( num_elems>0 ): print tag_tup
                         self.offset += d_size
                         
         # seeking index
