@@ -1,0 +1,28 @@
+int $dlg;
+int $parentForm;
+int $rect[4];
+
+int $dlg = `createWindow ""`;
+setWindowSize "" -width 344 -height 260;
+// Get a handle to the main user windows main layout form. All controls
+// will be descendants of this and will be placed/sized relative to it.
+$parentForm = `getTopLevelForm $dlg`;
+listbox:8.000000,32.000000,136.000000,112.000000,Listbox,$anon,0;
+button:148.000000,32.000000,200.000000,52.000000,Add >>,$anon,0;
+listbox:208.000000,32.000000,336.000000,112.000000,Listbox,$anon,0;
+button:148.000000,92.000000,200.000000,112.000000,<< Rem,$anon,0;
+button:8.000000,8.000000,136.000000,28.000000,Scan Subjects,$anon,0;
+groupbox:8.000000,120.000000,336.000000,164.000000,Generic,$anon,0;
+checkbox:20.000000,140.000000,84.000000,156.000000,Cameras,$anon,0;
+checkbox:92.000000,140.000000,156.000000,156.000000,System,$anon,0;
+checkbox:160.000000,140.000000,272.000000,156.000000,Unlabelled Markers,$anon,0;
+groupbox:8.000000,168.000000,336.000000,208.000000,Labelling,$anon,0;
+checkbox:20.000000,184.000000,84.000000,200.000000,Bones,$anon,0;
+checkbox:92.000000,184.000000,156.000000,200.000000,Setup,$anon,0;
+checkbox:160.000000,184.000000,236.000000,200.000000,Constraints,$anon,0;
+groupbox:8.000000,212.000000,336.000000,252.000000,Solving,$anon,0;
+checkbox:20.000000,228.000000,84.000000,244.000000,Bones,$anon,0;
+checkbox:92.000000,228.000000,156.000000,244.000000,Setup,$anon,0;
+checkbox:160.000000,228.000000,236.000000,244.000000,Constraints,$anon,0;
+checkbox:244.000000,228.000000,304.000000,244.000000,Markers,$anon,0;
+button:208.000000,8.000000,336.000000,28.000000,Clean,$anon,0;
