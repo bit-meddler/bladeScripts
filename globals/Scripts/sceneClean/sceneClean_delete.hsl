@@ -1,0 +1,30 @@
+select ; // clear selection
+
+// do Unlabeled_Markers?
+selectByType Marker -childOf Unlabeled_Markers -a ;
+// do system ?
+selectByType OpticalCamera -a ;
+
+// do clips?
+select -a "System" ;
+
+string $char ;
+// get list of chars
+// for char in list
+$char = "" ;
+selectByType LabelingSetup -childOf $char -a ;
+
+selectByType LabelingBone -childOf $char -a ;
+
+selectByType LabelingConstraint -childOf $char -a ;
+
+selectByType Marker -childOf $char -a ;
+
+selectByType Solver -childOf $char -a ;
+
+selectByType SolvingConstraint -childOf $char -a ;
+
+select -a "$char/Solving" ;
+
+// Good bye
+delete ;
