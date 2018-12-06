@@ -2,3 +2,42 @@
  *      UI to select Subjects to clean, and level of deleting to do.
  *
  */
+// inputs
+string	$mode ;
+input		$mode "ALL" -discrete "ONE" "ALL" ;
+
+int $subListID , $delListID ;
+
+if( `getGlobalVarExists "__LB_SUBS__"` ) {
+	$subListID = `getGlobalIntVar "__LB_SUBS__"` ;
+}
+
+if( `getGlobalVarExists "__LB_CLEAN__"` ) {
+	$delListID = `getGlobalIntVar "__LB_CLEAN__"` ;
+}
+int $sels[] ;
+string $sub ;
+int $i, $num ;
+
+if( $mode == "ONE" ) {
+	// add selected Subject(s)
+	int $sels[] = `getListBoxSelItems  $subListID` ;
+} else if( $mode == "ALL" ) {
+	// Add all subjects
+	$num = `getNumListBoxItems $subListID` ;
+	int $tmp[ $num ] ;
+	for( $i=0; $i < $num; $i += 1 ) {
+		$tmp[ $i ] = 0 ; // first item will allways be 0!
+	}
+	$sels = $tmp ;
+}
+
+// do selected items
+$num = `getCount $sels` ;
+for( $i=0; $i < $num; $i += 1 ) {
+	$sub = `getListBoxItem  $subListID $sels[$i]` ;
+	// add to del list
+	addListBoxItem $delListID $sub ;
+	// remove from sub list
+	deleteListBoxItem $subListID $sub ;
+}

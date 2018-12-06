@@ -2,3 +2,30 @@
  *      UI to select Subjects to clean, and level of deleting to do.
  *
  */
+int $subListID , $delListID ;
+
+if( `getGlobalVarExists "__LB_SUBS__"` ) {
+	$subListID = `getGlobalIntVar "__LB_SUBS__"` ;
+}
+
+if( `getGlobalVarExists "__LB_CLEAN__"` ) {
+	$delListID = `getGlobalIntVar "__LB_CLEAN__"` ;
+}
+
+string $ca[] = `getModules -type "Character"` ;
+int $num = `getCount $ca` ;
+if( $num < 1 ) {
+	// Error
+	print -warning "No Characters in Scene" ;
+	return ;
+}
+
+// clear droplists
+deleteAllListBoxItems $subListID ;
+deleteAllListBoxItems $delListID ;
+
+// populate with char array
+int $i ;
+for( $i = 0; $i<$num; $i+=1 ){
+	addListBoxItem $subListID $ca[ $i ] ;
+}

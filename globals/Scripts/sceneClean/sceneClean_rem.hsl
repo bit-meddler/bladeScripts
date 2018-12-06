@@ -1,4 +1,31 @@
-/* sceneClean.hsl
- *      UI to select Subjects to clean, and level of deleting to do.
+/* sceneCleanrem.hsl
+ *      remnove an item from the clean list.
  *
  */
+
+int $subListID , $delListID ;
+
+if( `getGlobalVarExists "__LB_SUBS__"` ) {
+	$subListID = `getGlobalIntVar "__LB_SUBS__"` ;
+}
+
+if( `getGlobalVarExists "__LB_CLEAN__"` ) {
+	$delListID = `getGlobalIntVar "__LB_CLEAN__"` ;
+}
+
+int $sels[] ;
+string $sub ;
+int $i, $num ;
+
+// get selected Subject(s)
+$sels = `getListBoxSelItems  $subListID` ;
+
+// move selected items
+$num = `getCount $sels` ;
+for( $i=0; $i < $num; $i += 1 ) {
+	$sub = `getListBoxItem  $delListID $sels[ $i ]` ;
+	// add to del list
+	addListBoxItem $subListID $sub ;
+	// remove from sub list
+	deleteListBoxItem $delListID $sub ;
+}
