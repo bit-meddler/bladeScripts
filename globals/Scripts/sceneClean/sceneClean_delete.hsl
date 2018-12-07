@@ -4,7 +4,7 @@
  * 181206 RichH - STarted
  */
 
-string $sels[] ;
+int $sels[] ;
 string $char ;
 int $i, $num, $delListID, $cbID, $check ;
 
@@ -27,7 +27,9 @@ if( `getGlobalVarExists "__CB_G_SYS__"` ) {
 }
 $check = `getCheckBoxCheck $cbID` ;
 if( $check == 1 ) {
-	select -a "System" ;
+	if( exists( "System" ) ){
+		select -a "System" ;
+	}
 }
 // Cameras ?
 if( `getGlobalVarExists "__CB_G_CAMS__"` ) {
@@ -44,12 +46,26 @@ if( `getGlobalVarExists "__LB_CLEAN__"` ) {
 }
 
 // get selected Subject(s)
-$sels = `getListBoxSelItems  $delListID` ;
-$num = `getCount $sels` ;
+$num = `getNumListBoxItems $delListID` ;
 for( $i=0; $i < $num; $i += 1 ) {
-	$char = `getListBoxItem  $delListID $sels[ $i ]` ;
+	$char = `getListBoxItem $delListID $i` ;
+	print $char ;
 
 	// Labeling ///////////////////////////////////////////////////////
+	if( `getGlobalVarExists "__CB_L_BONES__"` ) {
+		$cbID = `getGlobalIntVar "__CB_L_BONES__"` ;
+	}
+	$check = `getCheckBoxCheck $cbID` ;
+	if( $check == 1 ) {
+		selectByType LabelingBone -childOf $char -a ;
+	}
+	if( `getGlobalVarExists "__CB_L_CONS__"` ) {
+		$cbID = `getGlobalIntVar "__CB_L_CONS__"` ;
+	}
+	$check = `getCheckBoxCheck $cbID` ;
+	if( $check == 1 ) {
+		selectByType LabelingConstraint -childOf $char -a ;
+	}
 	if( `getGlobalVarExists "__CB_L_SETUP__"` ) {
 		$cbID = `getGlobalIntVar "__CB_L_SETUP__"` ;
 	}
@@ -57,18 +73,44 @@ for( $i=0; $i < $num; $i += 1 ) {
 	if( $check == 1 ) {
 		selectByType LabelingSetup -childOf $char -a ;
 	}
-
-selectByType LabelingBone -childOf $char -a ;
-
-selectByType LabelingConstraint -childOf $char -a ;
-
-selectByType Marker -childOf $char -a ;
-
-selectByType Solver -childOf $char -a ;
-
-selectByType SolvingConstraint -childOf $char -a ;
-
-select -a "$char/Solving" ;
+	// Solving ///////////////////////////////////////////////////////
+	if( `getGlobalVarExists "__CB_S_BONES__"` ) {
+		$cbID = `getGlobalIntVar "__CB_S_BONES__"` ;
+	}
+	$check = `getCheckBoxCheck $cbID` ;
+	if( $check == 1 ) {
+		selectByType SolvingBone -childOf $char -a ;
+	}
+	if( `getGlobalVarExists "__CB_S_CONS__"` ) {
+		$cbID = `getGlobalIntVar "__CB_S_CONS__"` ;
+	}
+	$check = `getCheckBoxCheck $cbID` ;
+	if( $check == 1 ) {
+		selectByType SolvingConstraint -childOf $char -a ;
+	}
+	if( `getGlobalVarExists "__CB_S_MARKERS__"` ) {
+		$cbID = `getGlobalIntVar "__CB_S_MARKERS__"` ;
+	}
+	$check = `getCheckBoxCheck $cbID` ;
+	if( $check == 1 ) {
+		selectByType Marker -childOf $char -a ;
+	}
+	if( `getGlobalVarExists "__CB_S_SETUP__"` ) {
+		$cbID = `getGlobalIntVar "__CB_S_SETUP__"` ;
+	}
+	$check = `getCheckBoxCheck $cbID` ;
+	if( $check == 1 ) {
+		selectByType Solver -childOf $char -a ;
+		string $sPath = $char + "/Solving" ;
+		if( exists( $sPath ) ){
+			select -a $sPath ;
+		} else { // Is Priority Node
+			if( exists( "Solving" ) ){
+				select -a "Solving" ;
+			}
+		}
+	}
+} // for each sub...
 
 // Good bye
 delete ;

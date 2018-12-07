@@ -5,7 +5,7 @@
 
 // UI
 
-string 	$kAppName 	= "sceneClean v0.0.1" ;
+string 	$kAppName 	= "sceneClean v0.1.1" ;
 
 if ( `windowExists $kAppName` == true ) {
 	destroyWindow $kAppName ;
@@ -24,14 +24,14 @@ $rect[1] = 32;
 $rect[2] = 136;
 $rect[3] = 112;
 $anon = `createListBox $dlg -form $parentForm -pos $rect` ;
-setGlobalVar "__LB_SUBS__"  $anon ;
+setGlobalVar "__LB_SUBS__" $anon ;
 
 $rect[0] = 208 ;
 $rect[1] = 32 ;
 $rect[2] = 336 ;
 $rect[3] = 112 ;
 $anon = `createListBox $dlg -form $parentForm -pos $rect` ;
-setGlobalVar "__LB_CLEAN__"  $anon ;
+setGlobalVar "__LB_CLEAN__" $anon ;
 
 
 // ######################## Generic Items #################################
@@ -45,22 +45,22 @@ $rect[0] = 20;
 $rect[1] = 140;
 $rect[2] = 84;
 $rect[3] = 156;
-$anon = `createCheckBox $dlg -text "Cameras" -form $parentForm -pos $rect`;
-setGlobalVar "__CB_G_CAMS__"  $anon ;
+$anon = `createCheckBox $dlg -text "Cameras" -form $parentForm -pos $rect -check`;
+setGlobalVar "__CB_G_CAMS__" $anon ;
 
 $rect[0] = 92;
 $rect[1] = 140;
 $rect[2] = 156;
 $rect[3] = 156;
-$anon = `createCheckBox $dlg -text "System" -form $parentForm -pos $rect`;
-setGlobalVar "__CB_G_SYS__"  $anon ;
+$anon = `createCheckBox $dlg -text "System" -form $parentForm -pos $rect -check`;
+setGlobalVar "__CB_G_SYS__" $anon ;
 
-$rect[0] = 160;
+$rect[0] = 176;
 $rect[1] = 140;
-$rect[2] = 272;
+$rect[2] = 288;
 $rect[3] = 156;
-$anon = `createCheckBox $dlg -text "Unlabelled Markers" -form $parentForm -pos $rect`;
-setGlobalVar "__CB_G_UN__"  $anon ;
+$anon = `createCheckBox $dlg -text "Unlabelled Markers" -form $parentForm -pos $rect -check`;
+setGlobalVar "__CB_G_UN__" $anon ;
 
 
 // ######################## Labelling Elements ###########################
@@ -74,22 +74,22 @@ $rect[0] = 20;
 $rect[1] = 184;
 $rect[2] = 84;
 $rect[3] = 200;
-$anon = `createCheckBox $dlg -text "Bones" -form $parentForm -pos $rect`;
-setGlobalVar "__CB_L_BONES__"  $anon ;
+$anon = `createCheckBox $dlg -text "Bones" -form $parentForm -pos $rect -check`;
+setGlobalVar "__CB_L_BONES__" $anon ;
 
 $rect[0] = 92;
 $rect[1] = 184;
-$rect[2] = 156;
+$rect[2] = 166;
 $rect[3] = 200;
-$anon = `createCheckBox $dlg -text "Setup" -form $parentForm -pos $rect`;
-setGlobalVar "__CB_L_SETUP__"  $anon ;
+$anon = `createCheckBox $dlg -text "Constraints" -form $parentForm -pos $rect -check`;
+setGlobalVar "__CB_L_CONS__" $anon ;
 
-$rect[0] = 160;
+$rect[0] = 176;
 $rect[1] = 184;
-$rect[2] = 236;
+$rect[2] = 252;
 $rect[3] = 200;
-$anon = `createCheckBox $dlg -text "Constraints" -form $parentForm -pos $rect`;
-setGlobalVar "__CB_L_CONS__"  $anon ;
+$anon = `createCheckBox $dlg -text "Setup" -form $parentForm -pos $rect -check`;
+setGlobalVar "__CB_L_SETUP__" $anon ;
 
 
 // ######################## Solving Elements #################################
@@ -104,28 +104,28 @@ $rect[1] = 228;
 $rect[2] = 84;
 $rect[3] = 244;
 $anon = `createCheckBox $dlg -text "Bones" -form $parentForm -pos $rect`;
-setGlobalVar "__CB_S_BONES__"  $anon ;
+setGlobalVar "__CB_S_BONES__" $anon ;
 
 $rect[0] = 92;
 $rect[1] = 228;
-$rect[2] = 156;
+$rect[2] = 166;
 $rect[3] = 244;
-$anon = `createCheckBox $dlg -text "Setup" -form $parentForm -pos $rect`;
-setGlobalVar "__CB_S_SETUP__"  $anon ;
+$anon = `createCheckBox $dlg -text "Constraints" -form $parentForm -pos $rect -check`;
+setGlobalVar "__CB_S_CONS__" $anon ;
 
-$rect[0] = 160;
+$rect[0] = 176;
 $rect[1] = 228;
-$rect[2] = 236;
+$rect[2] = 252;
 $rect[3] = 244;
-$anon = `createCheckBox $dlg -text "Constraints" -form $parentForm -pos $rect`;
-setGlobalVar "__CB_S_CONS__"  $anon ;
+$anon = `createCheckBox $dlg -text "Markers" -form $parentForm -pos $rect -check`;
+setGlobalVar "__CB_S_MARKERS__" $anon ;
 
-$rect[0] = 244;
+$rect[0] = 260;
 $rect[1] = 228;
-$rect[2] = 304;
+$rect[2] = 320;
 $rect[3] = 244;
-$anon = `createCheckBox $dlg -text "Markers" -form $parentForm -pos $rect`;
-setGlobalVar "__CB_S_MARKERS__"  $anon ;
+$anon = `createCheckBox $dlg -text "Setup" -form $parentForm -pos $rect -check`;
+setGlobalVar "__CB_S_SETUP__" $anon ;
 
 
 // ######################## Buttons #########################################
