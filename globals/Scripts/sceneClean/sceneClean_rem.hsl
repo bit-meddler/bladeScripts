@@ -18,7 +18,7 @@ string $sub ;
 int $i, $num ;
 
 // get selected Subject(s)
-$sels = `getListBoxSelItems  $subListID` ;
+$sels = `getListBoxSelItems  $delListID` ;
 
 // move selected items
 $num = `getCount $sels` ;

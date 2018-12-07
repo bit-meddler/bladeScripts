@@ -4,7 +4,7 @@
  */
 // inputs
 string	$mode ;
-input		$mode "ALL" -discrete "ONE" "ALL" ;
+input		$mode "ONE" -discrete "ONE" "ALL" ;
 
 int $subListID , $delListID ;
 
@@ -21,7 +21,7 @@ int $i, $num ;
 
 if( $mode == "ONE" ) {
 	// add selected Subject(s)
-	int $sels[] = `getListBoxSelItems  $subListID` ;
+	$sels = `getListBoxSelItems  $subListID` ;
 } else if( $mode == "ALL" ) {
 	// Add all subjects
 	$num = `getNumListBoxItems $subListID` ;

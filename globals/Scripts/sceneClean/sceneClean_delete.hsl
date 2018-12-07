@@ -1,18 +1,62 @@
-select ; // clear selection
+/* sceneClean_delete.hsl
+ *		Delete selected components from selected scene members
+ *
+ * 181206 RichH - STarted
+ */
+
+string $sels[] ;
+string $char ;
+int $i, $num, $delListID, $cbID, $check ;
+
+// clear selection...
+select ; 
 
 // do Unlabeled_Markers?
-selectByType Marker -childOf Unlabeled_Markers -a ;
+if( `getGlobalVarExists "__CB_G_UN__"` ) {
+	$cbID = `getGlobalIntVar "__CB_G_UN__"` ;
+}
+$check = `getCheckBoxCheck $cbID` ;
+if( $check == 1 ) {
+	// add to delete queue
+	selectByType Marker -childOf Unlabeled_Markers -a ;
+}
+
 // do system ?
-selectByType OpticalCamera -a ;
+if( `getGlobalVarExists "__CB_G_SYS__"` ) {
+	$cbID = `getGlobalIntVar "__CB_G_SYS__"` ;
+}
+$check = `getCheckBoxCheck $cbID` ;
+if( $check == 1 ) {
+	select -a "System" ;
+}
+// Cameras ?
+if( `getGlobalVarExists "__CB_G_CAMS__"` ) {
+	$cbID = `getGlobalIntVar "__CB_G_CAMS__"` ;
+}
+$check = `getCheckBoxCheck $cbID` ;
+if( $check == 1 ) {
+	selectByType OpticalCamera -a ;
+}
 
-// do clips?
-select -a "System" ;
+// get list of chars to clean /////////////////////////////////////////
+if( `getGlobalVarExists "__LB_CLEAN__"` ) {
+	$delListID = `getGlobalIntVar "__LB_CLEAN__"` ;
+}
 
-string $char ;
-// get list of chars
-// for char in list
-$char = "" ;
-selectByType LabelingSetup -childOf $char -a ;
+// get selected Subject(s)
+$sels = `getListBoxSelItems  $delListID` ;
+$num = `getCount $sels` ;
+for( $i=0; $i < $num; $i += 1 ) {
+	$char = `getListBoxItem  $delListID $sels[ $i ]` ;
+
+	// Labeling ///////////////////////////////////////////////////////
+	if( `getGlobalVarExists "__CB_L_SETUP__"` ) {
+		$cbID = `getGlobalIntVar "__CB_L_SETUP__"` ;
+	}
+	$check = `getCheckBoxCheck $cbID` ;
+	if( $check == 1 ) {
+		selectByType LabelingSetup -childOf $char -a ;
+	}
 
 selectByType LabelingBone -childOf $char -a ;
 
