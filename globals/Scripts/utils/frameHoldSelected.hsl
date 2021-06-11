@@ -10,6 +10,7 @@ int $numMarkers = `getCount $markers` ;
 // marker positions to propogate
 vector $sourcePos[ $numMarkers ] ;
 
+int $i, $j, $k ;
 // Collect Data from this Frame
 for( $j=0; $j<$numMarkers; $j+=1 ){
 	// backup
@@ -21,7 +22,7 @@ int $ranges[] = `getSelectedTimeRanges` ;
 int $numRanges = `getCount $ranges` ;
 
 // work through the ranges
-int $i, $j, $k, $startF, $endF ;
+int $startF, $endF ;
 for( $i=0; $i<$numRanges; $i+=2 ){
 	// get start & end of this range
 	$startF = $ranges[$i  ] ;
