@@ -1,0 +1,9 @@
+/* swapForward.hsl
+ *    Swap a pair of markers from the current frame to the end of the timeline.
+ */
+int $now, $end ;
+$end = `getAnimEnd` ;
+$now = `getTime` ;
+selectRange $now $end ;
+swap -ranges ;
+selectRange ;
