@@ -1,0 +1,112 @@
+/* smartLabel.hsl
+ *		an HSL script that's better at labelling than Vicon's "Genius" Axiom labeller
+ *    Just select a missing marker and the unlabelled marker that it should eb assigned to
+ *    Unlike the Vicon labeller, it won't assign to something 6m across the room.
+ */
+float	$distanceMax ;
+input $distanceMax 65.4 ; // 50mm is good for general body, 38mm better for fingers
+// debug
+float $t, $lt ;
+string $mods[], $unLabs[], $gaps[], $temp[];
+int $i, $count, $idx ;
+string $mod, $curChar, $unTmp, $gapTmp ;
+boolean $hasData ;
+
+$lt = `getSystemTime` ;
+
+$mods = `getModules -selected -type Marker -fullPath` ;
+$count = getCount( $mods ) ;
+$curChar = `getCurrentChar` ;
+
+for( $i = 0; $i < $count; $i += 1 ){
+	$mod = $mods[ $i ] ;
+	
+	$idx = `strFind $mod "Unlabeled_Markers" 0` ;
+	if( $idx == -1 ) {
+		// not an unlab
+		$idx = `strFind $mod $curChar 0` ;
+		if( $idx == -1 ) {
+			select -r $mod ;
+		} else {
+			$hasData = `hasKey $mod "Translation" -any` ;
+			if( $hasData ) {
+				select -r $mod ;
+			} else {
+				$gapTmp += $mod + " " ;
+			}
+		}
+	} else {
+		$unTmp += $mod + " " ;
+	}
+}
+
+$t = `getSystemTime` ;
+print string( $t - $lt ) ;
+$lt = $t ;
+
+// now I have a selection of unlabelled markers and 'gappy' character markers.
+$unLabs = `strTokArray $unTmp -delims " "` ;
+$gaps = `strTokArray $gapTmp -delims " "` ;
+string $winner, $test ;
+string $UNDEFINED = "__UNDEFINED__" ;
+float $winningDist = 0 ;
+float $dist ;
+int $j, $mkrCount, $start, $end, $now ;
+string $constraints[] ;
+vector $gapPos, $mkrPos ;
+boolean $stats = false ;
+
+$count = getCount( $gaps ) ;
+$mkrCount = getCount( $unLabs ) ;
+
+print( "Attempting to label " + string( $count ) + " gaps." ) ;
+print $gaps;
+
+for( $i = 0; $i < $count; $i +=1 ) {
+	// find closest marker to this gap
+	$mod = $gaps[ $i ] ;
+	// need to get the end effector of a constraint influenced by this marker
+	$constraints = `getConstraintsThisIsSource $mod -labelingOnly`;
+	$gapPos = `getConstraintPos $constraints[ 0 ]` ;
+	$winner = $UNDEFINED ;
+	$winningDist = 1000.0 ; 
+	for( $j = 0; $j < $mkrCount; $j += 1 ) {
+		$test = $unLabs[ $j ] ;
+		if( exists( $test ) ) {
+			$mkrPos = `getPosition $test` ;
+			$dist = getLength( $gapPos - $mkrPos ) ;
+			// print( $test + " to " + $mod + " -> " + string( $dist ) ) ;
+			if( $dist < $winningDist ) {
+				$winner = $test ;
+				$winningDist = $dist ;
+			}
+		}
+	}
+	if( $winningDist < $distanceMax ) {
+		// label
+		if( $stats ) {
+			print( "Labelling " + $winner + " as " + $mod + " at " + string( $winningDist ) + "mm." ) ;
+		}
+
+		select $mod ;
+
+		$now = `getTime` ;
+		stepKey ;
+		$end = `getTime` ;
+		stepKey -b ;
+		$start = `getTime` ;
+		setTime $now ;
+		//print( string( $start ) + " - " + string( $end ) ) ;
+
+		$temp = `getModules -selected -nameOnly` ;
+		selectRange $start $end ;
+		//labelOptions -direction "both" ;
+		//labelOptions -type "ranges" ;
+		labelOptions -curLabel $temp[0] ;
+		select $winner ;
+		label ;
+	}
+}
+$t = `getSystemTime` ;
+print string( $t - $lt ) ;
+$lt = $t ;
